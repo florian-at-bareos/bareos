@@ -26,6 +26,7 @@
  * the main program
  */
 
+#include "lib/scoped_logger.h"
 #include "include/bareos.h"
 #include "include/exit_codes.h"
 #include "cats/sql.h"
@@ -135,6 +136,25 @@ static bool DirDbLogInsert(JobControlRecord* jcr,
 
 int main(int argc, char* argv[])
 {
+  /* ----------------------- spdlog usage ----------------------- */
+  static ScopedLogger logger;
+  // set logging level in all files to "debug"
+  logger.SetLevel(spdlog::level::debug);
+  logger.here().debug("this is logged");
+
+  // set logging level in dird/ directory to "debug"
+  logger.SetLevel("dird", spdlog::level::debug);
+  logger.here().debug("this is logged");
+
+  // set logging level in dird/dird source files to "warn"
+  logger.SetLevel("dird", spdlog::level::warn); 
+  logger.here().debug("this is not logged");
+  
+  // set loggerlogging level in dird/dird source files to "debug"
+  logger.SetLevel("dird/dird.cc", spdlog::level::debug);
+  logger.here().debug("this is logged");
+  /* ------------------------------------------------------------ */
+
   setlocale(LC_ALL, "");
   tzset();
   bindtextdomain("bareos", LOCALEDIR);
