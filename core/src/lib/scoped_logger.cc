@@ -4,20 +4,25 @@
 
 // logger
 spdlog::logger& ScopedLogger::here(libbareos::source_location location) {
+  std::shared_lock read_lock(loggers_mutex_);
   auto name = LoggerName(location.file_name());
   auto it = loggers_.find(name);
   if (it == loggers_.end()) {
-    auto& logger = *loggers_.emplace(name, spdlog::stdout_color_mt(name)).first->second;
+    read_lock.unlock();
+    std::unique_lock write_lock(loggers_mutex_);
+    auto sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+    auto& logger = loggers_.emplace(name, spdlog::logger(name, sink)).first->second;
     logger.set_level(GetLevel(logger.name()));
     return logger;
   }
   else {
-    return *it->second;
+    return it->second;
   }
 }
 
 // level
 spdlog::level::level_enum ScopedLogger::GetLevel(const std::string& filepath) {
+  std::shared_lock read_lock(levels_mutex_);
   auto it = levels_.upper_bound(filepath);
   if (it != levels_.begin()) {
     it = std::prev(it);
@@ -28,19 +33,25 @@ spdlog::level::level_enum ScopedLogger::GetLevel(const std::string& filepath) {
   return spdlog::level::info;
 }
 void ScopedLogger::SetLevel(const std::string& prefix, spdlog::level::level_enum level) {
-  // override subgroups
-  for (auto it = levels_.lower_bound(prefix); it != levels_.end(); it = levels_.erase(it)) {
-    if (it->first.compare(0, prefix.size(), prefix) != 0) {
-        break;
+  {
+    // override subgroups
+    std::unique_lock write_lock(levels_mutex_);
+    for (auto it = levels_.lower_bound(prefix); it != levels_.end(); it = levels_.erase(it)) {
+      if (it->first.compare(0, prefix.size(), prefix) != 0) {
+          break;
+      }
     }
+    levels_[prefix] = level;
   }
-  levels_[prefix] = level;
-  // set logger
-  for (auto it = loggers_.lower_bound(prefix); it != loggers_.end(); ++it) {
-    if (it->first.compare(0, prefix.size(), prefix) != 0) {
+  {
+    // set logger
+    std::shared_lock read_lock(loggers_mutex_);
+    for (auto it = loggers_.lower_bound(prefix); it != loggers_.end(); ++it) {
+      if (it->first.compare(0, prefix.size(), prefix) != 0) {
         return;
+      }
+      it->second.set_level(level);
     }
-    it->second->set_level(level);
   }
 }
 void ScopedLogger::SetLevel(spdlog::level::level_enum level) {
