@@ -27,11 +27,12 @@
 // #define SPDLOG_COMPILED_LIB
 #include <spdlog/spdlog.h>
 #include <string>
+#include <shared_mutex>
 #include <map>
 
 class ScopedLogger {
 public:
-  // logger 
+  // here
   spdlog::logger& here(libbareos::source_location location = libbareos::source_location::current());
   
   // level
@@ -41,8 +42,10 @@ public:
 private:
   static std::string LoggerName(std::string_view filename);
 
-  std::map<std::string, std::shared_ptr<spdlog::logger>> loggers_;
+  std::map<std::string, spdlog::logger> loggers_;
+  std::shared_mutex loggers_mutex_; /* mutex for loggers_ member */
   std::map<std::string, spdlog::level::level_enum> levels_;
+  std::shared_mutex levels_mutex_; /* mutex for levels_ member */
 };
 
 #endif  // BAREOS_LIB_LOGGER_H_
