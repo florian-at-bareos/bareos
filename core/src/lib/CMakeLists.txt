@@ -68,6 +68,7 @@ set(BAREOS_SRCS
     lockmgr.cc
     mem_pool.cc
     message.cc
+    scoped_logger.cc
     messages_resource.cc
     mntent_cache.cc
     monotonic_buffer.cc
@@ -186,6 +187,8 @@ endif()
 if(TARGET Jansson::Jansson)
   target_link_libraries(bareos PUBLIC Jansson::Jansson)
 endif()
+
+target_link_libraries(bareos PUBLIC fmt::fmt)
 
 install(TARGETS bareos DESTINATION ${libdir})
 
