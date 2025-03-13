@@ -32,6 +32,7 @@
 #define BAREOS_INCLUDE_BACONFIG_H_
 
 #include "lib/message.h"
+#include "fmt/format.h"
 
 /* Bareos common configuration defines */
 
@@ -291,35 +292,64 @@ inline bool IsSlotNumberValid(slot_number_t slot)
  * We keep the kludgy versions for backwards compatability for now
  * but they're going to go away soon.
  */
+
+template<class T>
+const auto* FixFormatArg(const T* arg) {
+  if constexpr(std::is_same_v<const T*, const char*>) {
+    return arg;
+  }
+  else {
+    return static_cast<const void*>(arg);
+  }
+}
+template<class T, typename = std::enable_if_t<std::is_function_v<std::remove_pointer_t<T>>>>
+const void* FixFormatArg(const T& arg) {
+  return (const void*)(arg);
+}
+
+template<class T, typename = std::enable_if_t<std::is_enum_v<T>>>
+auto FixFormatArg(T arg) {
+  return static_cast<std::underlying_type_t<T>>(arg);
+}
+template<class T, typename = std::enable_if_t<!std::is_enum_v<T> && !std::is_pointer_v<T> && !std::is_function_v<T>>>
+const auto& FixFormatArg(const T& arg) {
+  return arg;
+}
+
+template<class String, class... Args>
+std::string WrappedFormat(String&& str, const Args&... args) {
+  return fmt::format(fmt::runtime(str), FixFormatArg(args)...);
+}
+
 /** Debug Messages that are printed */
 #define Dmsg0(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, WrappedFormat(__VA_ARGS__).c_str())
 #define Dmsg1(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, WrappedFormat(__VA_ARGS__).c_str())
 #define Dmsg2(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, WrappedFormat(__VA_ARGS__).c_str())
 #define Dmsg3(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, WrappedFormat(__VA_ARGS__).c_str())
 #define Dmsg4(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, WrappedFormat(__VA_ARGS__).c_str())
 #define Dmsg5(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, WrappedFormat(__VA_ARGS__).c_str())
 #define Dmsg6(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, WrappedFormat(__VA_ARGS__).c_str())
 #define Dmsg7(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, WrappedFormat(__VA_ARGS__).c_str())
 #define Dmsg8(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, WrappedFormat(__VA_ARGS__).c_str())
 #define Dmsg9(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, WrappedFormat(__VA_ARGS__).c_str())
 #define Dmsg10(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, WrappedFormat(__VA_ARGS__).c_str())
 #define Dmsg11(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, WrappedFormat(__VA_ARGS__).c_str())
 #define Dmsg12(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, WrappedFormat(__VA_ARGS__).c_str())
 #define Dmsg13(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, WrappedFormat(__VA_ARGS__).c_str())
 
 /** Messages that are printed (uses p_msg) */
 #define Pmsg0(lvl, ...) p_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)

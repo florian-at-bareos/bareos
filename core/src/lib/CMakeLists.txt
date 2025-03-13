@@ -186,6 +186,7 @@ endif()
 if(TARGET Jansson::Jansson)
   target_link_libraries(bareos PUBLIC Jansson::Jansson)
 endif()
+target_link_libraries(bareos PUBLIC fmt::fmt)
 
 install(TARGETS bareos DESTINATION ${libdir})
 
