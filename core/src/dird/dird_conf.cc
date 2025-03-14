@@ -918,7 +918,7 @@ std::shared_ptr<T> GetRuntimeStatus(const std::string& name)
     sptr = std::make_shared<T>();
     map[name] = sptr;
   }
-  Dmsg0(50, "Returning RuntimeStatus with use_count=%ld\n", sptr.use_count());
+  Dmsg0(50, "Returning RuntimeStatus with use_count={}\n", sptr.use_count());
   return sptr;
 }
 }  // namespace
@@ -1176,7 +1176,7 @@ static void PropagateResource(ResourceItem* items,
         }
         default:
           Dmsg2(200,
-                "Don't know how to propagate resource %s of configtype %d\n",
+                "Don't know how to propagate resource {} of configtype {}\n",
                 items[i].name, items[i].type);
           break;
       }
@@ -1559,7 +1559,7 @@ static std::string PrintConfigRun(RunResource* run)
         if (interval_start
             == -1) {          /* bit is set and we are not in an interval */
           interval_start = i; /* start an interval */
-          Dmsg1(200, "starting interval at %d\n", i + 1);
+          Dmsg1(200, "starting interval at {}\n", i + 1);
           Mmsg(interval, ",%d", i + 1);
           PmStrcat(temp, interval.c_str());
         }
@@ -1568,7 +1568,7 @@ static std::string PrintConfigRun(RunResource* run)
       if (!BitIsSet(i, run->date_time_mask.mday)) {
         if (interval_start != -1) { /* bit is unset and we are in an interval */
           if ((i - interval_start) > 1) {
-            Dmsg2(200, "found end of interval from %d to %d\n",
+            Dmsg2(200, "found end of interval from {} to {}\n",
                   interval_start + 1, i);
             Mmsg(interval, "-%d", i);
             PmStrcat(temp, interval.c_str());
@@ -1583,7 +1583,7 @@ static std::string PrintConfigRun(RunResource* run)
     i = nr_items - 1;
     if (interval_start != -1 && BitIsSet(i, run->date_time_mask.mday)) {
       if ((i - interval_start) > 1) {
-        Dmsg2(200, "found end of interval from %d to %d\n", interval_start + 1,
+        Dmsg2(200, "found end of interval from {} to {}\n", interval_start + 1,
               i + 1);
         Mmsg(interval, "-%d", i + 1);
         PmStrcat(temp, interval.c_str());
@@ -1612,7 +1612,7 @@ static std::string PrintConfigRun(RunResource* run)
         if (interval_start
             == -1) {          /* bit is set and we are not in an interval */
           interval_start = i; /* start an interval */
-          Dmsg1(200, "starting interval at %s\n", ordinals[i]);
+          Dmsg1(200, "starting interval at {}\n", ordinals[i]);
           Mmsg(interval, ",%s", ordinals[i]);
           PmStrcat(temp, interval.c_str());
         }
@@ -1621,7 +1621,7 @@ static std::string PrintConfigRun(RunResource* run)
       if (!BitIsSet(i, run->date_time_mask.wom)) {
         if (interval_start != -1) { /* bit is unset and we are in an interval */
           if ((i - interval_start) > 1) {
-            Dmsg2(200, "found end of interval from %s to %s\n",
+            Dmsg2(200, "found end of interval from {} to {}\n",
                   ordinals[interval_start], ordinals[i - 1]);
             Mmsg(interval, "-%s", ordinals[i - 1]);
             PmStrcat(temp, interval.c_str());
@@ -1636,7 +1636,7 @@ static std::string PrintConfigRun(RunResource* run)
     i = nr_items - 1;
     if (interval_start != -1 && BitIsSet(i, run->date_time_mask.wom)) {
       if ((i - interval_start) > 1) {
-        Dmsg2(200, "found end of interval from %s to %s\n",
+        Dmsg2(200, "found end of interval from {} to {}\n",
               ordinals[interval_start], ordinals[i]);
         Mmsg(interval, "-%s", ordinals[i]);
         PmStrcat(temp, interval.c_str());
@@ -1667,7 +1667,7 @@ static std::string PrintConfigRun(RunResource* run)
         if (interval_start
             == -1) {          /* bit is set and we are not in an interval */
           interval_start = i; /* start an interval */
-          Dmsg1(200, "starting interval at %s\n", weekdays[i]);
+          Dmsg1(200, "starting interval at {}\n", weekdays[i]);
           Mmsg(interval, ",%s", weekdays[i]);
           PmStrcat(temp, interval.c_str());
         }
@@ -1676,7 +1676,7 @@ static std::string PrintConfigRun(RunResource* run)
       if (!BitIsSet(i, run->date_time_mask.wday)) {
         if (interval_start != -1) { /* bit is unset and we are in an interval */
           if ((i - interval_start) > 1) {
-            Dmsg2(200, "found end of interval from %s to %s\n",
+            Dmsg2(200, "found end of interval from {} to {}\n",
                   weekdays[interval_start], weekdays[i - 1]);
             Mmsg(interval, "-%s", weekdays[i - 1]);
             PmStrcat(temp, interval.c_str());
@@ -1691,7 +1691,7 @@ static std::string PrintConfigRun(RunResource* run)
     i = nr_items - 1;
     if (interval_start != -1 && BitIsSet(i, run->date_time_mask.wday)) {
       if ((i - interval_start) > 1) {
-        Dmsg2(200, "found end of interval from %s to %s\n",
+        Dmsg2(200, "found end of interval from {} to {}\n",
               weekdays[interval_start], weekdays[i]);
         Mmsg(interval, "-%s", weekdays[i]);
         PmStrcat(temp, interval.c_str());
@@ -1718,7 +1718,7 @@ static std::string PrintConfigRun(RunResource* run)
         if (interval_start
             == -1) {          /* bit is set and we are not in an interval */
           interval_start = i; /* start an interval */
-          Dmsg1(200, "starting interval at %s\n", months[i]);
+          Dmsg1(200, "starting interval at {}\n", months[i]);
           Mmsg(interval, ",%s", months[i]);
           PmStrcat(temp, interval.c_str());
         }
@@ -1727,7 +1727,7 @@ static std::string PrintConfigRun(RunResource* run)
       if (!BitIsSet(i, run->date_time_mask.month)) {
         if (interval_start != -1) { /* bit is unset and we are in an interval */
           if ((i - interval_start) > 1) {
-            Dmsg2(200, "found end of interval from %s to %s\n",
+            Dmsg2(200, "found end of interval from {} to {}\n",
                   months[interval_start], months[i - 1]);
             Mmsg(interval, "-%s", months[i - 1]);
             PmStrcat(temp, interval.c_str());
@@ -1742,7 +1742,7 @@ static std::string PrintConfigRun(RunResource* run)
     i = nr_items - 1;
     if (interval_start != -1 && BitIsSet(i, run->date_time_mask.month)) {
       if ((i - interval_start) > 1) {
-        Dmsg2(200, "found end of interval from %s to %s\n",
+        Dmsg2(200, "found end of interval from {} to {}\n",
               months[interval_start], months[i]);
         Mmsg(interval, "-%s", months[i]);
         PmStrcat(temp, interval.c_str());
@@ -1769,7 +1769,7 @@ static std::string PrintConfigRun(RunResource* run)
         if (interval_start
             == -1) {          /* bit is set and we are not in an interval */
           interval_start = i; /* start an interval */
-          Dmsg1(200, "starting interval at w%02d\n", i);
+          Dmsg1(200, "starting interval at w{:02}\n", i);
           Mmsg(interval, ",w%02d", i);
           PmStrcat(temp, interval.c_str());
         }
@@ -1778,7 +1778,7 @@ static std::string PrintConfigRun(RunResource* run)
       if (!BitIsSet(i, run->date_time_mask.woy)) {
         if (interval_start != -1) { /* bit is unset and we are in an interval */
           if ((i - interval_start) > 1) {
-            Dmsg2(200, "found end of interval from w%02d to w%02d\n",
+            Dmsg2(200, "found end of interval from w{:02} to w{:02}\n",
                   interval_start, i - 1);
             Mmsg(interval, "-w%02d", i - 1);
             PmStrcat(temp, interval.c_str());
@@ -1793,7 +1793,7 @@ static std::string PrintConfigRun(RunResource* run)
     i = nr_items - 1;
     if (interval_start != -1 && BitIsSet(i, run->date_time_mask.woy)) {
       if ((i - interval_start) > 1) {
-        Dmsg2(200, "found end of interval from w%02d to w%02d\n",
+        Dmsg2(200, "found end of interval from w{:02} to w{:02}\n",
               interval_start, i);
         Mmsg(interval, "-w%02d", i);
         PmStrcat(temp, interval.c_str());
@@ -2315,7 +2315,7 @@ static bool UpdateResourcePointer(int type, ResourceItem* items)
           }
         }
 
-        Dmsg3(200, "job %s RunScript inherited: %i %i\n",
+        Dmsg3(200, "job {} RunScript inherited: {} {}\n",
               res_job->resource_name_, BitIsSet(69, res_job->inherit_content_),
               BitIsSet(69, p->inherit_content_));
 
@@ -2527,7 +2527,7 @@ static void StoreDevice(LEX* lc,
       device_resource->rcode_ = R_DEVICE;
       device_resource->resource_name_ = strdup(lc->str);
       configuration_resources[rindex] = device_resource; /* store first entry */
-      Dmsg3(900, "Inserting first %s res: %s index=%d\n",
+      Dmsg3(900, "Inserting first {} res: {} index={}\n",
             my_config->ResToStr(R_DEVICE), device_resource->resource_name_,
             rindex);
     } else {
@@ -2545,7 +2545,7 @@ static void StoreDevice(LEX* lc,
         device_resource->rcode_ = R_DEVICE;
         device_resource->resource_name_ = strdup(lc->str);
         next->next_ = device_resource;
-        Dmsg4(900, "Inserting %s res: %s index=%d pass=%d\n",
+        Dmsg4(900, "Inserting {} res: {} index={} pass={}\n",
               my_config->ResToStr(R_DEVICE), device_resource->resource_name_,
               rindex, pass);
       }
@@ -2811,7 +2811,7 @@ static void StoreAcl(LEX* lc, ResourceItem* item, int index, int pass)
   if (pass == 1) {
     if (!alistvalue[item->code]) {
       alistvalue[item->code] = new alist<const char*>(10, owned_by_alist);
-      Dmsg1(900, "Defined new ACL alist at %d\n", item->code);
+      Dmsg1(900, "Defined new ACL alist at {}\n", item->code);
     }
   }
   alist<const char*>* list = alistvalue[item->code];
@@ -2825,7 +2825,7 @@ static void StoreAcl(LEX* lc, ResourceItem* item, int index, int pass)
         return;
       }
       list->append(strdup(lc->str));
-      Dmsg2(900, "Appended to %d %s\n", item->code, lc->str);
+      Dmsg2(900, "Appended to {} {}\n", item->code, lc->str);
     }
     token = LexGetToken(lc, BCT_ALL);
   }
@@ -2913,7 +2913,7 @@ static void StoreRunscriptCmd(LEX* lc, ResourceItem* item, int, int pass)
   LexGetToken(lc, BCT_STRING);
 
   if (pass == 2) {
-    Dmsg2(100, "runscript cmd=%s type=%c\n", lc->str, item->code);
+    Dmsg2(100, "runscript cmd={} type={:c}\n", lc->str, item->code);
     RunScript* r = GetItemVariablePointer<RunScript*>(*item);
     r->temp_parser_command_container.emplace_back(lc->str, item->code);
   }
@@ -3000,7 +3000,7 @@ static void StoreRunscriptBool(LEX* lc, ResourceItem* item, int, int)
  */
 static void StoreRunscript(LEX* lc, ResourceItem* item, int index, int pass)
 {
-  Dmsg1(200, "StoreRunscript: begin StoreRunscript pass=%i\n", pass);
+  Dmsg1(200, "StoreRunscript: begin StoreRunscript pass={}\n", pass);
 
   int token = LexGetToken(lc, BCT_SKIP_EOL);
 
@@ -3429,10 +3429,10 @@ static bool HasDefaultValue(ResourceItem& item)
     case CFG_TYPE_POOLTYPE:
       is_default
           = bstrcmp(GetItemVariable<const char*>(item), item.default_value);
-      Dmsg1(200, "CFG_TYPE_POOLTYPE: default: %d\n", is_default);
+      Dmsg1(200, "CFG_TYPE_POOLTYPE: default: {}\n", is_default);
       break;
     default:
-      Dmsg2(200, "%s is UNSUPPORTED TYPE: %d\n", item.name, item.type);
+      Dmsg2(200, "{} is UNSUPPORTED TYPE: {}\n", item.name, item.type);
       break;
   }
 
@@ -3562,12 +3562,12 @@ static void PrintConfigCb(ResourceItem& item,
       break;
     }
     case CFG_TYPE_POOLTYPE:
-      Dmsg1(200, "%s = %s (%d)\n", item.name,
+      Dmsg1(200, "{} = {} ({})\n", item.name,
             GetItemVariable<const char*>(item), inherited);
       send.KeyString(item.name, GetItemVariable<const char*>(item), inherited);
       break;
     default:
-      Dmsg2(200, "%s is UNSUPPORTED TYPE: %d\n", item.name, item.type);
+      Dmsg2(200, "{} is UNSUPPORTED TYPE: {}\n", item.name, item.type);
       break;
   }
 }  // namespace directordaemon
@@ -3670,7 +3670,7 @@ static bool AddResourceCopyToEndOfChain(int type,
         res_dev = nullptr;
         break;
       default:
-        Dmsg3(100, "Unhandled resource type: %d\n", type);
+        Dmsg3(100, "Unhandled resource type: {}\n", type);
         return false;
     }
   }

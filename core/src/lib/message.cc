@@ -188,7 +188,7 @@ void MyNameIs(int argc, const char* const argv[], const char* name)
         strcpy(exepath, cpath);
       }
     }
-    Dmsg2(500, "exepath=%s\nexename=%s\n", exepath, exename);
+    Dmsg2(500, "exepath={}\nexename={}\n", exepath, exename);
   }
 }
 
@@ -228,7 +228,7 @@ void InitMsg(JobControlRecord* jcr,
                                          std::string(), std::string(),
                                          std::string());
     }
-    Dmsg1(050, "Create daemon global message resource %p\n", daemon_msgs);
+    Dmsg1(050, "Create daemon global message resource {:p}\n", daemon_msgs);
     return;
   }
 
@@ -242,7 +242,7 @@ void InitMsg(JobControlRecord* jcr,
     msg->DuplicateResourceTo(*daemon_msgs);
   }
 
-  Dmsg2(250, "Copied message resource %p\n", msg);
+  Dmsg2(250, "Copied message resource {:p}\n", msg);
 }
 
 /*
@@ -288,7 +288,7 @@ static void MakeUniqueMailFilename(JobControlRecord* jcr,
     Mmsg(name, "%s/%s.%s.%d.mail", working_directory, my_name, my_name,
          (int)(intptr_t)d);
   }
-  Dmsg1(850, "mailname=%s\n", name);
+  Dmsg1(850, "mailname={}\n", name);
 }
 
 static Bpipe* open_mail_pipe(JobControlRecord* jcr,
@@ -333,7 +333,7 @@ void CloseMsg(JobControlRecord* jcr)
   POOLMEM *cmd, *line;
   int len, status;
 
-  Dmsg1(580, "Close_msg jcr=%p\n", jcr);
+  Dmsg1(580, "Close_msg jcr={:p}\n", jcr);
 
   if (jcr == NULL) { /* NULL -> global chain */
     msgs = daemon_msgs;
@@ -355,7 +355,7 @@ void CloseMsg(JobControlRecord* jcr)
   msgs->SetClosing();
   msgs->Unlock();
 
-  Dmsg1(850, "===Begin close msg resource at %p\n", msgs);
+  Dmsg1(850, "===Begin close msg resource at {:p}\n", msgs);
   cmd = GetPoolMemory(PM_MESSAGE);
   for (MessageDestinationInfo* d : msgs->dest_chain_) {
     if (d->file_pointer_) {
@@ -431,7 +431,7 @@ void CloseMsg(JobControlRecord* jcr)
           if (status != 0 && msgs != daemon_msgs) {
             BErrNo be;
             be.SetErrno(status);
-            Dmsg1(850, "Calling emsg. CMD=%s\n", cmd);
+            Dmsg1(850, "Calling emsg. CMD={}\n", cmd);
             DeliveryError(T_("Mail program terminated in error.\n"
                              "CMD=%s\n"
                              "ERR=%s\n"),
@@ -617,7 +617,7 @@ void DispatchMessage(JobControlRecord* jcr,
   const char* mode;
   bool dt_conversion = false;
 
-  Dmsg2(850, "Enter DispatchMessage type=%d msg=%s", type, msg);
+  Dmsg2(850, "Enter DispatchMessage type={} msg={}", type, msg);
 
   /* Most messages are prefixed by a date and time. If mtime is
    * zero, then we use the current time.  If mtime is 1 (special
@@ -669,7 +669,7 @@ void DispatchMessage(JobControlRecord* jcr,
   if (msgs == NULL) { msgs = daemon_msgs; }
 
   if (!msgs) {
-    Dmsg1(100, "Could not dispatch message: %s", msg);
+    Dmsg1(100, "Could not dispatch message: {}", msg);
     return;
   }
 
@@ -712,7 +712,7 @@ void DispatchMessage(JobControlRecord* jcr,
           }
           break;
         case MessageDestinationCode::kConsole:
-          Dmsg1(850, "CONSOLE for following msg: %s", msg);
+          Dmsg1(850, "CONSOLE for following msg: {}", msg);
           if (!con_fd) {
             con_fd = fopen(con_fname, "a+b");
             Dmsg0(850, "Console file not open.\n");
@@ -734,7 +734,7 @@ void DispatchMessage(JobControlRecord* jcr,
           }
           break;
         case MessageDestinationCode::kSyslog:
-          Dmsg1(850, "SYSLOG for following msg: %s\n", msg);
+          Dmsg1(850, "SYSLOG for following msg: {}\n", msg);
 
           if (!d->syslog_facility_ && !SetSyslogFacility(jcr, d)) {
             msgs->ClearInUse();
@@ -747,7 +747,7 @@ void DispatchMessage(JobControlRecord* jcr,
                        msg);
           break;
         case MessageDestinationCode::kOperator:
-          Dmsg1(850, "OPERATOR for following msg: %s\n", msg);
+          Dmsg1(850, "OPERATOR for following msg: {}\n", msg);
           mcmd = GetPoolMemory(PM_MESSAGE);
           if ((bpipe = open_mail_pipe(jcr, mcmd, d))) {
             int status;
@@ -769,7 +769,7 @@ void DispatchMessage(JobControlRecord* jcr,
         case MessageDestinationCode::kMail:
         case MessageDestinationCode::KMailOnError:
         case MessageDestinationCode::kMailOnSuccess:
-          Dmsg1(850, "MAIL for following msg: %s", msg);
+          Dmsg1(850, "MAIL for following msg: {}", msg);
           if (msgs->IsClosing()) { break; }
           msgs->SetInUse();
           if (!d->file_pointer_) {
@@ -796,11 +796,11 @@ void DispatchMessage(JobControlRecord* jcr,
           msgs->ClearInUse();
           break;
         case MessageDestinationCode::kAppend:
-          Dmsg1(850, "APPEND for following msg: %s", msg);
+          Dmsg1(850, "APPEND for following msg: {}", msg);
           mode = "ab";
           goto send_to_file;
         case MessageDestinationCode::kFile:
-          Dmsg1(850, "FILE for following msg: %s", msg);
+          Dmsg1(850, "FILE for following msg: {}", msg);
           mode = "w+b";
         send_to_file:
           if (msgs->IsClosing()) { break; }
@@ -824,16 +824,16 @@ void DispatchMessage(JobControlRecord* jcr,
           msgs->ClearInUse();
           break;
         case MessageDestinationCode::kDirector:
-          Dmsg1(850, "DIRECTOR for following msg: %s", msg);
+          Dmsg1(850, "DIRECTOR for following msg: {}", msg);
           if (jcr && jcr->dir_bsock && !jcr->dir_bsock->errors) {
             jcr->dir_bsock->fsend("Jmsg Job=%s type=%d level=%lld %s", jcr->Job,
                                   type, mtime, msg);
           } else {
-            Dmsg1(800, "no jcr for following msg: %s", msg);
+            Dmsg1(800, "no jcr for following msg: {}", msg);
           }
           break;
         case MessageDestinationCode::kStdout:
-          Dmsg1(850, "STDOUT for following msg: %s", msg);
+          Dmsg1(850, "STDOUT for following msg: {}", msg);
           if (type != M_ABORT && type != M_ERROR_TERM
               && type != M_CONFIG_ERROR) { /* already printed */
             fputs(dt, stdout);
@@ -842,7 +842,7 @@ void DispatchMessage(JobControlRecord* jcr,
           }
           break;
         case MessageDestinationCode::kStderr:
-          Dmsg1(850, "STDERR for following msg: %s", msg);
+          Dmsg1(850, "STDERR for following msg: {}", msg);
           fputs(dt, stderr);
           fputs(msg, stderr);
           fflush(stdout);
@@ -1220,7 +1220,7 @@ void Jmsg(JobControlRecord* jcr, int type, utime_t mtime, const char* fmt, ...)
   uint32_t JobId = 0;
   PoolMem buf(PM_EMSG), more(PM_EMSG);
 
-  Dmsg1(850, "Enter Jmsg type=%d\n", type);
+  Dmsg1(850, "Enter Jmsg type={}\n", type);
 
   /* Special case for the console, which has a dir_bsock and JobId == 0,
    * in that case, we send the message directly back to the

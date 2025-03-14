@@ -229,7 +229,7 @@ int InsertTreeHandler(void* ctx, int, char** row)
   HL_ENTRY* entry = NULL;
   int32_t LinkFI;
 
-  Dmsg4(150, "Path=%s%s FI=%s JobId=%s\n", row[0], row[1], row[2], row[3]);
+  Dmsg4(150, "Path={}{} FI={} JobId={}\n", row[0], row[1], row[2], row[3]);
   if (*row[1] == 0) {                /* no filename => directory */
     if (!IsPathSeparator(*row[0])) { /* Must be Win32 directory */
       type = tree_node_type::DirWin;
@@ -248,8 +248,8 @@ int InsertTreeHandler(void* ctx, int, char** row)
   node->fhinfo = str_to_int64(row[6]);
   node->fhnode = str_to_int64(row[7]);
   Dmsg8(150,
-        "node=0x%p JobId=%s FileIndex=%s Delta=%s node.delta=%d LinkFI=%d, "
-        "fhinfo=%d, fhnode=%d\n",
+        "node=0x{:p} JobId={} FileIndex={} Delta={} node.delta={} LinkFI={}, "
+        "fhinfo={}, fhnode={}\n",
         node, row[3], row[2], row[5], node->delta_seq, LinkFI, node->fhinfo,
         node->fhnode);
 
@@ -271,7 +271,7 @@ int InsertTreeHandler(void* ctx, int, char** row)
 
         Dmsg3(0,
               "Something is wrong with Delta, skip it "
-              "fname=%s d1=%d d2=%d\n",
+              "fname={} d1={} d2={}\n",
               row[1], node->delta_seq, delta_seq);
       }
       return 0;

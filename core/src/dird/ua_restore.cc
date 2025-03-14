@@ -336,7 +336,7 @@ bool RestoreCmd(UaContext* ua, const char*)
     PmStrcat(ua->cmd, " yes"); /* pass it on to the run command */
   }
 
-  Dmsg1(200, "Submitting: %s\n", ua->cmd);
+  Dmsg1(200, "Submitting: {}\n", ua->cmd);
 
   // Transfer jobids to jcr to for picking up restore objects
   jcr->JobIds = rx.JobIds;
@@ -831,7 +831,7 @@ static int UserSelectJobidsOrFiles(UaContext* ua, RestoreContext* rx)
           if (!ua->db->AccurateGetJobids(ua->jcr, &jr, &jobids)) { return 0; }
         }
         PmStrcpy(rx->JobIds, jobids.GetAsString().c_str());
-        Dmsg1(30, "Item 12: jobids = %s\n", rx->JobIds);
+        Dmsg1(30, "Item 12: jobids = {}\n", rx->JobIds);
         break;
       case 12: /* Cancel or quit */
         return 0;
@@ -1137,7 +1137,7 @@ static void SplitPathAndFilename(UaContext* ua, RestoreContext* rx, char* name)
     rx->pnl = 0;
   }
 
-  Dmsg2(100, "split path=%s file=%s\n", rx->path, rx->fname);
+  Dmsg2(100, "split path={} file={}\n", rx->path, rx->fname);
 }
 
 static bool CheckAndSetFileregex(UaContext* ua,
@@ -1301,9 +1301,9 @@ static bool BuildDirectoryTree(UaContext* ua, RestoreContext* rx)
     if (OK) {
       for (tree_node* node = FirstTreeNode(tree.root); node;
            node = NextTreeNode(node)) {
-        Dmsg2(400, "FI=%d node=0x%x\n", node->FileIndex, node);
+        Dmsg2(400, "FI={} node=0x{:x}\n", node->FileIndex, node);
         if (node->extract) {
-          Dmsg3(400, "JobId=%lld type=%d FI=%d\n", (uint64_t)node->JobId,
+          Dmsg3(400, "JobId={} type={} FI={}\n", (uint64_t)node->JobId,
                 node->type, node->FileIndex);
           /* TODO: optimize bsr insertion when jobid are non sorted */
           AddDeltaListFindex(rx, node->delta_list);
@@ -1603,7 +1603,7 @@ static int JobidFileindexHandler(void* ctx, int num_fields, char** row)
 {
   RestoreContext* rx = (RestoreContext*)ctx;
 
-  Dmsg2(200, "JobId=%s FileIndex=%s\n", row[0], row[1]);
+  Dmsg2(200, "JobId={} FileIndex={}\n", row[0], row[1]);
   rx->JobId = str_to_int64(row[0]);
   AddFindex(rx->bsr.get(), rx->JobId, str_to_int64(row[1]));
   rx->found = true;
@@ -1662,7 +1662,7 @@ void FindStorageResource(UaContext* ua,
   StorageResource* store;
 
   if (rx.store) {
-    Dmsg1(200, "Already have store=%s\n", rx.store->resource_name_);
+    Dmsg1(200, "Already have store={}\n", rx.store->resource_name_);
     return;
   }
   // Try looking up Storage by name
@@ -1689,7 +1689,7 @@ void FindStorageResource(UaContext* ua,
           T_("Warning default storage overridden by \"%s\" on command line.\n"),
           store->resource_name_);
       rx.store = store;
-      Dmsg1(200, "Set store=%s\n", rx.store->resource_name_);
+      Dmsg1(200, "Set store={}\n", rx.store->resource_name_);
     }
     return;
   }
@@ -1700,7 +1700,7 @@ void FindStorageResource(UaContext* ua,
       if (bstrcmp(MediaType, store->media_type)) {
         if (ua->AclAccessOk(Storage_ACL, store->resource_name_)) {
           rx.store = store;
-          Dmsg1(200, "Set store=%s\n", rx.store->resource_name_);
+          Dmsg1(200, "Set store={}\n", rx.store->resource_name_);
           if (Storage == NULL) {
             ua->WarningMsg(T_("Using Storage \"%s\" from MediaType \"%s\".\n"),
                            store->resource_name_, MediaType);
@@ -1720,6 +1720,6 @@ void FindStorageResource(UaContext* ua,
 
   // Take command line arg, or ask user if none
   rx.store = get_storage_resource(ua);
-  if (rx.store) { Dmsg1(200, "Set store=%s\n", rx.store->resource_name_); }
+  if (rx.store) { Dmsg1(200, "Set store={}\n", rx.store->resource_name_); }
 }
 } /* namespace directordaemon */

@@ -103,7 +103,7 @@ std::string GetVfJobids(JobControlRecord& jcr)
 {
   // See if we already got a list of jobids to use.
   if (jcr.dir_impl->vf_jobids) {
-    Dmsg1(10, "jobids=%s\n", jcr.dir_impl->vf_jobids);
+    Dmsg1(10, "jobids={}\n", jcr.dir_impl->vf_jobids);
     return jcr.dir_impl->vf_jobids;
   } else if (jcr.dir_impl->res.job->AlwaysIncremental) {
     // jcr.dir_impl->vf_jobids is NULL here
@@ -114,7 +114,7 @@ std::string GetVfJobids(JobControlRecord& jcr)
   } else {
     db_list_ctx jobids_ctx;
     jcr.db->AccurateGetJobids(&jcr, &jcr.dir_impl->jr, &jobids_ctx);
-    Dmsg1(10, "consolidate candidates:  %s.\n",
+    Dmsg1(10, "consolidate candidates:  {}.\n",
           jobids_ctx.GetAsString().c_str());
     return jobids_ctx.GetAsString();
   }
@@ -126,7 +126,7 @@ bool DoNativeVbackupInit(JobControlRecord* jcr)
   const char* storage_source;
 
   if (!GetOrCreateFilesetRecord(jcr)) {
-    Dmsg1(dbglevel, "JobId=%d no FileSet\n", (int)jcr->JobId);
+    Dmsg1(dbglevel, "JobId={} no FileSet\n", (int)jcr->JobId);
     return false;
   }
 
@@ -137,7 +137,7 @@ bool DoNativeVbackupInit(JobControlRecord* jcr)
   jcr->dir_impl->jr.PoolId
       = GetOrCreatePoolRecord(jcr, jcr->dir_impl->res.pool->resource_name_);
   if (jcr->dir_impl->jr.PoolId == 0) {
-    Dmsg1(dbglevel, "JobId=%d no PoolId\n", (int)jcr->JobId);
+    Dmsg1(dbglevel, "JobId={} no PoolId\n", (int)jcr->JobId);
     Jmsg(jcr, M_FATAL, 0, T_("Could not get or create a Pool record.\n"));
     return false;
   }
@@ -152,7 +152,7 @@ bool DoNativeVbackupInit(JobControlRecord* jcr)
   // If pool storage specified, use it for restore
   CopyRstorage(jcr, jcr->dir_impl->res.pool->storage, T_("Pool resource"));
 
-  Dmsg2(dbglevel, "Read pool=%s (From %s)\n",
+  Dmsg2(dbglevel, "Read pool={} (From {})\n",
         jcr->dir_impl->res.rpool->resource_name_,
         jcr->dir_impl->res.rpool_source);
 
@@ -204,7 +204,7 @@ bool DoNativeVbackupInit(JobControlRecord* jcr)
 
   jcr->dir_impl->res.pool = jcr->dir_impl->res.next_pool;
 
-  Dmsg2(dbglevel, "Write pool=%s read rpool=%s\n",
+  Dmsg2(dbglevel, "Write pool={} read rpool={}\n",
         jcr->dir_impl->res.pool->resource_name_,
         jcr->dir_impl->res.rpool->resource_name_);
 
@@ -232,10 +232,10 @@ bool DoNativeVbackup(JobControlRecord* jcr)
     return false;
   }
 
-  Dmsg2(100, "read_storage_list=%p write_storage_list=%p\n",
+  Dmsg2(100, "read_storage_list={:p} write_storage_list={:p}\n",
         jcr->dir_impl->res.read_storage_list,
         jcr->dir_impl->res.write_storage_list);
-  Dmsg2(100, "Read store=%s, write store=%s\n",
+  Dmsg2(100, "Read store={}, write store={}\n",
         ((StorageResource*)jcr->dir_impl->res.read_storage_list->first())
             ->resource_name_,
         ((StorageResource*)jcr->dir_impl->res.write_storage_list->first())
@@ -286,7 +286,7 @@ bool DoNativeVbackup(JobControlRecord* jcr)
   // Find first Jobid, get the db record and find its level
   JobDbRecord tmp_jr{};
   tmp_jr.JobId = str_to_int64(jobid_list.front().c_str());
-  Dmsg1(10, "Previous JobId=%s\n", jobid_list.front().c_str());
+  Dmsg1(10, "Previous JobId={}\n", jobid_list.front().c_str());
 
   if (DbLocker _{jcr->db}; !jcr->db->GetJobRecord(jcr, &tmp_jr)) {
     Jmsg(jcr, M_FATAL, 0,
@@ -296,7 +296,7 @@ bool DoNativeVbackup(JobControlRecord* jcr)
   }
 
   int JobLevel_of_first_job = tmp_jr.JobLevel;
-  Dmsg2(10, "Level of first consolidated job %d: %s\n", tmp_jr.JobId,
+  Dmsg2(10, "Level of first consolidated job {}: {}\n", tmp_jr.JobId,
         job_level_to_str(JobLevel_of_first_job));
 
   /* Now we find the newest job that ran and store its info in
@@ -306,7 +306,7 @@ bool DoNativeVbackup(JobControlRecord* jcr)
   {
     JobDbRecord jr{};
     jr.JobId = str_to_int64(jobid_list.back().c_str());
-    Dmsg1(10, "Previous JobId=%s\n", jobid_list.back().c_str());
+    Dmsg1(10, "Previous JobId={}\n", jobid_list.back().c_str());
 
     if (DbLocker _{jcr->db}; !jcr->db->GetJobRecord(jcr, &jr)) {
       Jmsg(jcr, M_FATAL, 0,
@@ -412,7 +412,7 @@ void NativeVbackupCleanup(JobControlRecord* jcr, int TermCode, int JobLevel)
   ClientDbRecord cr;
   PoolMem query(PM_MESSAGE);
 
-  Dmsg2(100, "Enter backup_cleanup %d %c\n", TermCode, TermCode);
+  Dmsg2(100, "Enter backup_cleanup {} {:c}\n", TermCode, TermCode);
 
   switch (jcr->getJobStatus()) {
     case JS_Terminated:
@@ -572,7 +572,7 @@ static bool CreateBootstrapFile(JobControlRecord& jcr,
   UaContext* ua = new_ua_context(&jcr);
   AddVolumeInformationToBsr(ua, rx.bsr.get());
   jcr.dir_impl->ExpectedFiles = WriteBsrFile(ua, rx);
-  Dmsg1(10, "Found %d files to consolidate.\n", jcr.dir_impl->ExpectedFiles);
+  Dmsg1(10, "Found {} files to consolidate.\n", jcr.dir_impl->ExpectedFiles);
   FreeUaContext(ua);
   rx.bsr.reset(nullptr);
   return jcr.dir_impl->ExpectedFiles != 0;

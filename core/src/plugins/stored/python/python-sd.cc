@@ -387,7 +387,7 @@ static bRC parse_plugin_definition(PluginContext* plugin_ctx,
   if (!bp) {
     Jmsg(plugin_ctx, M_FATAL, LOGPREFIX "Illegal plugin definition %s\n",
          plugin_definition.c_str());
-    Dmsg(plugin_ctx, debuglevel, LOGPREFIX "Illegal plugin definition %s\n",
+    Dmsg(plugin_ctx, debuglevel, LOGPREFIX "Illegal plugin definition {}\n",
          plugin_definition.c_str());
     goto bail_out;
   }
@@ -411,7 +411,7 @@ static bRC parse_plugin_definition(PluginContext* plugin_ctx,
       Jmsg(plugin_ctx, M_FATAL, LOGPREFIX "Illegal argument %s without value\n",
            argument);
       Dmsg(plugin_ctx, debuglevel,
-           LOGPREFIX "Illegal argument %s without value\n", argument);
+           LOGPREFIX "Illegal argument {} without value\n", argument);
       goto bail_out;
     }
     *argument_value++ = '\0';

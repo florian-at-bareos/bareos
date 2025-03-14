@@ -119,7 +119,7 @@ bool FixupDeviceBlockWriteError(DeviceControlRecord* dcr, int retries)
        edit_uint64_with_commas(dev->VolCatInfo.VolCatBlocks, b2),
        bstrftime(dt, sizeof(dt), time(NULL)));
 
-  Dmsg1(050, "SetUnload dev=%s\n", dev->print_name());
+  Dmsg1(050, "SetUnload dev={}\n", dev->print_name());
   dev->SetUnload();
   if (!dcr->MountNextWriteVolume()) {
     FreeBlock(dcr->block);
@@ -127,7 +127,7 @@ bool FixupDeviceBlockWriteError(DeviceControlRecord* dcr, int retries)
     dev->Lock();
     goto bail_out;
   }
-  Dmsg2(050, "MustUnload=%d dev=%s\n", dev->MustUnload(), dev->print_name());
+  Dmsg2(050, "MustUnload={} dev={}\n", dev->MustUnload(), dev->print_name());
   dev->Lock(); /* lock again */
 
   dev->VolCatInfo.VolCatJobs++; /* increment number of jobs on vol */
@@ -155,7 +155,7 @@ bool FixupDeviceBlockWriteError(DeviceControlRecord* dcr, int retries)
   dcr->block = block;
 
   // Walk through all attached jcrs indicating the volume has changed
-  Dmsg1(100, "Notify vol change. Volume=%s\n", dev->getVolCatName());
+  Dmsg1(100, "Notify vol change. Volume={}\n", dev->getVolCatName());
   for (auto mdcr : dev->attached_dcrs) {
     JobControlRecord* mjcr = mdcr->jcr;
     if (mjcr->JobId == 0) { continue; /* ignore console */ }
@@ -175,7 +175,7 @@ bool FixupDeviceBlockWriteError(DeviceControlRecord* dcr, int retries)
   Dmsg0(190, "Write overflow block to dev\n");
   if (!dcr->WriteBlockToDev()) {
     BErrNo be;
-    Dmsg1(0, T_("WriteBlockToDevice overflow block failed. ERR=%s\n"),
+    Dmsg1(0, T_("WriteBlockToDevice overflow block failed. ERR={}\n"),
           be.bstrerror(dev->dev_errno));
     /* Note: recursive call */
     if (retries-- <= 0 || !FixupDeviceBlockWriteError(dcr, retries)) {
@@ -284,7 +284,7 @@ bool FirstOpenDevice(DeviceControlRecord* dcr)
     ok = false;
     goto bail_out;
   }
-  Dmsg1(129, "open dev %s OK\n", dev->print_name());
+  Dmsg1(129, "open dev {} OK\n", dev->print_name());
 
 bail_out:
   dev->Unlock();
@@ -329,7 +329,7 @@ bool TryDeviceRepositioning(JobControlRecord* jcr,
   bsr = find_next_bsr(jcr->sd_impl->read_session.bsr, dev);
   if (bsr == NULL && jcr->sd_impl->read_session.bsr->mount_next_volume) {
     Dmsg0(500, "Would mount next volume here\n");
-    Dmsg2(500, "Current position (file:block) %u:%u\n", dev->file,
+    Dmsg2(500, "Current position (file:block) {}:{}\n", dev->file,
           dev->block_num);
     jcr->sd_impl->read_session.bsr->mount_next_volume = false;
     if (!dev->AtEot()) {
@@ -350,7 +350,7 @@ bool TryDeviceRepositioning(JobControlRecord* jcr,
     uint64_t bsr_addr = GetBsrStartAddr(bsr, &file, &block);
 
     if (dev_addr > bsr_addr) { return false; }
-    Dmsg4(500, "Try_Reposition from (file:block) %u:%u to %u:%u\n", dev->file,
+    Dmsg4(500, "Try_Reposition from (file:block) {}:{} to {}:{}\n", dev->file,
           dev->block_num, file, block);
     dev->Reposition(dcr, file, block);
     rec->Block = 0;

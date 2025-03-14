@@ -340,7 +340,7 @@ bool SendAccurateCurrentFiles(JobControlRecord* jcr)
        jobids.GetAsString().c_str());
   jcr->db->SqlQuery(buf.c_str(), DbListHandler, &nb);
   auto count_as_str = nb.GetAsString();
-  Dmsg2(200, "jobids=%s nb=%s\n", jobids.GetAsString().c_str(),
+  Dmsg2(200, "jobids={} nb={}\n", jobids.GetAsString().c_str(),
         count_as_str.c_str());
   if (jcr->JobId) { /* display the message only for real jobs */
     Jmsg(jcr, M_INFO, 0, "Sending Accurate information (estimated %s files).\n",
@@ -428,7 +428,7 @@ static bool ConfigureTlsRequirementsPassiveClient(JobControlRecord* jcr)
                                             : TlsPolicy::kBnetTlsNone;
     }
 
-    Dmsg1(200, "Tls Policy for active client is: %d\n", tls_policy);
+    Dmsg1(200, "Tls Policy for active client is: {}\n", tls_policy);
 
     connection_target_address = StorageAddressToContact(client, store);
 
@@ -450,7 +450,7 @@ static bool ConfigureTlsRequirementsPassiveClient(JobControlRecord* jcr)
       tls_policy = client->IsTlsConfigured() ? TlsPolicy::kBnetTlsAuto
                                              : TlsPolicy::kBnetTlsNone;
     }
-    Dmsg1(200, "Tls Policy for passive client is: %d\n", tls_policy);
+    Dmsg1(200, "Tls Policy for passive client is: {}\n", tls_policy);
 
     connection_target_address = ClientAddressToContact(client, store);
 
@@ -502,7 +502,7 @@ bool DoNativeBackup(JobControlRecord* jcr)
        jcr->Job);
 
   jcr->setJobStatusWithPriorityCheck(JS_Running);
-  Dmsg2(100, "JobId=%d JobLevel=%c\n", jcr->dir_impl->jr.JobId,
+  Dmsg2(100, "JobId={} JobLevel={:c}\n", jcr->dir_impl->jr.JobId,
         jcr->dir_impl->jr.JobLevel);
   if (DbLocker _{jcr->db};
       !jcr->db->UpdateJobStartRecord(jcr, &jcr->dir_impl->jr)) {
@@ -539,7 +539,7 @@ bool DoNativeBackup(JobControlRecord* jcr)
     TerminateBackupWithError(jcr);
     return false;
   }
-  Dmsg1(120, "jobid: %d: connected\n", jcr->JobId);
+  Dmsg1(120, "jobid: {}: connected\n", jcr->JobId);
   SendJobInfoToFileDaemon(jcr);
 
   if (jcr->passive_client && jcr->dir_impl->FDVersion < FD_VERSION_51) {
@@ -575,7 +575,7 @@ bool DoNativeBackup(JobControlRecord* jcr)
   }
 
   if (!SendSecureEraseReqToFd(jcr)) {
-    Dmsg1(500, "Unexpected %s secure erase\n", "client");
+    Dmsg1(500, "Unexpected {} secure erase\n", "client");
   }
 
   if (jcr->dir_impl->res.job->max_bandwidth > 0) {
@@ -625,7 +625,7 @@ bool DoNativeBackup(JobControlRecord* jcr)
   if (!ConfigureMessageThread(jcr)) { return false; }
 
   jcr->file_bsock->fsend(backupcmd, jcr->JobFiles);
-  Dmsg1(100, ">filed: %s", jcr->file_bsock->msg);
+  Dmsg1(100, ">filed: {}", jcr->file_bsock->msg);
   if (!response(jcr, jcr->file_bsock, OKbackup, "Backup", DISPLAY_ERROR)) {
     TerminateBackupWithError(jcr);
     return false;
@@ -689,7 +689,7 @@ int WaitForJobTermination(JobControlRecord* jcr, int timeout)
                  == 7) {
         fd_ok = true;
         jcr->setJobStatusWithPriorityCheck(jcr->dir_impl->FDJobStatus);
-        Dmsg1(100, "FDStatus=%c\n", (char)jcr->getJobStatus());
+        Dmsg1(100, "FDStatus={:c}\n", (char)jcr->getJobStatus());
       } else {
         Jmsg(jcr, M_WARNING, 0, T_("Unexpected Client Job message: %s\n"),
              fd->msg);
@@ -712,12 +712,12 @@ int WaitForJobTermination(JobControlRecord* jcr, int timeout)
 
   /* Force cancel in SD if failing, but not for Incomplete jobs so that we let
    * the SD despool. */
-  Dmsg5(100, "cancel=%d fd_ok=%d FDJS=%d JS=%d SDJS=%d\n", jcr->IsJobCanceled(),
+  Dmsg5(100, "cancel={} fd_ok={} FDJS={} JS={} SDJS={}\n", jcr->IsJobCanceled(),
         fd_ok, jcr->dir_impl->FDJobStatus.load(), jcr->getJobStatus(),
         jcr->dir_impl->SDJobStatus.load());
   if (jcr->IsJobCanceled()
       || (!jcr->dir_impl->res.job->RescheduleIncompleteJobs && !fd_ok)) {
-    Dmsg4(100, "fd_ok=%d FDJS=%d JS=%d SDJS=%d\n", fd_ok,
+    Dmsg4(100, "fd_ok={} FDJS={} JS={} SDJS={}\n", fd_ok,
           jcr->dir_impl->FDJobStatus.load(), jcr->getJobStatus(),
           jcr->dir_impl->SDJobStatus.load());
     CancelStorageDaemonJob(jcr);
@@ -739,7 +739,7 @@ int WaitForJobTermination(JobControlRecord* jcr, int timeout)
     Jmsg(jcr, M_FATAL, 0, T_("No Job status returned from FD.\n"));
   }
 
-  // Dmsg4(100, "fd_ok=%d FDJS=%d JS=%d SDJS=%d\n", fd_ok,
+  // Dmsg4(100, "fd_ok={} FDJS={} JS={} SDJS={}\n", fd_ok,
   // jcr->dir_impl_->FDJobStatus,
   //   jcr->JobStatus, jcr->dir_impl_->SDJobStatus);
 
@@ -762,7 +762,7 @@ void NativeBackupCleanup(JobControlRecord* jcr, int TermCode)
   int msg_type = M_INFO;
   ClientDbRecord cr;
 
-  Dmsg2(100, "Enter backup_cleanup %d %c\n", TermCode, TermCode);
+  Dmsg2(100, "Enter backup_cleanup {} {:c}\n", TermCode, TermCode);
 
   if (jcr->is_JobStatus(JS_Terminated)
       && (jcr->JobErrors || jcr->dir_impl->SDErrors || jcr->JobWarnings)) {

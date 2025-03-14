@@ -45,9 +45,9 @@ bool AccurateMarkFileAsSeen(JobControlRecord* jcr, char* fname)
   temp = jcr->fd_impl->file_list->lookup_payload(fname);
   if (temp) {
     jcr->fd_impl->file_list->MarkFileAsSeen(temp);
-    Dmsg1(debuglevel, "marked <%s> as seen\n", fname);
+    Dmsg1(debuglevel, "marked <{}> as seen\n", fname);
   } else {
-    Dmsg1(debuglevel, "<%s> not found to be marked as seen\n", fname);
+    Dmsg1(debuglevel, "<{}> not found to be marked as seen\n", fname);
   }
 
   return true;
@@ -62,9 +62,9 @@ bool accurate_unMarkFileAsSeen(JobControlRecord* jcr, char* fname)
   temp = jcr->fd_impl->file_list->lookup_payload(fname);
   if (temp) {
     jcr->fd_impl->file_list->UnmarkFileAsSeen(temp);
-    Dmsg1(debuglevel, "unmarked <%s> as seen\n", fname);
+    Dmsg1(debuglevel, "unmarked <{}> as seen\n", fname);
   } else {
-    Dmsg1(debuglevel, "<%s> not found to be unmarked as seen\n", fname);
+    Dmsg1(debuglevel, "<{}> not found to be unmarked as seen\n", fname);
   }
 
   return true;
@@ -95,7 +95,7 @@ static inline bool AccurateLookup(JobControlRecord* jcr,
   *payload = jcr->fd_impl->file_list->lookup_payload(fname);
   if (*payload) {
     found = true;
-    Dmsg1(debuglevel, "lookup <%s> ok\n", fname);
+    Dmsg1(debuglevel, "lookup <{}> ok\n", fname);
   }
 
   return found;
@@ -173,7 +173,7 @@ bool AccurateCheckFile(JobControlRecord* jcr, FindFilesPacket* ff_pkt)
   }
 
   if (!AccurateLookup(jcr, fname, &payload)) {
-    Dmsg1(debuglevel, "accurate %s (not found)\n", fname);
+    Dmsg1(debuglevel, "accurate {} (not found)\n", fname);
     status = true;
     UnstripPath(ff_pkt);
     goto bail_out;
@@ -203,7 +203,7 @@ bool AccurateCheckFile(JobControlRecord* jcr, FindFilesPacket* ff_pkt)
     switch (*p) {
       case 'i': /** Compare INODE numbers */
         if (statc.st_ino != ff_pkt->statp.st_ino) {
-          Dmsg3(debuglevel - 1, "%s      st_ino   differ. Cat: %s File: %s\n",
+          Dmsg3(debuglevel - 1, "{}      st_ino   differ. Cat: {} File: {}\n",
                 fname, edit_uint64((uint64_t)statc.st_ino, ed1),
                 edit_uint64((uint64_t)ff_pkt->statp.st_ino, ed2));
           status = true;
@@ -214,7 +214,7 @@ bool AccurateCheckFile(JobControlRecord* jcr, FindFilesPacket* ff_pkt)
          * Backup only the attribute stream */
         if (statc.st_mode != ff_pkt->statp.st_mode) {
           Dmsg3(debuglevel - 1,
-                "%s     st_mode  differ. Cat: %04o File: %04o\n", fname,
+                "{}     st_mode  differ. Cat: {:04o} File: {:04o}\n", fname,
                 (uint32_t)(statc.st_mode & ~S_IFMT),
                 (uint32_t)(ff_pkt->statp.st_mode & ~S_IFMT));
           status = true;
@@ -222,7 +222,7 @@ bool AccurateCheckFile(JobControlRecord* jcr, FindFilesPacket* ff_pkt)
         break;
       case 'n': /** Number of links */
         if (statc.st_nlink != ff_pkt->statp.st_nlink) {
-          Dmsg3(debuglevel - 1, "%s      st_nlink differ. Cat: %d File: %d\n",
+          Dmsg3(debuglevel - 1, "{}      st_nlink differ. Cat: {} File: {}\n",
                 fname, (uint32_t)statc.st_nlink,
                 (uint32_t)ff_pkt->statp.st_nlink);
           status = true;
@@ -230,21 +230,21 @@ bool AccurateCheckFile(JobControlRecord* jcr, FindFilesPacket* ff_pkt)
         break;
       case 'u': /** User id */
         if (statc.st_uid != ff_pkt->statp.st_uid) {
-          Dmsg3(debuglevel - 1, "%s      st_uid   differ. Cat: %u File: %u\n",
+          Dmsg3(debuglevel - 1, "{}      st_uid   differ. Cat: {} File: {}\n",
                 fname, (uint32_t)statc.st_uid, (uint32_t)ff_pkt->statp.st_uid);
           status = true;
         }
         break;
       case 'g': /** Group id */
         if (statc.st_gid != ff_pkt->statp.st_gid) {
-          Dmsg3(debuglevel - 1, "%s      st_gid   differ. Cat: %u File: %u\n",
+          Dmsg3(debuglevel - 1, "{}      st_gid   differ. Cat: {} File: {}\n",
                 fname, (uint32_t)statc.st_gid, (uint32_t)ff_pkt->statp.st_gid);
           status = true;
         }
         break;
       case 's': /** Size */
         if (statc.st_size != ff_pkt->statp.st_size) {
-          Dmsg3(debuglevel - 1, "%s      st_size  differ. Cat: %s File: %s\n",
+          Dmsg3(debuglevel - 1, "{}      st_size  differ. Cat: {} File: {}\n",
                 fname, edit_uint64((uint64_t)statc.st_size, ed1),
                 edit_uint64((uint64_t)ff_pkt->statp.st_size, ed2));
           status = true;
@@ -252,25 +252,25 @@ bool AccurateCheckFile(JobControlRecord* jcr, FindFilesPacket* ff_pkt)
         break;
       case 'a': /** Access time */
         if (statc.st_atime != ff_pkt->statp.st_atime) {
-          Dmsg1(debuglevel - 1, "%s      st_atime differs\n", fname);
+          Dmsg1(debuglevel - 1, "{}      st_atime differs\n", fname);
           status = true;
         }
         break;
       case 'm': /** Modification time */
         if (statc.st_mtime != ff_pkt->statp.st_mtime) {
-          Dmsg1(debuglevel - 1, "%s      st_mtime differs\n", fname);
+          Dmsg1(debuglevel - 1, "{}      st_mtime differs\n", fname);
           status = true;
         }
         break;
       case 'c': /** Change time */
         if (statc.st_ctime != ff_pkt->statp.st_ctime) {
-          Dmsg1(debuglevel - 1, "%s      st_ctime differs\n", fname);
+          Dmsg1(debuglevel - 1, "{}      st_ctime differs\n", fname);
           status = true;
         }
         break;
       case 'd': /** File size decrease */
         if (statc.st_size > ff_pkt->statp.st_size) {
-          Dmsg3(debuglevel - 1, "%s      st_size  decrease. Cat: %s File: %s\n",
+          Dmsg3(debuglevel - 1, "{}      st_size  decrease. Cat: {} File: {}\n",
                 fname, edit_uint64((uint64_t)statc.st_size, ed1),
                 edit_uint64((uint64_t)ff_pkt->statp.st_size, ed2));
           status = true;

@@ -233,7 +233,7 @@ static inline bool trigger_plugin_event(JobControlRecord*,
   bool stop = false;
 
   if (!IsEventEnabled(ctx, eventType)) {
-    Dmsg1(debuglevel, "Event %d disabled for this plugin.\n", eventType);
+    Dmsg1(debuglevel, "Event {} disabled for this plugin.\n", eventType);
     if (rc) { *rc = bRC_OK; }
     goto bail_out;
   }
@@ -301,7 +301,7 @@ bail_out:
 
 static bool IsEventForThisPlugin(Plugin* plugin, const char* name, int len)
 {
-  Dmsg4(debuglevel, "IsEventForThisPlugin? name=%s len=%d plugin=%s plen=%d\n",
+  Dmsg4(debuglevel, "IsEventForThisPlugin? name={} len={} plugin={} plen={}\n",
         name, len, plugin->file, plugin->file_len);
   if (!name) { /* if no plugin name, all plugins get it */
     return true;
@@ -319,7 +319,7 @@ static bool IsEventForThisPlugin(Plugin* plugin, const char* name, int len)
   // Check if this is the correct plugin
   if (len == plugin->file_len && bstrncmp(plugin->file, name, len)) {
     Dmsg4(debuglevel,
-          "IsEventForThisPlugin: yes, full match (plugin=%s, name=%s)\n",
+          "IsEventForThisPlugin: yes, full match (plugin={}, name={})\n",
           plugin->file, name);
     return true;
   }
@@ -328,13 +328,13 @@ static bool IsEventForThisPlugin(Plugin* plugin, const char* name, int len)
   // last character
   if (len == plugin->file_len - 1 && bstrncmp(plugin->file, name, len)) {
     Dmsg4(debuglevel,
-          "IsEventForThisPlugin: yes, without last character: (plugin=%s, "
-          "name=%s)\n",
+          "IsEventForThisPlugin: yes, without last character: (plugin={}, "
+          "name={})\n",
           plugin->file, name);
     return true;
   }
 
-  Dmsg4(debuglevel, "IsEventForThisPlugin: no (plugin=%s, name=%s)\n",
+  Dmsg4(debuglevel, "IsEventForThisPlugin: no (plugin={}, name={})\n",
         plugin->file, name);
 
   return false;
@@ -363,12 +363,12 @@ PluginContext* find_plugin(alist<PluginContext*>* plugin_list,
                            bEventType eventType)
 {
   for (auto* ctx : plugin_list) {
-    Dmsg4(debuglevel, "plugin=%s plen=%d cmd=%s len=%d\n", ctx->plugin->file,
+    Dmsg4(debuglevel, "plugin={} plen={} cmd={} len={}\n", ctx->plugin->file,
           ctx->plugin->file_len, cmd.c_str(), name_len);
     if (!IsEventForThisPlugin(ctx->plugin, cmd.c_str(), name_len)) { continue; }
 
     if (!IsEventEnabled(ctx, eventType)) {
-      Dmsg1(debuglevel, "Event %d disabled for this plugin.\n", eventType);
+      Dmsg1(debuglevel, "Event {} disabled for this plugin.\n", eventType);
       continue;
     }
 
@@ -393,7 +393,7 @@ PluginContext* find_plugin(alist<PluginContext*>* plugin_list,
 
     if (!IsEventEnabled(ctx, eventType)) { return nullptr; }
 
-    Dmsg1(100, "using grpc to handle this event\n '%s' -> '%s'\n", cmd.c_str(),
+    Dmsg1(100, "using grpc to handle this event\n '{}' -> '{}'\n", cmd.c_str(),
           grpc_cmd.c_str());
 
     cmd = std::move(grpc_cmd);
@@ -404,7 +404,7 @@ PluginContext* find_plugin(alist<PluginContext*>* plugin_list,
   Dmsg1(
       100,
       "grpc fallback is not enabled:\n"
-      " module='%s' ctx=%s",
+      " module='{}' ctx={}",
       (res && res->grpc_module.empty()) ? res->grpc_module.c_str() : "<UNSET>",
       ctx ? "found" : "notfound");
 
@@ -523,7 +523,7 @@ bRC GeneratePluginEvent(JobControlRecord* jcr,
 
   event.eventType = eventType;
 
-  Dmsg2(debuglevel, "plugin_ctx=%p JobId=%d\n", plugin_ctx_list, jcr->JobId);
+  Dmsg2(debuglevel, "plugin_ctx={:p} JobId={}\n", plugin_ctx_list, jcr->JobId);
 
   /* Pass event to every plugin that has requested this event type (except if
    * name is set). If name is set, we pass it only to the plugin with that name.
@@ -535,7 +535,7 @@ bRC GeneratePluginEvent(JobControlRecord* jcr,
     std::string cmd = name;
     auto* ctx = find_plugin(plugin_ctx_list, cmd, len, eventType);
 
-    Dmsg2(debuglevel, "updated cmd = '%s'\n", cmd.c_str());
+    Dmsg2(debuglevel, "updated cmd = '{}'\n", cmd.c_str());
     void* updated_value = const_cast<char*>(cmd.c_str());
 
     restore_object_pkt updated_rop;
@@ -555,7 +555,7 @@ bRC GeneratePluginEvent(JobControlRecord* jcr,
     int i{};
     foreach_alist_index (i, ctx, plugin_ctx_list) {
       if (!IsEventForThisPlugin(ctx->plugin, name, len)) {
-        Dmsg2(debuglevel, "Not for this plugin name=%s NULL=%d\n", name,
+        Dmsg2(debuglevel, "Not for this plugin name={} NULL={}\n", name,
               (name == NULL) ? 1 : 0);
         continue;
       }
@@ -588,7 +588,7 @@ bool PluginCheckFile(JobControlRecord* jcr, char* fname)
   }
 
   plugin_ctx_list = jcr->plugin_ctx_list;
-  Dmsg2(debuglevel, "plugin_ctx=%p JobId=%d\n", jcr->plugin_ctx_list,
+  Dmsg2(debuglevel, "plugin_ctx={:p} JobId={}\n", jcr->plugin_ctx_list,
         jcr->JobId);
 
   // Pass event to every plugin
@@ -623,7 +623,7 @@ static bool GetPluginName(JobControlRecord* jcr, char* cmd, int* ret)
   if (!cmd || (*cmd == '\0')) { return false; }
 
   // Handle plugin command here backup
-  Dmsg1(debuglevel, "plugin cmd=%s\n", cmd);
+  Dmsg1(debuglevel, "plugin cmd={}\n", cmd);
   if ((p = strchr(cmd, ':')) == NULL) {
     if (strchr(cmd, ' ') == NULL) { /* we have just the plugin name */
       len = strlen(cmd);
@@ -724,12 +724,12 @@ bRC PluginOptionHandleFile(JobControlRecord* jcr,
 
   // Note, we stop the loop on the first plugin that matches the name
   for (auto* ctx : plugin_ctx_list) {
-    Dmsg4(debuglevel, "plugin=%s plen=%d cmd=%s len=%d\n", ctx->plugin->file,
+    Dmsg4(debuglevel, "plugin={} plen={} cmd={} len={}\n", ctx->plugin->file,
           ctx->plugin->file_len, cmd, len);
     if (!IsEventForThisPlugin(ctx->plugin, cmd, len)) { continue; }
 
     if (!IsEventEnabled(ctx, eventType)) {
-      Dmsg1(debuglevel, "Event %d disabled for this plugin.\n", eventType);
+      Dmsg1(debuglevel, "Event {} disabled for this plugin.\n", eventType);
       continue;
     }
 
@@ -802,7 +802,7 @@ int PluginSave(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
     jcr->plugin_ctx = ctx;
 
     // Send the backup command to the right plugin
-    Dmsg1(debuglevel, "Command plugin = %s\n", cmd.c_str());
+    Dmsg1(debuglevel, "Command plugin = {}\n", cmd.c_str());
     if (PlugFunc(ctx->plugin)
             ->handlePluginEvent(jcr->plugin_ctx, &event, cmd.data())
         != bRC_OK) {
@@ -816,7 +816,7 @@ int PluginSave(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
       sp.no_read = false;
       CopyBits(FO_MAX, ff_pkt->flags, sp.flags);
       sp.cmd = const_cast<char*>(cmd.c_str());
-      Dmsg3(debuglevel, "startBackup st_size=%p st_blocks=%p sp=%p\n",
+      Dmsg3(debuglevel, "startBackup st_size={:p} st_blocks={:p} sp={:p}\n",
             &sp.statp.st_size, &sp.statp.st_blocks, &sp);
 
       // Get the file save parameters. I.e. the stat pkt ...
@@ -901,10 +901,10 @@ int PluginSave(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
       }
 
       memcpy(&ff_pkt->statp, &sp.statp, sizeof(ff_pkt->statp));
-      Dmsg2(debuglevel, "startBackup returned type=%d, fname=%s\n", sp.type,
+      Dmsg2(debuglevel, "startBackup returned type={}, fname={}\n", sp.type,
             sp.fname);
       if (sp.object) {
-        Dmsg2(debuglevel, "index=%d object=%.*s\n", sp.index, sp.object_len,
+        Dmsg2(debuglevel, "index={} object={:.{}}\n", sp.index, sp.object_len,
               sp.object);
       }
 
@@ -933,10 +933,10 @@ int PluginSave(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
             auto& hl = iter->second;
             if (hl.FileIndex == 0) {
               ff_pkt->linked = &hl;
-              Dmsg2(400, "Added to hash FI=%d file=%s\n", ff_pkt->FileIndex,
+              Dmsg2(400, "Added to hash FI={} file={}\n", ff_pkt->FileIndex,
                     hl.name.c_str());
             } else if (bstrcmp(hl.name.c_str(), sp.fname)) {
-              Dmsg2(400, "== Name identical skip FI=%d file=%s\n", hl.FileIndex,
+              Dmsg2(400, "== Name identical skip FI={} file={}\n", hl.FileIndex,
                     fname.c_str());
               ff_pkt->no_read = true;
             } else {
@@ -947,7 +947,7 @@ int PluginSave(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
               ff_pkt->digest_stream = hl.digest_stream;
               ff_pkt->digest_len = hl.digest.size();
 
-              Dmsg3(400, "FT_LNKSAVED FI=%d LinkFI=%d file=%s\n",
+              Dmsg3(400, "FT_LNKSAVED FI={} LinkFI={} file={}\n",
                     ff_pkt->FileIndex, hl.FileIndex, hl.name.c_str());
 
               ff_pkt->no_read = true;
@@ -1024,7 +1024,7 @@ int PluginEstimate(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
   if (auto [cmd, ctx] = find_plugin_from_list(
           jcr, original_cmd, plugin_ctx_list, bEventEstimateCommand);
       ctx) {
-    Dmsg4(debuglevel, "plugin=%s plen=%d cmd=%s len=%d\n", ctx->plugin->file,
+    Dmsg4(debuglevel, "plugin={} plen={} cmd={} len={}\n", ctx->plugin->file,
           ctx->plugin->file_len, cmd.c_str(), cmd.size());
 
     /* We put the current plugin pointer, and the plugin context into the jcr,
@@ -1033,7 +1033,7 @@ int PluginEstimate(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
     jcr->plugin_ctx = ctx;
 
     // Send the backup command to the right plugin
-    Dmsg1(debuglevel, "Command plugin = %s\n", cmd.c_str());
+    Dmsg1(debuglevel, "Command plugin = {}\n", cmd.c_str());
     if (PlugFunc(ctx->plugin)
             ->handlePluginEvent(ctx, &event, const_cast<char*>(cmd.c_str()))
         != bRC_OK) {
@@ -1046,7 +1046,7 @@ int PluginEstimate(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
       sp.portable = true;
       CopyBits(FO_MAX, ff_pkt->flags, sp.flags);
       sp.cmd = const_cast<char*>(original_cmd);
-      Dmsg3(debuglevel, "startBackup st_size=%p st_blocks=%p sp=%p\n",
+      Dmsg3(debuglevel, "startBackup st_size={:p} st_blocks={:p} sp={:p}\n",
             &sp.statp.st_size, &sp.statp.st_blocks, &sp);
 
       // Get the file save parameters. I.e. the stat pkt ...
@@ -1100,10 +1100,10 @@ int PluginEstimate(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
         }
       }
 
-      Dmsg2(debuglevel, "startBackup returned type=%d, fname=%s\n", sp.type,
+      Dmsg2(debuglevel, "startBackup returned type={}, fname={}\n", sp.type,
             sp.fname);
       if (sp.object) {
-        Dmsg2(debuglevel, "index=%d object=%s\n", sp.index, sp.object);
+        Dmsg2(debuglevel, "index={} object={}\n", sp.index, sp.object);
       }
 
       bRC retval = PlugFunc(ctx->plugin)->endBackupFile(ctx);
@@ -1139,7 +1139,7 @@ bool SendPluginName(JobControlRecord* jcr, BareosSocket* sd, bool start)
   if (jcr->IsJobCanceled()) { return false; }
 
   if (start) { index++; /* JobFiles not incremented yet */ }
-  Dmsg1(debuglevel, "SendPluginName=%s\n", sp->cmd);
+  Dmsg1(debuglevel, "SendPluginName={}\n", sp->cmd);
 
   // Send stream header
   if (!sd->fsend("%ld %d 0", index, STREAM_PLUGIN_NAME)) {
@@ -1147,7 +1147,7 @@ bool SendPluginName(JobControlRecord* jcr, BareosSocket* sd, bool start)
           sd->bstrerror());
     return false;
   }
-  Dmsg1(debuglevel, "send plugin name hdr: %s\n", sd->msg);
+  Dmsg1(debuglevel, "send plugin name hdr: {}\n", sd->msg);
 
   if (start) {
     // Send data -- not much
@@ -1161,7 +1161,7 @@ bool SendPluginName(JobControlRecord* jcr, BareosSocket* sd, bool start)
           sd->bstrerror());
     return false;
   }
-  Dmsg1(debuglevel, "send plugin start/end: %s\n", sd->msg);
+  Dmsg1(debuglevel, "send plugin start/end: {}\n", sd->msg);
   sd->signal(BNET_EOD); /* indicate end of plugin name data */
 
   return true;
@@ -1183,7 +1183,7 @@ bool PluginNameStream(JobControlRecord* jcr, char* name)
   bool retval = true;
   alist<PluginContext*>* plugin_ctx_list;
 
-  Dmsg1(debuglevel, "Read plugin stream string=%s\n", name);
+  Dmsg1(debuglevel, "Read plugin stream string={}\n", name);
   SkipNonspaces(&p); /* skip over jcr->JobFiles */
   SkipSpaces(&p);
   start = *p == '1';
@@ -1201,12 +1201,12 @@ bool PluginNameStream(JobControlRecord* jcr, char* name)
       FiledPluginContext* b_ctx
           = (FiledPluginContext*)jcr->plugin_ctx->core_private_context;
 
-      Dmsg2(debuglevel, "End plugin data plugin=%p ctx=%p\n", plugin,
+      Dmsg2(debuglevel, "End plugin data plugin={:p} ctx={:p}\n", plugin,
             jcr->plugin_ctx);
       if (b_ctx->restoreFileStarted) {
         /* PlugFunc(plugin)->endRestoreFile(jcr->plugin_ctx); */
         bRC ret = PlugFunc(plugin)->endRestoreFile(jcr->plugin_ctx);
-        Dmsg1(debuglevel, "endRestoreFile ret: %d\n", ret);
+        Dmsg1(debuglevel, "endRestoreFile ret: {}\n", ret);
         if (ret == PYTHON_UNDEFINED_RETURN_VALUE) {
           Jmsg2(jcr, M_FATAL, 0,
                 "Return value of endRestoreFile invalid: %d, plugin=%s\n", ret,
@@ -1233,20 +1233,20 @@ bool PluginNameStream(JobControlRecord* jcr, char* name)
     bEventType eventType;
     FiledPluginContext* b_ctx;
 
-    Dmsg3(debuglevel, "plugin=%s cmd=%s len=%d\n", ctx->plugin->file, cmd, len);
+    Dmsg3(debuglevel, "plugin={} cmd={} len={}\n", ctx->plugin->file, cmd, len);
     if (!IsEventForThisPlugin(ctx->plugin, cmd, len)) { continue; }
 
     if (IsPluginDisabled(ctx)) {
-      Dmsg1(debuglevel, "Plugin %s disabled\n", cmd);
+      Dmsg1(debuglevel, "Plugin {} disabled\n", cmd);
       goto bail_out;
     }
 
-    Dmsg1(debuglevel, "Restore Command plugin = %s\n", cmd);
+    Dmsg1(debuglevel, "Restore Command plugin = {}\n", cmd);
     eventType = bEventRestoreCommand;
     event.eventType = eventType;
 
     if (!IsEventEnabled(ctx, eventType)) {
-      Dmsg1(debuglevel, "Event %d disabled for this plugin.\n", eventType);
+      Dmsg1(debuglevel, "Event {} disabled for this plugin.\n", eventType);
       continue;
     }
 
@@ -1256,7 +1256,7 @@ bool PluginNameStream(JobControlRecord* jcr, char* name)
 
     if (PlugFunc(ctx->plugin)->handlePluginEvent(jcr->plugin_ctx, &event, cmd)
         != bRC_OK) {
-      Dmsg1(debuglevel, "Handle event failed. Plugin=%s\n", cmd);
+      Dmsg1(debuglevel, "Handle event failed. Plugin={}\n", cmd);
       goto bail_out;
     }
 
@@ -1273,7 +1273,7 @@ bool PluginNameStream(JobControlRecord* jcr, char* name)
       b_ctx->restoreFileStarted = true;
       goto bail_out;
     } else {
-      Dmsg1(debuglevel, "startRestoreFile failed. plugin=%s\n", cmd);
+      Dmsg1(debuglevel, "startRestoreFile failed. plugin={}\n", cmd);
       goto bail_out;
     }
   }
@@ -1294,7 +1294,7 @@ bool PluginNameStream(JobControlRecord* jcr, char* name)
       grpc_cmd += ":";
       grpc_cmd += cmd;
 
-      Dmsg1(100, "using grpc to handle this event\n'%s' -> '%s'\n", cmd,
+      Dmsg1(100, "using grpc to handle this event\n'{}' -> '{}'\n", cmd,
             grpc_cmd.c_str());
 
       jcr->plugin_ctx = ctx;
@@ -1306,7 +1306,7 @@ bool PluginNameStream(JobControlRecord* jcr, char* name)
       if (PlugFunc(ctx->plugin)
               ->handlePluginEvent(jcr->plugin_ctx, &event, grpc_cmd.data())
           != bRC_OK) {
-        Dmsg1(debuglevel, "Handle event failed. Plugin=%s\n", grpc_cmd.c_str());
+        Dmsg1(debuglevel, "Handle event failed. Plugin={}\n", grpc_cmd.c_str());
         goto bail_out;
       }
 
@@ -1324,7 +1324,7 @@ bool PluginNameStream(JobControlRecord* jcr, char* name)
         b_ctx->restoreFileStarted = true;
         goto bail_out;
       } else {
-        Dmsg1(debuglevel, "startRestoreFile failed. plugin=%s\n",
+        Dmsg1(debuglevel, "startRestoreFile failed. plugin={}\n",
               grpc_cmd.c_str());
         goto bail_out;
       }
@@ -1385,9 +1385,9 @@ int PluginCreateFile(JobControlRecord* jcr,
   rp.filedes = kInvalidFiledescriptor;
 
   Dmsg4(debuglevel,
-        "call plugin createFile stream=%d type=%d LinkFI=%d File=%s\n",
+        "call plugin createFile stream={} type={} LinkFI={} File={}\n",
         rp.stream, rp.type, rp.LinkFI, rp.ofname);
-  if (rp.attrEx) { Dmsg1(debuglevel, "attrEx=\"%s\"\n", rp.attrEx); }
+  if (rp.attrEx) { Dmsg1(debuglevel, "attrEx=\"{}\"\n", rp.attrEx); }
 
   if (!b_ctx->restoreFileStarted || b_ctx->createFileCalled) {
     Jmsg2(jcr, M_FATAL, 0, "Unbalanced call to createFile=%d %d\n",
@@ -1424,7 +1424,7 @@ int PluginCreateFile(JobControlRecord* jcr,
 
   status
       = bopen(bfd, attr->ofname, flags, S_IRUSR | S_IWUSR, attr->statp.st_rdev);
-  Dmsg1(debuglevel, "bopen status=%d\n", status);
+  Dmsg1(debuglevel, "bopen status={}\n", status);
 
   if (status < 0) {
     BErrNo be;
@@ -1432,7 +1432,7 @@ int PluginCreateFile(JobControlRecord* jcr,
     be.SetErrno(bfd->BErrNo);
     Qmsg2(jcr, M_ERROR, 0, T_("Could not create %s: ERR=%s\n"), attr->ofname,
           be.bstrerror());
-    Dmsg2(debuglevel, "Could not bopen file %s: ERR=%s\n", attr->ofname,
+    Dmsg2(debuglevel, "Could not bopen file {}: ERR={}\n", attr->ofname,
           be.bstrerror());
     return CF_ERROR;
   }
@@ -1780,7 +1780,7 @@ void LoadFdPlugins(const char* plugin_dir, alist<const char*>* plugin_names)
   // Verify that the plugin is acceptable, and print information about it.
   int i{0};
   foreach_alist_index (i, plugin, fd_plugin_list) {
-    Dmsg1(debuglevel, "Loaded plugin: %s\n", plugin->file);
+    Dmsg1(debuglevel, "Loaded plugin: {}\n", plugin->file);
   }
 
   DbgPluginAddHook(DumpFdPlugin);
@@ -1813,7 +1813,7 @@ static bool IsPluginCompatible(Plugin* plugin)
     Jmsg(NULL, M_ERROR, 0,
          T_("Plugin magic wrong. Plugin=%s wanted=%s got=%s\n"), plugin->file,
          FD_PLUGIN_MAGIC, info->plugin_magic);
-    Dmsg3(50, "Plugin magic wrong. Plugin=%s wanted=%s got=%s\n", plugin->file,
+    Dmsg3(50, "Plugin magic wrong. Plugin={} wanted={} got={}\n", plugin->file,
           FD_PLUGIN_MAGIC, info->plugin_magic);
 
     return false;
@@ -1822,7 +1822,7 @@ static bool IsPluginCompatible(Plugin* plugin)
     Jmsg(NULL, M_ERROR, 0,
          T_("Plugin version incorrect. Plugin=%s wanted=%d got=%d\n"),
          plugin->file, FD_PLUGIN_INTERFACE_VERSION, info->version);
-    Dmsg3(50, "Plugin version incorrect. Plugin=%s wanted=%d got=%d\n",
+    Dmsg3(50, "Plugin version incorrect. Plugin={} wanted={} got={}\n",
           plugin->file, FD_PLUGIN_INTERFACE_VERSION, info->version);
     return false;
   }
@@ -1831,7 +1831,7 @@ static bool IsPluginCompatible(Plugin* plugin)
     Jmsg(NULL, M_ERROR, 0,
          T_("Plugin license incompatible. Plugin=%s license=%s\n"),
          plugin->file, info->plugin_license);
-    Dmsg2(50, "Plugin license incompatible. Plugin=%s license=%s\n",
+    Dmsg2(50, "Plugin license incompatible. Plugin={} license={}\n",
           plugin->file, info->plugin_license);
     return false;
   }
@@ -1889,7 +1889,7 @@ void NewPlugins(JobControlRecord* jcr)
   }
 
   jcr->plugin_ctx_list = new alist<PluginContext*>(10, owned_by_alist);
-  Dmsg2(debuglevel, "Instantiate plugin_ctx=%p JobId=%d\n",
+  Dmsg2(debuglevel, "Instantiate plugin_ctx={:p} JobId={}\n",
         jcr->plugin_ctx_list, jcr->JobId);
 
   int i{};
@@ -1904,7 +1904,7 @@ void FreePlugins(JobControlRecord* jcr)
 {
   if (!fd_plugin_list || !jcr->plugin_ctx_list) { return; }
 
-  Dmsg2(debuglevel, "Free instance fd-plugin_ctx_list=%p JobId=%d\n",
+  Dmsg2(debuglevel, "Free instance fd-plugin_ctx_list={:p} JobId={}\n",
         jcr->plugin_ctx_list, jcr->JobId);
   for (auto* ctx : jcr->plugin_ctx_list) {
     // Free the plugin instance
@@ -1927,7 +1927,7 @@ static int MyPluginBopen(BareosFilePacket* bfd,
   io_pkt io;
   JobControlRecord* jcr = bfd->jcr;
 
-  Dmsg1(debuglevel, "plugin_bopen flags=%08o\n", flags);
+  Dmsg1(debuglevel, "plugin_bopen flags={:08o}\n", flags);
   if (!jcr->plugin_ctx) { return 0; }
   plugin = (Plugin*)jcr->plugin_ctx->plugin;
 
@@ -1968,19 +1968,19 @@ static int MyPluginBopen(BareosFilePacket* bfd,
       Dmsg1(
           debuglevel,
           "bopen: plugin asks for core to do the read/write via filedescriptor "
-          "%d\n",
+          "{}\n",
           io.filedes);
       return io.filedes;
     } else {
       Dmsg1(debuglevel,
             "bopen: ERROR: plugin wants to do read/write itself but did not "
-            "return a valid filedescriptor: %d\n",
+            "return a valid filedescriptor: {}\n",
             io.filedes);
       return -2;
     }
   } else {
     Dmsg1(debuglevel,
-          "bopen: plugin wants to do read/write itself. status: %d\n",
+          "bopen: plugin wants to do read/write itself. status: {}\n",
           io.status);
     bfd->filedes = 0;  // set filedes to 0 as otherwise IsBopen() fails.
     return io.status;
@@ -2015,7 +2015,7 @@ static int MyPluginBclose(BareosFilePacket* bfd)
     bfd->lerror = io.lerror;
   }
 
-  Dmsg1(debuglevel, "plugin_bclose stat=%d\n", io.status);
+  Dmsg1(debuglevel, "plugin_bclose stat={}\n", io.status);
   bfd->filedes = kInvalidFiledescriptor;
   return io.status;
 }
@@ -2177,46 +2177,46 @@ static bRC bareosGetValue(PluginContext* ctx, bVariable var, void* value)
     switch (var) {
       case bVarJobId:
         *((int*)value) = jcr->JobId;
-        Dmsg1(debuglevel, "fd-plugin: return bVarJobId=%d\n", jcr->JobId);
+        Dmsg1(debuglevel, "fd-plugin: return bVarJobId={}\n", jcr->JobId);
         break;
       case bVarLevel:
         *((int*)value) = jcr->getJobLevel();
-        Dmsg1(debuglevel, "fd-plugin: return bVarJobLevel=%d\n",
+        Dmsg1(debuglevel, "fd-plugin: return bVarJobLevel={}\n",
               jcr->getJobLevel());
         break;
       case bVarType:
         *((int*)value) = jcr->getJobType();
-        Dmsg1(debuglevel, "fd-plugin: return bVarJobType=%d\n",
+        Dmsg1(debuglevel, "fd-plugin: return bVarJobType={}\n",
               jcr->getJobType());
         break;
       case bVarClient:
         *((char**)value) = jcr->client_name;
-        Dmsg1(debuglevel, "fd-plugin: return bVarClient=%s\n",
+        Dmsg1(debuglevel, "fd-plugin: return bVarClient={}\n",
               NPRT(*((char**)value)));
         break;
       case bVarJobName:
         *((char**)value) = jcr->Job;
-        Dmsg1(debuglevel, "fd-plugin: return bVarJobName=%s\n",
+        Dmsg1(debuglevel, "fd-plugin: return bVarJobName={}\n",
               NPRT(*((char**)value)));
         break;
       case bVarPrevJobName:
         *((char**)value) = jcr->fd_impl->PrevJob;
-        Dmsg1(debuglevel, "fd-plugin: return bVarPrevJobName=%s\n",
+        Dmsg1(debuglevel, "fd-plugin: return bVarPrevJobName={}\n",
               NPRT(*((char**)value)));
         break;
       case bVarJobStatus:
         *((int*)value) = jcr->getJobStatus();
-        Dmsg1(debuglevel, "fd-plugin: return bVarJobStatus=%d\n",
+        Dmsg1(debuglevel, "fd-plugin: return bVarJobStatus={}\n",
               jcr->getJobStatus());
         break;
       case bVarSinceTime:
         *((int*)value) = (int)jcr->fd_impl->since_time;
-        Dmsg1(debuglevel, "fd-plugin: return bVarSinceTime=%d\n",
+        Dmsg1(debuglevel, "fd-plugin: return bVarSinceTime={}\n",
               (int)jcr->fd_impl->since_time);
         break;
       case bVarAccurate:
         *((int*)value) = (int)jcr->accurate;
-        Dmsg1(debuglevel, "fd-plugin: return bVarAccurate=%d\n",
+        Dmsg1(debuglevel, "fd-plugin: return bVarAccurate={}\n",
               (int)jcr->accurate);
         break;
       case bVarFileSeen:
@@ -2225,7 +2225,7 @@ static bRC bareosGetValue(PluginContext* ctx, bVariable var, void* value)
 #ifdef HAVE_WIN32
         if (jcr->fd_impl->pVSSClient) {
           *(void**)value = jcr->fd_impl->pVSSClient;
-          Dmsg1(debuglevel, "fd-plugin: return bVarVssClient=%p\n",
+          Dmsg1(debuglevel, "fd-plugin: return bVarVssClient={:p}\n",
                 *(void**)value);
           break;
         }
@@ -2233,17 +2233,17 @@ static bRC bareosGetValue(PluginContext* ctx, bVariable var, void* value)
         return bRC_Error;
       case bVarWhere:
         *(char**)value = jcr->where;
-        Dmsg1(debuglevel, "fd-plugin: return bVarWhere=%s\n",
+        Dmsg1(debuglevel, "fd-plugin: return bVarWhere={}\n",
               NPRT(*((char**)value)));
         break;
       case bVarRegexWhere:
         *(char**)value = jcr->RegexWhere;
-        Dmsg1(debuglevel, "fd-plugin: return bVarRegexWhere=%s\n",
+        Dmsg1(debuglevel, "fd-plugin: return bVarRegexWhere={}\n",
               NPRT(*((char**)value)));
         break;
       case bVarPrefixLinks:
         *(int*)value = (int)jcr->prefix_links;
-        Dmsg1(debuglevel, "fd-plugin: return bVarPrefixLinks=%d\n",
+        Dmsg1(debuglevel, "fd-plugin: return bVarPrefixLinks={}\n",
               (int)jcr->prefix_links);
         break;
       default:
@@ -2268,7 +2268,7 @@ static bRC bareosSetValue(PluginContext* ctx, bVariable var, const void* value)
       const bool bool_value = *static_cast<const bool*>(value);
       static_cast<FiledPluginContext*>(ctx->core_private_context)->check_changes
           = bool_value;
-      Dmsg0(100, "check_changes set to %d\n", bool_value);
+      Dmsg0(100, "check_changes set to {}\n", bool_value);
       return bRC_OK;
     }
     case bVarFileSeen:
@@ -2296,7 +2296,7 @@ static bRC bareosRegisterEvents(PluginContext* ctx, int nr_events, ...)
   va_start(args, nr_events);
   for (i = 0; i < nr_events; i++) {
     event = va_arg(args, uint32_t);
-    Dmsg1(debuglevel, "fd-plugin: Plugin registered event=%u\n", event);
+    Dmsg1(debuglevel, "fd-plugin: Plugin registered event={}\n", event);
     SetBit(event, b_ctx->events);
   }
   va_end(args);
@@ -2346,7 +2346,7 @@ static bRC bareosUnRegisterEvents(PluginContext* ctx, int nr_events, ...)
   va_start(args, nr_events);
   for (i = 0; i < nr_events; i++) {
     event = va_arg(args, uint32_t);
-    Dmsg1(debuglevel, "fd-plugin: Plugin unregistered event=%u\n", event);
+    Dmsg1(debuglevel, "fd-plugin: Plugin unregistered event={}\n", event);
     ClearBit(event, b_ctx->events);
   }
   va_end(args);
@@ -2440,7 +2440,7 @@ static bRC bareosAddExclude(PluginContext* ctx, const char* fname)
   // Restore the current context
   SetIncexe(jcr, old);
 
-  Dmsg1(100, "Add exclude file=%s\n", fname);
+  Dmsg1(100, "Add exclude file={}\n", fname);
 
   return bRC_OK;
 }
@@ -2473,7 +2473,7 @@ static bRC bareosAddInclude(PluginContext* ctx, const char* fname)
   // Restore the current context
   SetIncexe(jcr, old);
 
-  Dmsg1(100, "Add include file=%s\n", fname);
+  Dmsg1(100, "Add include file={}\n", fname);
 
   return bRC_OK;
 }
@@ -2487,7 +2487,7 @@ static bRC bareosAddOptions(PluginContext* ctx, const char* opts)
 
   if (!opts) { return bRC_Error; }
   AddOptionsFlagsToFileset(jcr, opts);
-  Dmsg1(1000, "Add options=%s\n", opts);
+  Dmsg1(1000, "Add options={}\n", opts);
 
   return bRC_OK;
 }
@@ -2501,7 +2501,7 @@ static bRC bareosAddRegex(PluginContext* ctx, const char* item, int type)
 
   if (!item) { return bRC_Error; }
   AddRegexToFileset(jcr, item, type);
-  Dmsg1(100, "Add regex=%s\n", item);
+  Dmsg1(100, "Add regex={}\n", item);
 
   return bRC_OK;
 }
@@ -2515,7 +2515,7 @@ static bRC bareosAddWild(PluginContext* ctx, const char* item, int type)
 
   if (!item) { return bRC_Error; }
   AddWildToFileset(jcr, item, type);
-  Dmsg1(100, "Add wild=%s\n", item);
+  Dmsg1(100, "Add wild={}\n", item);
 
   return bRC_OK;
 }
@@ -2604,7 +2604,7 @@ static bRC bareosCheckChanges(PluginContext* ctx, save_pkt* sp)
   sp->accurate_found = ff_pkt->accurate_found;
 
 bail_out:
-  Dmsg1(100, "checkChanges=%i\n", retval);
+  Dmsg1(100, "checkChanges={}\n", retval);
   return retval;
 }
 

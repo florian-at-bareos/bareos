@@ -52,7 +52,7 @@ bool fstype(const char* fname, char* fs, int fslen)
     return true;
   }
 
-  Dmsg1(50, "statfs() failed for \"%s\"\n", fname);
+  Dmsg1(50, "statfs() failed for \"{}\"\n", fname);
   return false;
 }
 
@@ -75,7 +75,7 @@ bool fstype(const char* fname, char* fs, int fslen)
     return false;
   }
 
-  Dmsg1(50, "lstat() failed for \"%s\"\n", fname);
+  Dmsg1(50, "lstat() failed for \"{}\"\n", fname);
   return false;
 }
 
@@ -93,7 +93,7 @@ bool fstype(const char* fname, char* fs, int fslen)
     return true;
   }
 
-  Dmsg1(50, "lstat() failed for \"%s\"\n", fname);
+  Dmsg1(50, "lstat() failed for \"{}\"\n", fname);
   return false;
 }
 
@@ -124,7 +124,7 @@ bool fstype(const char* fname, char* fs, int fslen)
      * other OSes */
     lcase(fs);
   } else {
-    Dmsg2(10, "GetVolumeInformation() failed for \"%s\", Error = %d.\n",
+    Dmsg2(10, "GetVolumeInformation() failed for \"{}\", Error = {}.\n",
           rootpath, GetLastError());
   }
 

@@ -505,7 +505,7 @@ bool gfapi_device::d_truncate(DeviceControlRecord*)
 
       Mmsg2(errmsg, T_("Unable to stat device %s. ERR=%s\n"), prt_name,
             be.bstrerror());
-      Dmsg1(100, "%s", errmsg);
+      Dmsg1(100, "{}", errmsg);
       return false;
     }
 

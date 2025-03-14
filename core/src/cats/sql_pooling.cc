@@ -54,7 +54,7 @@ BareosDb* DbSqlGetNonPooledConnection(JobControlRecord* jcr,
   BareosDb* mdb;
   Dmsg1(100,
         "DbSqlGetNonPooledConnection allocating 1 new non pooled database "
-        "connection to database %s\n",
+        "connection to database {}\n",
         db_name);
 
   mdb = db_init_database(jcr, db_drivername, db_name, db_user, db_password,

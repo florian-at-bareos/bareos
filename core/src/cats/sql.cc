@@ -66,10 +66,10 @@ int DbIntHandler(void* ctx, int, char** row)
 {
   uint32_t* val = (uint32_t*)ctx;
 
-  Dmsg1(800, "int_handler starts with row pointing at %x\n", row);
+  Dmsg1(800, "int_handler starts with row pointing at {:x}\n", row);
 
   if (row[0]) {
-    Dmsg1(800, "int_handler finds '%s'\n", row[0]);
+    Dmsg1(800, "int_handler finds '{}'\n", row[0]);
     *val = str_to_int64(row[0]);
   } else {
     Dmsg0(800, "int_handler finds zero\n");
@@ -123,7 +123,7 @@ static inline int DbMaxConnectionsHandler(void* ctx, int count, char** row)
   auto* context = static_cast<struct max_connections_context*>(ctx);
 
   if (count != 1) {
-    Dmsg0(50, "Expected exactly one field, got %d\n", count);
+    Dmsg0(50, "Expected exactly one field, got {}\n", count);
     return -1;
   }
 
@@ -205,7 +205,7 @@ bool BareosDb::QueryDb(JobControlRecord* jcr,
   AssertOwnership();
 
   SqlFreeResult();
-  Dmsg1(1000, "query: %s\n", select_cmd);
+  Dmsg1(1000, "query: {}\n", select_cmd);
   if (!SqlQuery(select_cmd, QF_STORE_RESULT)) {
     msg_(loc.file_name(), loc.line(), errmsg, T_("query %s failed:\n%s\n"),
          select_cmd, sql_strerror());
@@ -392,7 +392,7 @@ void BareosDb::SplitPathAndFile(JobControlRecord* jcr, const char* filename)
     pnl = 0;
   }
 
-  Dmsg2(500, "split path=%s file=%s\n", path, fname);
+  Dmsg2(500, "split path={} file={}\n", path, fname);
 }
 
 static int MaxLength(int MaxLength)
@@ -464,16 +464,16 @@ int BareosDb::ListResult(void* vctx, int, char** row)
       if (!pctx->once) {
         pctx->once = true;
 
-        Dmsg1(800, "ListResult starts looking at %d fields\n", num_fields);
+        Dmsg1(800, "ListResult starts looking at {} fields\n", num_fields);
         // Determine column display widths
         SqlFieldSeek(0);
         for (int i = 0; i < num_fields; i++) {
-          Dmsg1(800, "ListResult processing field %d\n", i);
+          Dmsg1(800, "ListResult processing field {}\n", i);
           field = SqlFetchField();
           if (!field) { break; }
 
           if (send->IsHiddenColumn(i)) {
-            Dmsg1(800, "ListResult field %d is hidden\n", i);
+            Dmsg1(800, "ListResult field {} is hidden\n", i);
             continue;
           }
 
@@ -500,7 +500,7 @@ int BareosDb::ListResult(void* vctx, int, char** row)
         Dmsg0(800, "ListResult finished first loop\n");
         if (type == VERT_LIST) { break; }
 
-        Dmsg1(800, "ListResult starts second loop looking at %d fields\n",
+        Dmsg1(800, "ListResult starts second loop looking at {} fields\n",
               num_fields);
 
         ListDashes(send);
@@ -508,13 +508,13 @@ int BareosDb::ListResult(void* vctx, int, char** row)
         send->Decoration("|");
         SqlFieldSeek(0);
         for (int i = 0; i < num_fields; i++) {
-          Dmsg1(800, "ListResult looking at field %d\n", i);
+          Dmsg1(800, "ListResult looking at field {}\n", i);
 
           field = SqlFetchField();
           if (!field) { break; }
 
           if (send->IsHiddenColumn(i)) {
-            Dmsg1(800, "ListResult field %d is hidden\n", i);
+            Dmsg1(800, "ListResult field {} is hidden\n", i);
             continue;
           }
 
@@ -532,7 +532,7 @@ int BareosDb::ListResult(void* vctx, int, char** row)
   switch (type) {
     case NF_LIST:
     case RAW_LIST:
-      Dmsg1(800, "ListResult starts third loop looking at %d fields\n",
+      Dmsg1(800, "ListResult starts third loop looking at {} fields\n",
             num_fields);
       SqlFieldSeek(0);
       for (int i = 0; i < num_fields; i++) {
@@ -540,7 +540,7 @@ int BareosDb::ListResult(void* vctx, int, char** row)
         if (!field) { break; }
 
         if (send->IsHiddenColumn(i)) {
-          Dmsg1(800, "ListResult field %d is hidden\n", i);
+          Dmsg1(800, "ListResult field {} is hidden\n", i);
           continue;
         }
 
@@ -554,7 +554,7 @@ int BareosDb::ListResult(void* vctx, int, char** row)
       if (type != RAW_LIST) { send->Decoration("\n"); }
       break;
     case HORZ_LIST:
-      Dmsg1(800, "ListResult starts third loop looking at %d fields\n",
+      Dmsg1(800, "ListResult starts third loop looking at {} fields\n",
             num_fields);
       SqlFieldSeek(0);
       send->Decoration("|");
@@ -563,7 +563,7 @@ int BareosDb::ListResult(void* vctx, int, char** row)
         if (!field) { break; }
 
         if (send->IsHiddenColumn(i)) {
-          Dmsg1(800, "ListResult field %d is hidden\n", i);
+          Dmsg1(800, "ListResult field {} is hidden\n", i);
           continue;
         }
 
@@ -584,14 +584,14 @@ int BareosDb::ListResult(void* vctx, int, char** row)
       send->Decoration("\n");
       break;
     case VERT_LIST:
-      Dmsg1(800, "ListResult starts vertical list at %d fields\n", num_fields);
+      Dmsg1(800, "ListResult starts vertical list at {} fields\n", num_fields);
       SqlFieldSeek(0);
       for (int i = 0; i < num_fields; i++) {
         field = SqlFetchField();
         if (!field) { break; }
 
         if (send->IsHiddenColumn(i)) {
-          Dmsg1(800, "ListResult field %d is hidden\n", i);
+          Dmsg1(800, "ListResult field {} is hidden\n", i);
           continue;
         }
 
@@ -669,18 +669,18 @@ int BareosDb::ListResult(JobControlRecord* jcr,
       break;
     case HORZ_LIST:
     case VERT_LIST:
-      Dmsg1(800, "ListResult starts looking at %d fields\n", num_fields);
+      Dmsg1(800, "ListResult starts looking at {} fields\n", num_fields);
       // Determine column display widths
       SqlFieldSeek(0);
       for (int i = 0; i < num_fields; i++) {
-        Dmsg1(800, "ListResult processing field %d\n", i);
+        Dmsg1(800, "ListResult processing field {}\n", i);
 
         field = SqlFetchField();
         if (!field) { break; }
 
         // See if this is a hidden column.
         if (send->IsHiddenColumn(i)) {
-          Dmsg1(800, "ListResult field %d is hidden\n", i);
+          Dmsg1(800, "ListResult field {} is hidden\n", i);
           continue;
         }
 
@@ -713,7 +713,7 @@ int BareosDb::ListResult(JobControlRecord* jcr,
     case E_LIST_INIT:
     case NF_LIST:
     case RAW_LIST:
-      Dmsg1(800, "ListResult starts second loop looking at %d fields\n",
+      Dmsg1(800, "ListResult starts second loop looking at {} fields\n",
             num_fields);
       while ((row = SqlFetchRow()) != NULL) {
         // See if we should allow this under the current filtering.
@@ -727,7 +727,7 @@ int BareosDb::ListResult(JobControlRecord* jcr,
 
           // See if this is a hidden column.
           if (send->IsHiddenColumn(i)) {
-            Dmsg1(800, "ListResult field %d is hidden\n", i);
+            Dmsg1(800, "ListResult field {} is hidden\n", i);
             continue;
           }
 
@@ -743,20 +743,20 @@ int BareosDb::ListResult(JobControlRecord* jcr,
       }
       break;
     case HORZ_LIST:
-      Dmsg1(800, "ListResult starts second loop looking at %d fields\n",
+      Dmsg1(800, "ListResult starts second loop looking at {} fields\n",
             num_fields);
       ListDashes(send);
       send->Decoration("|");
       SqlFieldSeek(0);
       for (int i = 0; i < num_fields; i++) {
-        Dmsg1(800, "ListResult looking at field %d\n", i);
+        Dmsg1(800, "ListResult looking at field {}\n", i);
 
         field = SqlFetchField();
         if (!field) { break; }
 
         // See if this is a hidden column.
         if (send->IsHiddenColumn(i)) {
-          Dmsg1(800, "ListResult field %d is hidden\n", i);
+          Dmsg1(800, "ListResult field {} is hidden\n", i);
           continue;
         }
 
@@ -766,7 +766,7 @@ int BareosDb::ListResult(JobControlRecord* jcr,
       send->Decoration("\n");
       ListDashes(send);
 
-      Dmsg1(800, "ListResult starts third loop looking at %d fields\n",
+      Dmsg1(800, "ListResult starts third loop looking at {} fields\n",
             num_fields);
       while ((row = SqlFetchRow()) != NULL) {
         // See if we should allow this under the current filtering.
@@ -782,7 +782,7 @@ int BareosDb::ListResult(JobControlRecord* jcr,
 
           // See if this is a hidden column.
           if (send->IsHiddenColumn(i)) {
-            Dmsg1(800, "ListResult field %d is hidden\n", i);
+            Dmsg1(800, "ListResult field {} is hidden\n", i);
             continue;
           }
 
@@ -810,7 +810,7 @@ int BareosDb::ListResult(JobControlRecord* jcr,
       ListDashes(send);
       break;
     case VERT_LIST:
-      Dmsg1(800, "ListResult starts vertical list at %d fields\n", num_fields);
+      Dmsg1(800, "ListResult starts vertical list at {} fields\n", num_fields);
       while ((row = SqlFetchRow()) != NULL) {
         // See if we should allow this under the current filtering.
         if (filters_enabled && !send->FilterData(row)) { continue; }
@@ -823,7 +823,7 @@ int BareosDb::ListResult(JobControlRecord* jcr,
 
           // See if this is a hidden column.
           if (send->IsHiddenColumn(i)) {
-            Dmsg1(800, "ListResult field %d is hidden\n", i);
+            Dmsg1(800, "ListResult field {} is hidden\n", i);
             continue;
           }
 

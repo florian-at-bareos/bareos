@@ -362,10 +362,10 @@ static bool BscanMountNextReadVolume(DeviceControlRecord* dcr)
   bool status;
   Device* my_dev = dcr->dev;
 
-  Dmsg1(100, "Walk attached jcrs. Volume=%s\n", my_dev->getVolCatName());
+  Dmsg1(100, "Walk attached jcrs. Volume={}\n", my_dev->getVolCatName());
   for (auto mdcr : my_dev->attached_dcrs) {
     JobControlRecord* mjcr = mdcr->jcr;
-    Dmsg1(000, "========== JobId=%u ========\n", mjcr->JobId);
+    Dmsg1(000, "========== JobId={} ========\n", mjcr->JobId);
     if (mjcr->JobId == 0) { continue; }
     if (g_verbose) {
       Pmsg1(000, T_("Create JobMedia for Job %s\n"), mjcr->Job);

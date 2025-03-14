@@ -226,7 +226,7 @@ bool GetNameAndResourceTypeAndVersionFromHello(
   }
 
   if (!found) {
-    Dmsg1(100, "Client information not found: %s\n", input.c_str());
+    Dmsg1(100, "Client information not found: {}\n", input.c_str());
     return false;
   }
 
@@ -261,7 +261,7 @@ bool GetNameAndResourceTypeAndVersionFromHello(
               ok = true;
             } catch (const std::exception& e) {
               Dmsg0(100,
-                    "Could not read out any version from hello message: %s\n",
+                    "Could not read out any version from hello message: {}\n",
                     e.what());
             }
           }
@@ -678,12 +678,12 @@ int DoShellExpansion(char* name, int name_len)
     PmStrcat(cmd, " -c \"echo ");
     PmStrcat(cmd, name);
     PmStrcat(cmd, "\"");
-    Dmsg1(400, "Send: %s\n", cmd);
+    Dmsg1(400, "Send: {}\n", cmd);
     if ((bpipe = OpenBpipe(cmd, 0, "r"))) {
       bfgets(line, bpipe->rfd);
       StripTrailingJunk(line);
       status = CloseBpipe(bpipe);
-      Dmsg2(400, "status=%d got: %s\n", status, line);
+      Dmsg2(400, "status={} got: {}\n", status, line);
     } else {
       status = 1; /* error */
     }
@@ -761,7 +761,7 @@ POOLMEM* edit_job_codes(JobControlRecord* jcr,
   int i;
 
   *omsg = 0;
-  Dmsg1(200, "edit_job_codes: %s\n", imsg);
+  Dmsg1(200, "edit_job_codes: {}\n", imsg);
   for (p = imsg; *p; p++) {
     if (*p == '%') {
       switch (*++p) {
@@ -897,9 +897,9 @@ POOLMEM* edit_job_codes(JobControlRecord* jcr,
       add[1] = 0;
       str = add;
     }
-    Dmsg1(1200, "add_str %s\n", str);
+    Dmsg1(1200, "add_str {}\n", str);
     PmStrcat(omsg, str);
-    Dmsg1(1200, "omsg=%s\n", omsg);
+    Dmsg1(1200, "omsg={}\n", omsg);
   }
 
   return omsg;

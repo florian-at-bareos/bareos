@@ -82,7 +82,7 @@ int SaferUnlink(const char* pathname, const char* regx)
 
   // Unlink files that match regexes
   if (regexec(&preg1, pathname, 0, NULL, 0) == 0) {
-    Dmsg1(100, "safe_unlink unlinking: %s\n", pathname);
+    Dmsg1(100, "safe_unlink unlinking: {}\n", pathname);
     rtn = SecureErase(NULL, pathname);
   } else {
     Pmsg2(000, "safe_unlink regex failed: regex=%s file=%s\n", regx, pathname);
@@ -188,7 +188,7 @@ int Bmicrosleep(int32_t sec, int32_t usec)
     timeout.tv_sec++;
   }
 
-  Dmsg2(200, "pthread_cond_timedwait sec=%lld usec=%d\n", sec, usec);
+  Dmsg2(200, "pthread_cond_timedwait sec={} usec={}\n", sec, usec);
 
   // Note, this unlocks mutex during the sleep
   lock_mutex(timer_mutex);
@@ -561,7 +561,7 @@ static struct StateFileHeader state_hdr = {{"Bareos State\n"}, 4, 0, 0, {0}};
 static bool CheckHeader(const StateFileHeader& hdr)
 {
   if (hdr.version != state_hdr.version) {
-    Dmsg2(100, "Bad hdr version. Wanted %d got %d\n", state_hdr.version,
+    Dmsg2(100, "Bad hdr version. Wanted {} got {}\n", state_hdr.version,
           hdr.version);
     return false;
   }
@@ -618,16 +618,16 @@ void ReadStateFile(const char* dir, const char* progname, int port)
     file.read(reinterpret_cast<char*>(&hdr), sizeof(StateFileHeader));
     if (!CheckHeader(hdr)) { return; }
     if (hdr.last_jobs_addr) {
-      Dmsg1(100, "ReadStateFile seek to %d\n", (int)hdr.last_jobs_addr);
+      Dmsg1(100, "ReadStateFile seek to {}\n", (int)hdr.last_jobs_addr);
       file.seekg(hdr.last_jobs_addr);
     }
   } catch (const std::system_error& e) {
     BErrNo be;
-    Dmsg3(100, "Could not open and read state file. size=%d: ERR=%s - %s\n",
+    Dmsg3(100, "Could not open and read state file. size={}: ERR={} - {}\n",
           sizeof(StateFileHeader), be.bstrerror(), e.code().message().c_str());
     return;
   } catch (const std::exception& e) {
-    Dmsg0(100, "Could not open or read file. Some error occurred: %s\n",
+    Dmsg0(100, "Could not open or read file. Some error occurred: {}\n",
           e.what());
   }
 
@@ -660,7 +660,7 @@ void WriteStateFile(const char* dir, const char* progname, int port)
 
     state_hdr.last_jobs_addr = sizeof(StateFileHeader);
 
-    Dmsg1(100, "write_last_jobs seek to %d\n", (int)state_hdr.last_jobs_addr);
+    Dmsg1(100, "write_last_jobs seek to {}\n", (int)state_hdr.last_jobs_addr);
     file.seekp(state_hdr.last_jobs_addr);
 
     RecentJobResultsList::ExportToFile(file);
@@ -669,11 +669,11 @@ void WriteStateFile(const char* dir, const char* progname, int port)
     file.write(reinterpret_cast<char*>(&state_hdr), sizeof(StateFileHeader));
   } catch (const std::system_error& e) {
     BErrNo be;
-    Dmsg3(100, "Could not seek filepointer. ERR=%s - %s\n", be.bstrerror(),
+    Dmsg3(100, "Could not seek filepointer. ERR={} - {}\n", be.bstrerror(),
           e.code().message().c_str());
     return;
   } catch (const std::exception& e) {
-    Dmsg0(100, "Could not seek filepointer. Some error occurred: %s\n",
+    Dmsg0(100, "Could not seek filepointer. Some error occurred: {}\n",
           e.what());
     return;
   }
@@ -939,7 +939,7 @@ bool PathAppend(PoolMem& path, PoolMem& extra)
 static bool PathMkdir(char* path, [[maybe_unused]] mode_t mode)
 {
   if (PathExists(path)) {
-    Dmsg1(500, "skipped, path %s already exists.\n", path);
+    Dmsg1(500, "skipped, path {} already exists.\n", path);
     return PathIsDirectory(path);
   }
 

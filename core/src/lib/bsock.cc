@@ -158,7 +158,7 @@ void BareosSocket::SetSourceAddress(dlist<IPADDR>* src_addr_list)
   char allbuf[256 * 10];
   IPADDR* addr = nullptr;
 
-  Dmsg1(100, "All source addresses %s\n",
+  Dmsg1(100, "All source addresses {}\n",
         BuildAddressesString(src_addr_list, allbuf, sizeof(allbuf)));
 
   // Delete the object we already have, if it's allocated
@@ -236,7 +236,7 @@ bool BareosSocket::despool(void UpdateAttrSpoolSize(ssize_t size),
       nbytes = read(spool_fd_, msg, message_length);
       if (nbytes != (size_t)message_length) {
         BErrNo be;
-        Dmsg2(400, "nbytes=%d message_length=%d\n", nbytes, message_length);
+        Dmsg2(400, "nbytes={} message_length={}\n", nbytes, message_length);
         Qmsg1(get_jcr(), M_FATAL, 0, T_("read attr spool error. ERR=%s\n"),
               be.bstrerror());
         UpdateAttrSpoolSize(tsize - last);
@@ -359,7 +359,7 @@ bool BareosSocket::ConsoleAuthenticateWithDirector(
   }
   dir->StopTimer();
 
-  Dmsg1(6, ">dird: %s", dir->msg);
+  Dmsg1(6, ">dird: {}", dir->msg);
 
   uint32_t message_id;
   BStringList args;
@@ -478,7 +478,7 @@ bool BareosSocket::DoTlsHandshakeAsAServer(ConfigurationParser* config,
   TlsResource* tls_resource
       = dynamic_cast<TlsResource*>(config->GetNextRes(config->r_own_, nullptr));
   if (!tls_resource) {
-    Dmsg1(100, "Could not get tls resource for %d.\n", config->r_own_);
+    Dmsg1(100, "Could not get tls resource for {}.\n", config->r_own_);
     return false;
   }
 
@@ -530,7 +530,7 @@ bool BareosSocket::ParameterizeAndInitTlsConnectionAsAServer(
   TlsResource* tls_resource
       = dynamic_cast<TlsResource*>(config->GetNextRes(config->r_own_, nullptr));
   if (!tls_resource) {
-    Dmsg1(100, "Could not get tls resource for %d.\n", config->r_own_);
+    Dmsg1(100, "Could not get tls resource for {}.\n", config->r_own_);
     return false;
   }
 
@@ -620,7 +620,7 @@ bool BareosSocket::ParameterizeAndInitTlsConnection(TlsResource* tls_resource,
       tls_conn_init->SetTlsPskClientContext(psk_cred);
     }
   } else {
-    Dmsg2(200, "Tls is not configured %s\n", identity);
+    Dmsg2(200, "Tls is not configured {}\n", identity);
   }
 
   if (!tls_conn_init->init()) {
@@ -730,12 +730,12 @@ bool BareosSocket::EvaluateCleartextBareosHello(
         if (version > BareosVersionNumber::kUndefined) {
           BareosVersionToMajorMinor v(version);
           Dmsg4(200,
-                "Identified from Bareos handshake: %s-%s recognized version: "
-                "%d.%d\n",
+                "Identified from Bareos handshake: {}-{} recognized version: "
+                "{}.{}\n",
                 name.c_str(), code.c_str(), v.major, v.minor);
         } else {
           Dmsg2(200,
-                "Identified from Bareos handshake: %s-%s version not "
+                "Identified from Bareos handshake: {}-{} version not "
                 "recognized\n",
                 name.c_str(), code.c_str());
         }
@@ -800,7 +800,7 @@ void BareosSocket::ControlBwlimit(int bytes)
   nb_bytes_ += bytes;
   last_tick_ = now;
   if (debug_level >= 400) {
-    Dmsg3(400, "ControlBwlimit: now = %lld, since = %lld, nb_bytes = %d\n", now,
+    Dmsg3(400, "ControlBwlimit: now = {}, since = {}, nb_bytes = {}\n", now,
           temp, nb_bytes_);
   }
 
@@ -821,7 +821,7 @@ void BareosSocket::ControlBwlimit(int bytes)
   usec_sleep = (int64_t)(nb_bytes_ / ((double)bwlimit_ / 1000000.0));
   if (usec_sleep > 100) {
     if (debug_level >= 400) {
-      Dmsg1(400, "ControlBwlimit: sleeping for %lld usecs\n", usec_sleep);
+      Dmsg1(400, "ControlBwlimit: sleeping for {} usecs\n", usec_sleep);
     }
 
     // Sleep the right number of usecs.

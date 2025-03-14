@@ -320,10 +320,10 @@ static bool RecordCb(DeviceControlRecord* in_dcr, DeviceRecord* rec)
           return true;
         }
         while (!WriteRecordToBlock(out_jcr->sd_impl->dcr, rec)) {
-          Dmsg2(150, "!WriteRecordToBlock data_len=%d rem=%d\n", rec->data_len,
+          Dmsg2(150, "!WriteRecordToBlock data_len={} rem={}\n", rec->data_len,
                 rec->remainder);
           if (!out_jcr->sd_impl->dcr->WriteBlockToDevice()) {
-            Dmsg2(90, "Got WriteBlockToDev error on device %s: ERR=%s\n",
+            Dmsg2(90, "Got WriteBlockToDev error on device {}: ERR={}\n",
                   out_dev->print_name(), out_dev->bstrerror());
             Jmsg(out_jcr, M_FATAL, 0, T_("Cannot fixup device error. %s\n"),
                  out_dev->bstrerror());
@@ -331,7 +331,7 @@ static bool RecordCb(DeviceControlRecord* in_dcr, DeviceRecord* rec)
           }
         }
         if (!out_jcr->sd_impl->dcr->WriteBlockToDevice()) {
-          Dmsg2(90, "Got WriteBlockToDev error on device %s: ERR=%s\n",
+          Dmsg2(90, "Got WriteBlockToDev error on device {}: ERR={}\n",
                 out_dev->print_name(), out_dev->bstrerror());
           Jmsg(out_jcr, M_FATAL, 0, T_("Cannot fixup device error. %s\n"),
                out_dev->bstrerror());
@@ -356,10 +356,10 @@ static bool RecordCb(DeviceControlRecord* in_dcr, DeviceRecord* rec)
   }
   records++;
   while (!WriteRecordToBlock(out_jcr->sd_impl->dcr, rec)) {
-    Dmsg2(150, "!WriteRecordToBlock data_len=%d rem=%d\n", rec->data_len,
+    Dmsg2(150, "!WriteRecordToBlock data_len={} rem={}\n", rec->data_len,
           rec->remainder);
     if (!out_jcr->sd_impl->dcr->WriteBlockToDevice()) {
-      Dmsg2(90, "Got WriteBlockToDev error on device %s: ERR=%s\n",
+      Dmsg2(90, "Got WriteBlockToDev error on device {}: ERR={}\n",
             out_dev->print_name(), out_dev->bstrerror());
       Jmsg(out_jcr, M_FATAL, 0, T_("Cannot fixup device error. %s\n"),
            out_dev->bstrerror());
@@ -400,7 +400,7 @@ static void GetSessionRecord(Device* dev,
       break;
   }
   Dmsg5(10,
-        "%s Record: VolSessionId=%d VolSessionTime=%d JobId=%d DataLen=%d\n",
+        "{} Record: VolSessionId={} VolSessionTime={} JobId={} DataLen={}\n",
         rtype, rec->VolSessionId, rec->VolSessionTime, rec->Stream,
         rec->data_len);
   if (g_verbose) {

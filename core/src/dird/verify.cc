@@ -145,12 +145,12 @@ bool DoVerify(JobControlRecord* jcr)
       } else {
         Name = NULL;
       }
-      Dmsg1(100, "find last jobid for: %s\n", NPRT(Name));
+      Dmsg1(100, "find last jobid for: {}\n", NPRT(Name));
 
       // See if user supplied a jobid= as run argument or from menu
       if (jcr->dir_impl->VerifyJobId) {
         verify_jobid = jcr->dir_impl->VerifyJobId;
-        Dmsg1(100, "Supplied jobid=%d\n", verify_jobid);
+        Dmsg1(100, "Supplied jobid={}\n", verify_jobid);
 
       } else {
         if (!jcr->db->FindLastJobid(jcr, Name, &jr)) {
@@ -167,7 +167,7 @@ bool DoVerify(JobControlRecord* jcr)
         }
         verify_jobid = jr.JobId;
       }
-      Dmsg1(100, "Last full jobid=%d\n", verify_jobid);
+      Dmsg1(100, "Last full jobid={}\n", verify_jobid);
 
       /* Now get the job record for the previous backup that interests
        *   us. We use the verify_jobid that we found above. */
@@ -215,7 +215,7 @@ bool DoVerify(JobControlRecord* jcr)
       break;
   }
 
-  Dmsg2(100, "ClientId=%u JobLevel=%c\n", prev_jr.ClientId, JobLevel);
+  Dmsg2(100, "ClientId={} JobLevel={:c}\n", prev_jr.ClientId, JobLevel);
 
   if (DbLocker _{jcr->db};
       !jcr->db->UpdateJobStartRecord(jcr, &jcr->dir_impl->jr)) {
@@ -314,7 +314,7 @@ bool DoVerify(JobControlRecord* jcr)
                                                 : TlsPolicy::kBnetTlsNone;
         }
 
-        Dmsg1(200, "Tls Policy for active client is: %d\n", tls_policy);
+        Dmsg1(200, "Tls Policy for active client is: {}\n", tls_policy);
 
         fd->fsend(storaddrcmd, store->address, store->SDport, tls_policy,
                   jcr->sd_auth_key);
@@ -333,7 +333,7 @@ bool DoVerify(JobControlRecord* jcr)
                                                  : TlsPolicy::kBnetTlsNone;
         }
 
-        Dmsg1(200, "Tls Policy for passive client is: %d\n", tls_policy);
+        Dmsg1(200, "Tls Policy for passive client is: {}\n", tls_policy);
 
         // Tell the SD to connect to the FD.
         sd->fsend(passiveclientcmd, client->address, client->FDport,
@@ -438,10 +438,10 @@ void VerifyCleanup(JobControlRecord* jcr, int TermCode)
   int msg_type;
   const char* Name;
 
-  // Dmsg1(100, "Enter VerifyCleanup() TermCod=%d\n", TermCode);
+  // Dmsg1(100, "Enter VerifyCleanup() TermCod={}\n", TermCode);
 
   JobLevel = jcr->getJobLevel();
-  Dmsg3(900, "JobLevel=%c Expected=%u JobFiles=%u\n", JobLevel,
+  Dmsg3(900, "JobLevel={:c} Expected={} JobFiles={}\n", JobLevel,
         jcr->dir_impl->ExpectedFiles, jcr->JobFiles);
   if (JobLevel == L_VERIFY_VOLUME_TO_CATALOG
       && jcr->dir_impl->ExpectedFiles != jcr->JobFiles) {
@@ -599,7 +599,7 @@ void GetAttributesAndCompareToCatalog(JobControlRecord* jcr,
     if (jcr->IsJobCanceled()) { goto bail_out; }
     fname = CheckPoolMemorySize(fname, fd->message_length);
     jcr->dir_impl->fname.check_size(fd->message_length);
-    Dmsg1(200, "Atts+Digest=%s\n", fd->msg);
+    Dmsg1(200, "Atts+Digest={}\n", fd->msg);
     if ((len = sscanf(fd->msg, "%ld %d %100s", &file_index, &stream, fname))
         != 3) {
       Jmsg3(jcr, M_FATAL, 0,
@@ -628,7 +628,7 @@ void GetAttributesAndCompareToCatalog(JobControlRecord* jcr,
       case STREAM_UNIX_ATTRIBUTES:
       case STREAM_UNIX_ATTRIBUTES_EX:
         int32_t LinkFIf, LinkFIc;
-        Dmsg2(400, "file_index=%d attr=%s\n", file_index, attr);
+        Dmsg2(400, "file_index={} attr={}\n", file_index, attr);
         jcr->JobFiles++;
         jcr->dir_impl->FileIndex
             = file_index; /* remember attribute file_index */
@@ -640,9 +640,9 @@ void GetAttributesAndCompareToCatalog(JobControlRecord* jcr,
         PmStrcpy(jcr->dir_impl->fname,
                  fname); /* move filename into JobControlRecord */
 
-        Dmsg2(040, "dird<filed: stream=%d %s\n", stream,
+        Dmsg2(040, "dird<filed: stream={} {}\n", stream,
               jcr->dir_impl->fname.c_str());
-        Dmsg1(020, "dird<filed: attr=%s\n", attr);
+        Dmsg1(020, "dird<filed: attr={}\n", attr);
 
         // Find equivalent record in the database
         fdbr.FileId = 0;
@@ -650,7 +650,7 @@ void GetAttributesAndCompareToCatalog(JobControlRecord* jcr,
                                               prev_jr, &fdbr)) {
           Jmsg(jcr, M_INFO, 0, T_("New file: %s\n"),
                jcr->dir_impl->fname.c_str());
-          Dmsg1(020, T_("File not in catalog: %s\n"),
+          Dmsg1(020, T_("File not in catalog: {}\n"),
                 jcr->dir_impl->fname.c_str());
           jcr->setJobStatusWithPriorityCheck(JS_Differences);
           continue;
@@ -660,7 +660,7 @@ void GetAttributesAndCompareToCatalog(JobControlRecord* jcr,
           jcr->db->MarkFileRecord(jcr, fdbr.FileId, jcr->JobId);
         }
 
-        Dmsg3(400, "Found %s in catalog. inx=%d Opts=%s\n",
+        Dmsg3(400, "Found {} in catalog. inx={} Opts={}\n",
               jcr->dir_impl->fname.c_str(), file_index, Opts_Digest.c_str());
         DecodeStat(fdbr.LStat, &statc, sizeof(statc),
                    &LinkFIc); /* decode catalog stat */
@@ -757,7 +757,7 @@ void GetAttributesAndCompareToCatalog(JobControlRecord* jcr,
               }
               break;
             case '5': /* compare MD5 */
-              Dmsg1(500, "set Do_MD5 for %s\n", jcr->dir_impl->fname.c_str());
+              Dmsg1(500, "set Do_MD5 for {}\n", jcr->dir_impl->fname.c_str());
               do_Digest = CRYPTO_DIGEST_MD5;
               break;
             case '1': /* compare SHA1 */
@@ -772,14 +772,14 @@ void GetAttributesAndCompareToCatalog(JobControlRecord* jcr,
         break;
 
       case STREAM_RESTORE_OBJECT:
-        Dmsg1(400, "RESTORE_OBJECT %s\n", jcr->dir_impl->fname.c_str());
+        Dmsg1(400, "RESTORE_OBJECT {}\n", jcr->dir_impl->fname.c_str());
         break;
 
       default:
         /* Got Digest Signature from Storage daemon
          *  It came across in the Opts_Digest field. */
         if (CryptoDigestStreamType(stream) != CRYPTO_DIGEST_NONE) {
-          Dmsg2(400, "stream=Digest inx=%d Digest=%s\n", file_index,
+          Dmsg2(400, "stream=Digest inx={} Digest={}\n", file_index,
                 Opts_Digest.c_str());
           /* When ever we get a digest it MUST have been
            * preceded by an attributes record, which sets attr_file_index */

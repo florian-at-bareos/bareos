@@ -186,10 +186,10 @@ retry:
   switch (result) {
     case 0:
       if (chksum) {
-        Dmsg4(debuglevel, "add fname=<%s> lstat=%s delta_seq=%i chksum=%s\n",
+        Dmsg4(debuglevel, "add fname=<{}> lstat={} delta_seq={} chksum={}\n",
               fname, lstat, delta_seq, chksum);
       } else {
-        Dmsg2(debuglevel, "add fname=<%s> lstat=%s\n", fname, lstat);
+        Dmsg2(debuglevel, "add fname=<{}> lstat={}\n", fname, lstat);
       }
       retval = true;
       break;
@@ -212,7 +212,7 @@ retry:
       break;
     case MDB_KEYEXIST: {
       duplicate_files_ += 1;
-      Dmsg1(debuglevel, "fname=<%s> is already registered.\n", fname);
+      Dmsg1(debuglevel, "fname=<{}> is already registered.\n", fname);
       return false;
     } break;
     default:
@@ -439,7 +439,7 @@ bool BareosAccurateFilelistLmdb::SendBaseFileList()
     while ((result = mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) == 0) {
       payload = (accurate_payload*)data.mv_data;
       if (seen_bitmap_.at(payload->filenr)) {
-        Dmsg1(debuglevel, "base file fname=%s\n", key.mv_data);
+        Dmsg1(debuglevel, "base file fname={}\n", key.mv_data);
         DecodeStat(payload->lstat, &ff_pkt->statp, sizeof(struct stat),
                    &LinkFIc); /* decode catalog stat */
         ff_pkt->fname = (char*)key.mv_data;
@@ -508,7 +508,7 @@ bool BareosAccurateFilelistLmdb::SendDeletedList()
         continue;
       }
 
-      Dmsg1(debuglevel, "deleted fname=%s\n", key.mv_data);
+      Dmsg1(debuglevel, "deleted fname={}\n", key.mv_data);
       DecodeStat(payload.lstat, &statp, sizeof(struct stat),
                  &LinkFIc); /* decode catalog stat */
       ff_pkt->fname = (char*)key.mv_data;

@@ -92,7 +92,7 @@ void PruneVolumes(JobControlRecord* jcr,
   PoolMem query(PM_MESSAGE);
   char ed1[50], ed2[100], ed3[50];
 
-  Dmsg1(100, "Prune volumes PoolId=%d\n", jcr->dir_impl->jr.PoolId);
+  Dmsg1(100, "Prune volumes PoolId={}\n", jcr->dir_impl->jr.PoolId);
   if (!jcr->dir_impl->res.job->PruneVolumes
       && !jcr->dir_impl->res.pool->AutoPrune) {
     Dmsg0(100, "AutoPrune not set in Pool.\n");
@@ -120,7 +120,7 @@ void PruneVolumes(JobControlRecord* jcr,
     bstrncat(ed2, ",", sizeof(ed2));
   }
 
-  Dmsg1(100, "Scratch pool(s)=%s\n", ed2);
+  Dmsg1(100, "Scratch pool(s)={}\n", ed2);
   /* ed2 ends up with scratch poolid and current poolid or
    *   just current poolid if there is no scratch pool */
   bstrncat(ed2, ed1, sizeof(ed2));
@@ -142,70 +142,70 @@ void PruneVolumes(JobControlRecord* jcr,
     Mmsg(query, select, ed1, ed2, mr->MediaType, "");
   }
 
-  Dmsg1(100, "query=%s\n", query.c_str());
+  Dmsg1(100, "query={}\n", query.c_str());
   if (!jcr->db->GetQueryDbids(ua->jcr, query, ids)) {
     Jmsg(jcr, M_ERROR, 0, "%s", jcr->db->strerror());
     goto bail_out;
   }
 
-  Dmsg1(100, "Volume prune num_ids=%d\n", ids.num_ids);
+  Dmsg1(100, "Volume prune num_ids={}\n", ids.num_ids);
 
   /* Visit each Volume and Prune it until we find one that is purged */
   for (i = 0; i < ids.num_ids; i++) {
     MediaDbRecord lmr;
 
     lmr.MediaId = ids.DBId[i];
-    Dmsg1(100, "Get record MediaId=%d\n", (int)lmr.MediaId);
+    Dmsg1(100, "Get record MediaId={}\n", (int)lmr.MediaId);
     if (!jcr->db->GetMediaRecord(jcr, &lmr)) {
       Jmsg(jcr, M_ERROR, 0, "%s", jcr->db->strerror());
       continue;
     }
-    Dmsg1(100, "Examine vol=%s\n", lmr.VolumeName);
+    Dmsg1(100, "Examine vol={}\n", lmr.VolumeName);
     /* Don't prune archived volumes */
     if (lmr.Enabled == VOL_ARCHIVED) {
-      Dmsg1(100, "Vol=%s disabled\n", lmr.VolumeName);
+      Dmsg1(100, "Vol={} disabled\n", lmr.VolumeName);
       continue;
     }
     /* Prune only Volumes with status "Full", or "Used" */
     if (bstrcmp(lmr.VolStatus, "Full") || bstrcmp(lmr.VolStatus, "Used")) {
-      Dmsg2(100, "Add prune list MediaId=%d Volume %s\n", (int)lmr.MediaId,
+      Dmsg2(100, "Add prune list MediaId={} Volume {}\n", (int)lmr.MediaId,
             lmr.VolumeName);
       count = GetPruneListForVolume(ua, &lmr, prune_list);
-      Dmsg1(100, "Num pruned = %d\n", count);
+      Dmsg1(100, "Num pruned = {}\n", count);
       if (count != 0) {
         PurgeJobListFromCatalog(ua, prune_list);
         prune_list.clear(); /* reset count */
       }
       if (!IsVolumePurged(ua, &lmr)) {
-        Dmsg1(050, "Vol=%s not pruned\n", lmr.VolumeName);
+        Dmsg1(050, "Vol={} not pruned\n", lmr.VolumeName);
         continue;
       }
-      Dmsg1(050, "Vol=%s is purged\n", lmr.VolumeName);
+      Dmsg1(050, "Vol={} is purged\n", lmr.VolumeName);
 
       /* Since we are also pruning the Scratch pool, continue until and check if
        * this volume is available (InChanger + StorageId) If not, just skip this
        * volume and try the next one */
       if (InChanger) {
         if (!lmr.InChanger || (lmr.StorageId != mr->StorageId)) {
-          Dmsg1(100, "Vol=%s not inchanger or correct StoreId\n",
+          Dmsg1(100, "Vol={} not inchanger or correct StoreId\n",
                 lmr.VolumeName);
           continue; /* skip this volume, ie not loadable */
         }
       }
       if (!lmr.Recycle) {
-        Dmsg1(100, "Vol=%s not recyclable\n", lmr.VolumeName);
+        Dmsg1(100, "Vol={} not recyclable\n", lmr.VolumeName);
         continue;
       }
 
       if (HasVolumeExpired(jcr, &lmr)) {
-        Dmsg1(100, "Vol=%s has expired\n", lmr.VolumeName);
+        Dmsg1(100, "Vol={} has expired\n", lmr.VolumeName);
         continue; /* Volume not usable */
       }
 
       /* If purged and not moved to another Pool, then we stop pruning and take
        * this volume. */
       if (lmr.PoolId == mr->PoolId) {
-        Dmsg2(100, "Got Vol=%s MediaId=%d purged.\n", lmr.VolumeName,
+        Dmsg2(100, "Got Vol={} MediaId={} purged.\n", lmr.VolumeName,
               (int)lmr.MediaId);
         memcpy(mr, &lmr, sizeof(MediaDbRecord));
         SetStorageidInMr(store, mr);

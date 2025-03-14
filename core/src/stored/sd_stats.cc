@@ -169,7 +169,7 @@ void UpdateDeviceTapealert(const char* devname, uint64_t flags, utime_t now)
   dev_stats->device_tapealerts->append(tape_alert);
   unlock_mutex(mutex);
 
-  Dmsg3(200, "New stats [%lld]: Device %s TapeAlert %llu\n",
+  Dmsg3(200, "New stats [{}]: Device {} TapeAlert {}\n",
         tape_alert->timestamp, dev_stats->DevName, tape_alert->flags);
 }
 
@@ -244,13 +244,13 @@ static inline void UpdateDeviceStatistics(const char* devname,
   unlock_mutex(mutex);
 
   Dmsg5(200,
-        "New stats [%lld]: Device %s Read %llu, Write %llu, Spoolsize %llu,\n",
+        "New stats [{}]: Device {} Read {}, Write {}, Spoolsize {},\n",
         dev_stat->timestamp, dev_stats->DevName, dev_stat->DevReadBytes,
         dev_stat->DevWriteBytes, dev_stat->spool_size);
-  Dmsg4(200, "NumWaiting %ld, NumWriters %ld, ReadTime=%lld, WriteTime=%lld,\n",
+  Dmsg4(200, "NumWaiting {}, NumWriters {}, ReadTime={}, WriteTime={},\n",
         dev_stat->num_waiting, dev_stat->num_writers, dev_stat->DevReadTime,
         dev_stat->DevWriteTime);
-  Dmsg4(200, "MediaId=%ld VolBytes=%llu, VolFiles=%llu, VolBlocks=%llu\n",
+  Dmsg4(200, "MediaId={} VolBytes={}, VolFiles={}, VolBlocks={}\n",
         dev_stat->MediaId, dev_stat->VolCatBytes, dev_stat->VolCatFiles,
         dev_stat->VolCatBlocks);
 }
@@ -322,7 +322,7 @@ void UpdateJobStatistics(JobControlRecord* jcr, utime_t now)
 
   Dmsg5(
       200,
-      "New stats [%lld]: JobId %ld, JobFiles %lu, JobBytes %llu, DevName %s\n",
+      "New stats [{}]: JobId {}, JobFiles {}, JobBytes {}, DevName {}\n",
       job_stat->timestamp, job_stats->JobId, job_stat->JobFiles,
       job_stat->JobBytes, job_stat->DevName);
 }
@@ -484,7 +484,7 @@ bool StatsCmd(JobControlRecord* jcr)
                  dev_stat->DevWriteTime, dev_stat->MediaId,
                  dev_stat->VolCatBytes, dev_stat->VolCatFiles,
                  dev_stat->VolCatBlocks);
-            Dmsg1(100, ">dird: %s", msg.c_str());
+            Dmsg1(100, ">dird: {}", msg.c_str());
             dir->fsend(msg.c_str());
           }
 
@@ -511,7 +511,7 @@ bool StatsCmd(JobControlRecord* jcr)
           BashSpaces(dev_tmp);
           Mmsg(msg, TapeAlerts, tape_alert->timestamp, dev_tmp.c_str(),
                tape_alert->flags);
-          Dmsg1(100, ">dird: %s", msg.c_str());
+          Dmsg1(100, ">dird: {}", msg.c_str());
           dir->fsend(msg.c_str());
 
           next_tape_alert = dev_stats->device_tapealerts->next(tape_alert);
@@ -542,7 +542,7 @@ bool StatsCmd(JobControlRecord* jcr)
             BashSpaces(dev_tmp);
             Mmsg(msg, JobStats, job_stat->timestamp, job_stats->JobId,
                  job_stat->JobFiles, job_stat->JobBytes, dev_tmp.c_str());
-            Dmsg1(100, ">dird: %s", msg.c_str());
+            Dmsg1(100, ">dird: {}", msg.c_str());
             dir->fsend(msg.c_str());
           }
 
@@ -564,7 +564,7 @@ bool StatsCmd(JobControlRecord* jcr)
 
       if (!have_jcr_for_jobid(job_stats->JobId)) {
         lock_mutex(mutex);
-        Dmsg1(200, "Removing jobid %d from job_statistics\n", job_stats->JobId);
+        Dmsg1(200, "Removing jobid {} from job_statistics\n", job_stats->JobId);
         job_statistics->remove(job_stats);
         unlock_mutex(mutex);
       }

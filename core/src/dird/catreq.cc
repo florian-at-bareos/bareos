@@ -108,7 +108,7 @@ static int SendVolumeInfoToStorageDaemon(JobControlRecord* jcr,
       mr->EndFile, mr->EndBlock, mr->LabelType, edit_uint64(mr->MediaId, ed6),
       mr->EncrKey, mr->MinBlocksize, mr->MaxBlocksize);
   UnbashSpaces(mr->VolumeName);
-  Dmsg2(100, "Vol Info for %s: %s", jcr->Job, sd->msg);
+  Dmsg2(100, "Vol Info for {}: {}", jcr->Job, sd->msg);
   return status;
 }
 
@@ -128,7 +128,7 @@ void CatalogRequest(JobControlRecord* jcr, BareosSocket* bs)
   std::uint32_t jobid;
 
   // Request to find next appendable Volume for this Job
-  Dmsg1(100, "catreq %s", bs->msg);
+  Dmsg1(100, "catreq {}", bs->msg);
   if (!jcr->db) {
     omsg = GetMemory(bs->message_length + 1);
     PmStrcpy(omsg, bs->msg);
@@ -158,7 +158,7 @@ void CatalogRequest(JobControlRecord* jcr, BareosSocket* bs)
       mr.ScratchPoolId = pr.ScratchPoolId;
       ok = FindNextVolumeForAppend(jcr, &mr, index, unwanted_volumes.c_str(),
                                    fnv_create_vol, fnv_prune);
-      Dmsg3(050, "find_media ok=%d idx=%d vol=%s\n", ok, index, mr.VolumeName);
+      Dmsg3(050, "find_media ok={} idx={} vol={}\n", ok, index, mr.VolumeName);
     }
 
     if (ok) {
@@ -170,7 +170,7 @@ void CatalogRequest(JobControlRecord* jcr, BareosSocket* bs)
   } else if (sscanf(bs->msg, Get_Vol_Info, &Job, &mr.VolumeName, &writing)
              == 3) {
     // Request to find specific Volume information
-    Dmsg1(100, "CatReq GetVolInfo Vol=%s\n", mr.VolumeName);
+    Dmsg1(100, "CatReq GetVolInfo Vol={}\n", mr.VolumeName);
 
     // Find the Volume
     UnbashSpaces(mr.VolumeName);
@@ -209,7 +209,7 @@ void CatalogRequest(JobControlRecord* jcr, BareosSocket* bs)
       }
     } else {
       bs->fsend(T_("1997 Volume \"%s\" not in catalog.\n"), mr.VolumeName);
-      Dmsg1(100, "1997 Volume \"%s\" not in catalog.\n", mr.VolumeName);
+      Dmsg1(100, "1997 Volume \"{}\" not in catalog.\n", mr.VolumeName);
     }
   } else if (sscanf(bs->msg, Update_media, &Job, &sdmr.VolumeName,
                     &sdmr.VolJobs, &sdmr.VolFiles, &sdmr.VolBlocks,
@@ -222,7 +222,7 @@ void CatalogRequest(JobControlRecord* jcr, BareosSocket* bs)
      * of a Storage daemon Job Session, when labeling/relabeling a
      * Volume, or when an EOF mark is written. */
     DbLocker _{jcr->db};
-    Dmsg3(400, "Update media %s oldStat=%s newStat=%s\n", sdmr.VolumeName,
+    Dmsg3(400, "Update media {} oldStat={} newStat={}\n", sdmr.VolumeName,
           mr.VolStatus, sdmr.VolStatus);
     bstrncpy(mr.VolumeName, sdmr.VolumeName,
              sizeof(mr.VolumeName)); /* copy Volume name */
@@ -252,7 +252,7 @@ void CatalogRequest(JobControlRecord* jcr, BareosSocket* bs)
       mr.LabelDate = jcr->start_time;
       mr.set_label_date = true;
       if (mr.InitialWrite == 0) { mr.InitialWrite = jcr->start_time; }
-      Dmsg2(400, "label=%d labeldate=%d\n", label, mr.LabelDate);
+      Dmsg2(400, "label={} labeldate={}\n", label, mr.LabelDate);
     } else {
       // Sanity check for VolFiles to be increasing
       if (sdmr.VolFiles < mr.VolFiles) {
@@ -281,7 +281,7 @@ void CatalogRequest(JobControlRecord* jcr, BareosSocket* bs)
         sdmr.VolBytes = mr.VolBytes;
       }
     }
-    Dmsg2(400, "Update media: BefVolJobs=%u After=%u\n", mr.VolJobs,
+    Dmsg2(400, "Update media: BefVolJobs={} After={}\n", mr.VolJobs,
           sdmr.VolJobs);
 
     /* Check if the volume has been written by the job,
@@ -294,7 +294,7 @@ void CatalogRequest(JobControlRecord* jcr, BareosSocket* bs)
      * However, do so only if we are writing the tape, i.e.
      * the number of VolWrites has increased. */
     if (jcr->dir_impl->res.write_storage && sdmr.VolWrites > mr.VolWrites) {
-      Dmsg2(050, "Update StorageId old=%d new=%d\n", mr.StorageId,
+      Dmsg2(050, "Update StorageId old={} new={}\n", mr.StorageId,
             jcr->dir_impl->res.write_storage->StorageId);
       // Update StorageId after write
       SetStorageidInMr(jcr->dir_impl->res.write_storage, &mr);
@@ -317,7 +317,7 @@ void CatalogRequest(JobControlRecord* jcr, BareosSocket* bs)
     mr.VolReadTime = sdmr.VolReadTime;
     mr.VolWriteTime = sdmr.VolWriteTime;
 
-    Dmsg2(400, "UpdateMediaRecord. Stat=%s Vol=%s\n", mr.VolStatus,
+    Dmsg2(400, "UpdateMediaRecord. Stat={} Vol={}\n", mr.VolStatus,
           mr.VolumeName);
 
     /* Update the database, then before sending the response to the SD,
@@ -334,8 +334,8 @@ void CatalogRequest(JobControlRecord* jcr, BareosSocket* bs)
 
   bail_out:
 
-    Dmsg1(400, ">CatReq response: %s", bs->msg);
-    Dmsg1(400, "Leave catreq jcr 0x%x\n", jcr);
+    Dmsg1(400, ">CatReq response: {}", bs->msg);
+    Dmsg1(400, "Leave catreq jcr 0x{:x}\n", jcr);
     return;
   } else if (sscanf(bs->msg, Create_job_media, &Job, &jm.FirstIndex,
                     &jm.LastIndex, &jm.StartFile, &jm.EndFile, &jm.StartBlock,
@@ -348,7 +348,7 @@ void CatalogRequest(JobControlRecord* jcr, BareosSocket* bs)
       jm.JobId = jcr->JobId;
     }
     jm.MediaId = MediaId;
-    Dmsg6(400, "create_jobmedia JobId=%d MediaId=%d SF=%d EF=%d FI=%d LI=%d\n",
+    Dmsg6(400, "create_jobmedia JobId={} MediaId={} SF={} EF={} FI={} LI={}\n",
           jm.JobId, jm.MediaId, jm.StartFile, jm.EndFile, jm.FirstIndex,
           jm.LastIndex);
     DbLocker _{jcr->db};
@@ -390,7 +390,7 @@ void CatalogRequest(JobControlRecord* jcr, BareosSocket* bs)
     }
   } else if (sscanf(bs->msg, Delete_nulljobmediarecord, &Job, &jobid) == 2) {
     int numrows = jcr->db->DeleteNullJobmediaRecords(jcr, jobid);
-    Dmsg1(400, "Deleted %d rows.\n", numrows);
+    Dmsg1(400, "Deleted {} rows.\n", numrows);
     if (numrows == -1) {
       bs->fsend(T_("1992 DeleteNullJobMediaRecords error\n"));
     } else {
@@ -404,8 +404,8 @@ void CatalogRequest(JobControlRecord* jcr, BareosSocket* bs)
     FreeMemory(omsg);
   }
 
-  Dmsg1(400, ">CatReq response: %s", bs->msg);
-  Dmsg1(400, "Leave catreq jcr 0x%x\n", jcr);
+  Dmsg1(400, ">CatReq response: {}", bs->msg);
+  Dmsg1(400, "Leave catreq jcr 0x{:x}\n", jcr);
 
   return;
 }
@@ -478,8 +478,8 @@ static void UpdateAttribute(JobControlRecord* jcr,
    *   Object_name
    *   Binary Object data */
 
-  Dmsg1(400, "UpdCat msg=%s\n", msg);
-  Dmsg5(400, "UpdCat VolSessId=%d VolSessT=%d FI=%d Strm=%d reclen=%d\n",
+  Dmsg1(400, "UpdCat msg={}\n", msg);
+  Dmsg5(400, "UpdCat VolSessId={} VolSessT={} FI={} Strm={} reclen={}\n",
         VolSessionId, VolSessionTime, FileIndex, Stream, reclen);
 
   jcr->dir_impl->SDJobBytes
@@ -489,7 +489,7 @@ static void UpdateAttribute(JobControlRecord* jcr,
     case STREAM_UNIX_ATTRIBUTES:
     case STREAM_UNIX_ATTRIBUTES_EX:
       if (jcr->cached_attribute) {
-        Dmsg2(400, "Cached attr. Stream=%d fname=%s\n", ar->Stream, ar->fname);
+        Dmsg2(400, "Cached attr. Stream={} fname={}\n", ar->Stream, ar->fname);
         if (DbLocker _{jcr->db}; !jcr->db->CreateAttributesRecord(jcr, ar)) {
           Jmsg1(jcr, M_FATAL, 0, T_("Attribute create error: ERR=%s"),
                 jcr->db->strerror());
@@ -520,8 +520,8 @@ static void UpdateAttribute(JobControlRecord* jcr,
         }
       }
 
-      Dmsg2(400, "dird<stored: stream=%d %s\n", Stream, fname);
-      Dmsg1(400, "dird<stored: attr=%s\n", attr);
+      Dmsg2(400, "dird<stored: stream={} {}\n", Stream, fname);
+      Dmsg1(400, "dird<stored: attr={}\n", attr);
 
       ar->attr = attr;
       ar->fname = fname;
@@ -549,8 +549,8 @@ static void UpdateAttribute(JobControlRecord* jcr,
       ar->Fhnode = 0;
 
 
-      Dmsg2(400, "dird<filed: stream=%d %s\n", Stream, fname);
-      Dmsg1(400, "dird<filed: attr=%s\n", attr);
+      Dmsg2(400, "dird<filed: stream={} {}\n", Stream, fname);
+      Dmsg1(400, "dird<filed: attr={}\n", attr);
       break;
     case STREAM_RESTORE_OBJECT: {
       RestoreObjectDbRecord ro;
@@ -563,7 +563,7 @@ static void UpdateAttribute(JobControlRecord* jcr,
         ro.JobId = jcr->JobId;
       }
 
-      Dmsg1(100, "Robj=%s\n", p);
+      Dmsg1(100, "Robj={}\n", p);
 
       SkipNonspaces(&p); /* skip FileIndex */
       SkipSpaces(&p);
@@ -592,7 +592,7 @@ static void UpdateAttribute(JobControlRecord* jcr,
           = 0; /* add zero for those who attempt printing */
 
       Dmsg7(100,
-            "oname=%s stream=%d FT=%d FI=%d JobId=%d, obj_len=%d\nobj=\"%s\"\n",
+            "oname={} stream={} FT={} FI={} JobId={}, obj_len={}\nobj=\"{}\"\n",
             ro.object_name, ro.Stream, ro.FileType, ro.FileIndex, ro.JobId,
             ro.object_len, ro.object);
 
@@ -645,14 +645,14 @@ static void UpdateAttribute(JobControlRecord* jcr,
 
           BinToBase64(digestbuf, sizeof(digestbuf), fname, digest_len, true);
 
-          Dmsg3(400, "DigestLen=%d Digest=%s type=%d\n", strlen(digestbuf),
+          Dmsg3(400, "DigestLen={} Digest={} type={}\n", strlen(digestbuf),
                 digestbuf, Stream);
 
           if (jcr->cached_attribute) {
             ar->Digest = digestbuf;
             ar->DigestType = type;
 
-            Dmsg2(400, "Cached attr with digest. Stream=%d fname=%s\n",
+            Dmsg2(400, "Cached attr with digest. Stream={} fname={}\n",
                   ar->Stream, ar->fname);
 
             // Update BaseFile table
@@ -744,7 +744,7 @@ bool DespoolAttributesFromFile(JobControlRecord* jcr, const char* file)
       nbytes = read(spool_fd, msg, message_length);
       if (nbytes != (size_t)message_length) {
         BErrNo be;
-        Dmsg2(400, "nbytes=%d message_length=%d\n", nbytes, message_length);
+        Dmsg2(400, "nbytes={} message_length={}\n", nbytes, message_length);
         Qmsg1(jcr, M_FATAL, 0, T_("read attr spool error. ERR=%s\n"),
               be.bstrerror());
         goto bail_out;
@@ -766,7 +766,7 @@ bail_out:
   if (jcr->IsJobCanceled()) { CancelStorageDaemonJob(jcr); }
 
   FreePoolMemory(msg);
-  Dmsg1(100, "End DespoolAttributesFromFile retval=%i\n", retval);
+  Dmsg1(100, "End DespoolAttributesFromFile retval={}\n", retval);
   return retval;
 }
 } /* namespace directordaemon */

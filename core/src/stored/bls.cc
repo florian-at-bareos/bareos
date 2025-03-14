@@ -146,7 +146,7 @@ int main(int argc, char* argv[])
             }
             while (fgets(line, sizeof(line), fd) != nullptr) {
               StripTrailingJunk(line);
-              Dmsg1(100, "add_exclude %s\n", line);
+              Dmsg1(100, "add_exclude {}\n", line);
               AddFnameToExcludeList(ff, line);
             }
             fclose(fd);
@@ -167,7 +167,7 @@ int main(int argc, char* argv[])
             }
             while (fgets(line, sizeof(line), fd) != nullptr) {
               StripTrailingJunk(line);
-              Dmsg1(100, "add_include %s\n", line);
+              Dmsg1(100, "add_include {}\n", line);
               AddFnameToIncludeList(ff, 0, line);
             }
             fclose(fd);
@@ -336,7 +336,7 @@ static void DoBlocks(char*)
         Dmsg0(20, "read_record got eof. try again\n");
         continue;
       default:
-        Dmsg1(100, "!read_block(): ERR=%s\n", dev->bstrerror());
+        Dmsg1(100, "!read_block(): ERR={}\n", dev->bstrerror());
         if (dev->IsShortBlock()) {
           Jmsg(jcr, M_INFO, 0, "%s", dev->errmsg);
           continue;
@@ -347,12 +347,12 @@ static void DoBlocks(char*)
         }
     }
     if (!MatchBsrBlock(bsr, block)) {
-      Dmsg5(100, "reject Blk=%u blen=%u bVer=%d SessId=%u SessTim=%u\n",
+      Dmsg5(100, "reject Blk={} blen={} bVer={} SessId={} SessTim={}\n",
             block->BlockNumber, block->block_len, block->BlockVer,
             block->VolSessionId, block->VolSessionTime);
       continue;
     }
-    Dmsg5(100, "Blk=%u blen=%u bVer=%d SessId=%u SessTim=%u\n",
+    Dmsg5(100, "Blk={} blen={} bVer={} SessId={} SessTim={}\n",
           block->BlockNumber, block->block_len, block->BlockVer,
           block->VolSessionId, block->VolSessionTime);
     if (g_verbose == 1) {
@@ -486,11 +486,11 @@ static void GetSessionRecord(Device* t_dev,
       break;
     default:
       rtype = T_("Unknown");
-      Dmsg1(10, "FI rtype=%d unknown\n", t_rec->FileIndex);
+      Dmsg1(10, "FI rtype={} unknown\n", t_rec->FileIndex);
       break;
   }
   Dmsg5(10,
-        "%s Record: VolSessionId=%d VolSessionTime=%d JobId=%d DataLen=%d\n",
+        "{} Record: VolSessionId={} VolSessionTime={} JobId={} DataLen={}\n",
         rtype, t_rec->VolSessionId, t_rec->VolSessionTime, t_rec->Stream,
         t_rec->data_len);
   if (g_verbose) {

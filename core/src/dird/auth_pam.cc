@@ -117,7 +117,7 @@ static int PamConversationCallback(int num_msg,
         }
         break;
       default:
-        Dmsg3(debuglevel, "message[%d]: pam error type: %d error: \"%s\"\n", 1,
+        Dmsg3(debuglevel, "message[{}]: pam error type: {} error: \"{}\"\n", 1,
               msgm[i]->msg_style, msgm[i]->msg);
         error = true;
         break;
@@ -170,20 +170,20 @@ static int DoPamAuth(struct pam_handle* pamh,
 {
   int err = pam_set_item(pamh, PAM_RUSER, username);
   if (err != PAM_SUCCESS) {
-    Dmsg1(debuglevel, "PAM set_item failed: %s\n", pam_strerror(pamh, err));
+    Dmsg1(debuglevel, "PAM set_item failed: {}\n", pam_strerror(pamh, err));
     return err;
   }
 
   err = pam_authenticate(pamh, 0);
   if (err != PAM_SUCCESS) {
-    Dmsg1(debuglevel, "PAM authentication failed: %s\n",
+    Dmsg1(debuglevel, "PAM authentication failed: {}\n",
           pam_strerror(pamh, err));
     return err;
   }
 
   err = pam_acct_mgmt(pamh, 0);
   if (err != PAM_SUCCESS) {
-    Dmsg1(debuglevel, "PAM authorization failed: %s\n",
+    Dmsg1(debuglevel, "PAM authorization failed: {}\n",
           pam_strerror(pamh, err));
     return err;
   }
@@ -195,7 +195,7 @@ static int DoPamAuth(struct pam_handle* pamh,
 #endif
   err = pam_get_item(pamh, PAM_USER, &data);
   if (err != PAM_SUCCESS) {
-    Dmsg1(debuglevel, "PAM get_item failed: %s\n", pam_strerror(pamh, err));
+    Dmsg1(debuglevel, "PAM get_item failed: {}\n", pam_strerror(pamh, err));
     return err;
   } else {
     if (data) { authenticated_username = static_cast<const char*>(data); }
@@ -223,14 +223,14 @@ bool PamAuthenticateUser(BareosSocket* UA_sock,
   int err = pam_start(service_name.c_str(), username,
                       pam_conversation_container.get(), &pamh);
   if (err != PAM_SUCCESS) {
-    Dmsg1(debuglevel, "PAM start failed: %s\n", pam_strerror(pamh, err));
+    Dmsg1(debuglevel, "PAM start failed: {}\n", pam_strerror(pamh, err));
     return false;
   }
 
   err = DoPamAuth(pamh, username, authenticated_username);
 
   if (pam_end(pamh, err) != PAM_SUCCESS) {
-    Dmsg1(debuglevel, "PAM end failed: %s\n", pam_strerror(pamh, err));
+    Dmsg1(debuglevel, "PAM end failed: {}\n", pam_strerror(pamh, err));
     return false;
   }
 

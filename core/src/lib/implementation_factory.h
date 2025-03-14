@@ -60,7 +60,7 @@ template <typename Interface> class ImplementationFactory {
 
   static Interface* Create(const std::string& implementation_name)
   {
-    Dmsg0(100, "Creating Instance for '%s'\n", implementation_name.c_str());
+    Dmsg0(100, "Creating Instance for '{}'\n", implementation_name.c_str());
     return GetMap().at(implementation_name)();
   }
 };

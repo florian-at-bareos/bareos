@@ -903,7 +903,7 @@ static bool UpdateJob(UaContext* ua)
                       NT_("jobtype"),   /* 4 */
                       NULL};
 
-  Dmsg1(200, "cmd=%s\n", ua->cmd);
+  Dmsg1(200, "cmd={}\n", ua->cmd);
   i = FindArgWithValue(ua, NT_("jobid"));
   if (i < 0) {
     ua->ErrorMsg(T_("Expect JobId keyword, not found.\n"));
@@ -958,7 +958,7 @@ static bool UpdateJob(UaContext* ua)
       return false;
     }
     delta_start = StartTime - jr.StartTime;
-    Dmsg3(200, "ST=%lld jr.ST=%lld delta=%lld\n", StartTime,
+    Dmsg3(200, "ST={} jr.ST={} delta={}\n", StartTime,
           (utime_t)jr.StartTime, delta_start);
     jr.StartTime = (time_t)StartTime;
     jr.SchedTime += (time_t)delta_start;
@@ -1014,7 +1014,7 @@ static void UpdateSlots(UaContext* ua)
   }
 
   max_slots = GetNumSlots(ua, ua->jcr->dir_impl->res.write_storage);
-  Dmsg1(100, "max_slots=%d\n", max_slots);
+  Dmsg1(100, "max_slots={}\n", max_slots);
   if (max_slots <= 0) {
     ua->WarningMsg(T_("No slots in changer to scan.\n"));
     return;
@@ -1045,7 +1045,7 @@ static void UpdateSlots(UaContext* ua)
     }
     // Check if user wants us to look at this slot
     if (!BitIsSet(vl->bareos_slot_number - 1, slot_list)) {
-      Dmsg1(100, "Skipping slot=%d\n", vl->bareos_slot_number);
+      Dmsg1(100, "Skipping slot={}\n", vl->bareos_slot_number);
       continue;
     }
     // If scanning, we read the label rather than the barcode
@@ -1055,7 +1055,7 @@ static void UpdateSlots(UaContext* ua)
         vl->VolName = NULL;
       }
       vl->VolName = get_volume_name_from_SD(ua, vl->bareos_slot_number, drive);
-      Dmsg2(100, "Got Vol=%s from SD for Slot=%d\n", vl->VolName,
+      Dmsg2(100, "Got Vol={} from SD for Slot={}\n", vl->VolName,
             vl->bareos_slot_number);
     }
     ClearBit(vl->bareos_slot_number - 1, slot_list); /* clear Slot */
@@ -1071,18 +1071,18 @@ static void UpdateSlots(UaContext* ua)
     }
     SetStorageidInMr(store.store, &mr);
 
-    Dmsg4(100, "Before make unique: Vol=%s slot=%d inchanger=%d sid=%d\n",
+    Dmsg4(100, "Before make unique: Vol={} slot={} inchanger={} sid={}\n",
           mr.VolumeName, mr.Slot, mr.InChanger, mr.StorageId);
     {
       DbLocker _{ua->db};
       // Set InChanger to zero for this Slot
       ua->db->MakeInchangerUnique(ua->jcr, &mr);
     }
-    Dmsg4(100, "After make unique: Vol=%s slot=%d inchanger=%d sid=%d\n",
+    Dmsg4(100, "After make unique: Vol={} slot={} inchanger={} sid={}\n",
           mr.VolumeName, mr.Slot, mr.InChanger, mr.StorageId);
 
     if (!vl->VolName) {
-      Dmsg1(100, "No VolName for Slot=%d setting InChanger to zero.\n",
+      Dmsg1(100, "No VolName for Slot={} setting InChanger to zero.\n",
             vl->bareos_slot_number);
       ua->InfoMsg(T_("No VolName for Slot=%d InChanger set to zero.\n"),
                   vl->bareos_slot_number);
@@ -1091,10 +1091,10 @@ static void UpdateSlots(UaContext* ua)
 
     {
       DbLocker _{ua->db};
-      Dmsg4(100, "Before get MR: Vol=%s slot=%d inchanger=%d sid=%d\n",
+      Dmsg4(100, "Before get MR: Vol={} slot={} inchanger={} sid={}\n",
             mr.VolumeName, mr.Slot, mr.InChanger, mr.StorageId);
       if (ua->db->GetMediaRecord(ua->jcr, &mr)) {
-        Dmsg4(100, "After get MR: Vol=%s slot=%d inchanger=%d sid=%d\n",
+        Dmsg4(100, "After get MR: Vol={} slot={} inchanger={} sid={}\n",
               mr.VolumeName, mr.Slot, mr.InChanger, mr.StorageId);
         // If Slot, Inchanger, and StorageId have changed, update the Media
         // record
@@ -1194,21 +1194,21 @@ void UpdateSlotsFromVolList(UaContext* ua,
     }
     SetStorageidInMr(store, &mr);
 
-    Dmsg4(100, "Before make unique: Vol=%s slot=%d inchanger=%d sid=%d\n",
+    Dmsg4(100, "Before make unique: Vol={} slot={} inchanger={} sid={}\n",
           mr.VolumeName, mr.Slot, mr.InChanger, mr.StorageId);
     {
       DbLocker _{ua->db};
       // Set InChanger to zero for this Slot
       ua->db->MakeInchangerUnique(ua->jcr, &mr);
     }
-    Dmsg4(100, "After make unique: Vol=%s slot=%d inchanger=%d sid=%d\n",
+    Dmsg4(100, "After make unique: Vol={} slot={} inchanger={} sid={}\n",
           mr.VolumeName, mr.Slot, mr.InChanger, mr.StorageId);
 
     // See if there is anything in the slot.
     switch (vl->slot_status) {
       case slot_status_t::kSlotStatusFull:
         if (!vl->VolName) {
-          Dmsg1(100, "No VolName for Slot=%d setting InChanger to zero.\n",
+          Dmsg1(100, "No VolName for Slot={} setting InChanger to zero.\n",
                 vl->bareos_slot_number);
           continue;
         }
@@ -1221,10 +1221,10 @@ void UpdateSlotsFromVolList(UaContext* ua,
      * the database and perform an update if needed. */
     {
       DbLocker _{ua->db};
-      Dmsg4(100, "Before get MR: Vol=%s slot=%d inchanger=%d sid=%d\n",
+      Dmsg4(100, "Before get MR: Vol={} slot={} inchanger={} sid={}\n",
             mr.VolumeName, mr.Slot, mr.InChanger, mr.StorageId);
       if (ua->db->GetMediaRecord(ua->jcr, &mr)) {
-        Dmsg4(100, "After get MR: Vol=%s slot=%d inchanger=%d sid=%d\n",
+        Dmsg4(100, "After get MR: Vol={} slot={} inchanger={} sid={}\n",
               mr.VolumeName, mr.Slot, mr.InChanger, mr.StorageId);
         /* If Slot, Inchanger, and StorageId have changed, update the Media
          * record
@@ -1289,14 +1289,14 @@ void UpdateInchangerForExport(UaContext* ua,
     }
     SetStorageidInMr(store, &mr);
 
-    Dmsg4(100, "Before make unique: Vol=%s slot=%d inchanger=%d sid=%d\n",
+    Dmsg4(100, "Before make unique: Vol={} slot={} inchanger={} sid={}\n",
           mr.VolumeName, mr.Slot, mr.InChanger, mr.StorageId);
     DbLocker _{ua->db};
 
     // Set InChanger to zero for this Slot
     ua->db->MakeInchangerUnique(ua->jcr, &mr);
 
-    Dmsg4(100, "After make unique: Vol=%s slot=%d inchanger=%d sid=%d\n",
+    Dmsg4(100, "After make unique: Vol={} slot={} inchanger={} sid={}\n",
           mr.VolumeName, mr.Slot, mr.InChanger, mr.StorageId);
   }
   return;

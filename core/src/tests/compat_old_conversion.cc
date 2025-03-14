@@ -121,7 +121,7 @@ static inline void conv_unix_to_vss_win32_path(const char* name,
    * can get longer because VSS will make something like
    * \\\\?\\GLOBALROOT\\Device\\HarddiskVolumeShadowCopy1\\bareos\\uninstall.exe
    * from c:\bareos\uninstall.exe */
-  Dmsg1(debuglevel, "path=%s\n", tname);
+  Dmsg1(debuglevel, "path={}\n", tname);
   if (tvpc) {
     POOLMEM* pszBuf = GetPoolMemory(PM_FNAME);
 
@@ -131,7 +131,7 @@ static inline void conv_unix_to_vss_win32_path(const char* name,
     FreePoolMemory(pszBuf);
   }
 
-  Dmsg1(debuglevel, "Leave cvt_u_to_win32_path path=%s\n", tname);
+  Dmsg1(debuglevel, "Leave cvt_u_to_win32_path path={}\n", tname);
 }
 
 void unix_name_to_win32(POOLMEM*& win32_name, const char* name)
@@ -330,7 +330,7 @@ static inline POOLMEM* make_wchar_win32_path(POOLMEM* pszUCSPath,
   FreePoolMemory(pszUCSPath);
   FreePoolMemory((POOLMEM*)pwszCurDirBuf);
 
-  Dmsg1(debuglevel, "Leave make_wchar_win32_path=%s\n", pwszBuf);
+  Dmsg1(debuglevel, "Leave make_wchar_win32_path={}\n", pwszBuf);
   return (POOLMEM*)pwszBuf;
 }
 

@@ -67,7 +67,7 @@ static bool do_mount(DeviceControlRecord* dcr, bool mount, int dotimeout)
 
   dcr->dev->EditMountCodes(ocmd, icmd);
 
-  Dmsg2(100, "do_mount: cmd=%s mounted=%d\n", ocmd.c_str(),
+  Dmsg2(100, "do_mount: cmd={} mounted={}\n", ocmd.c_str(),
         dcr->dev->IsMounted());
 
   if (dotimeout) {
@@ -80,7 +80,7 @@ static bool do_mount(DeviceControlRecord* dcr, bool mount, int dotimeout)
   results = GetMemory(4000);
 
   /* If busy retry each second */
-  Dmsg1(100, "do_mount run_prog=%s\n", ocmd.c_str());
+  Dmsg1(100, "do_mount run_prog={}\n", ocmd.c_str());
   while ((status = RunProgramFullOutput(ocmd.c_str(),
                                         dcr->dev->max_open_wait / 2, results))
          != 0) {
@@ -91,14 +91,14 @@ static bool do_mount(DeviceControlRecord* dcr, bool mount, int dotimeout)
       /* Sometimes the device cannot be mounted because it is already mounted.
        * Try to unmount it, then remount it */
       if (mount) {
-        Dmsg1(400, "Trying to unmount the device %s...\n",
+        Dmsg1(400, "Trying to unmount the device {}...\n",
               dcr->dev->print_name());
         do_mount(dcr, 0, 0);
       }
       Bmicrosleep(1, 0);
       continue;
     }
-    Dmsg5(100, "Device %s cannot be %smounted. status=%d result=%s ERR=%s\n",
+    Dmsg5(100, "Device {} cannot be {}mounted. status={} result={} ERR={}\n",
           dcr->dev->print_name(), (mount ? "" : "un"), status, results,
           be.bstrerror(status));
     Mmsg(dcr->dev->errmsg, T_("Device %s cannot be %smounted. ERR=%s\n"),
@@ -111,7 +111,7 @@ static bool do_mount(DeviceControlRecord* dcr, bool mount, int dotimeout)
     if (!(dp = opendir(device_resource->mount_point))) {
       BErrNo be2;
       dcr->dev->dev_errno = errno;
-      Dmsg3(100, "do_mount: failed to open dir %s (dev=%s), ERR=%s\n",
+      Dmsg3(100, "do_mount: failed to open dir {} (dev={}), ERR={}\n",
             device_resource->mount_point, dcr->dev->print_name(),
             be2.bstrerror());
       goto get_out;
@@ -128,7 +128,7 @@ static bool do_mount(DeviceControlRecord* dcr, bool mount, int dotimeout)
 #endif
         dcr->dev->dev_errno = EIO;
         Dmsg2(129,
-              "do_mount: failed to find suitable file in dir %s (dev=%s)\n",
+              "do_mount: failed to find suitable file in dir {} (dev={})\n",
               device_resource->mount_point, dcr->dev->print_name());
         break;
       }
@@ -137,7 +137,7 @@ static bool do_mount(DeviceControlRecord* dcr, bool mount, int dotimeout)
         count++; /* result->d_name != ., .. or .keep (Gentoo-specific) */
         break;
       } else {
-        Dmsg2(129, "do_mount: ignoring %s in %s\n", result->d_name,
+        Dmsg2(129, "do_mount: ignoring {} in {}\n", result->d_name,
               device_resource->mount_point);
       }
     }
@@ -147,7 +147,7 @@ static bool do_mount(DeviceControlRecord* dcr, bool mount, int dotimeout)
     closedir(dp);
 
     Dmsg1(100,
-          "do_mount: got %d files in the mount point (not counting ., .. and "
+          "do_mount: got {} files in the mount point (not counting ., .. and "
           ".keep)\n",
           count);
 
@@ -155,7 +155,7 @@ static bool do_mount(DeviceControlRecord* dcr, bool mount, int dotimeout)
       /* If we got more than ., .. and .keep */
       /*   there must be something mounted */
       if (mount) {
-        Dmsg1(100, "Did Mount by count=%d\n", count);
+        Dmsg1(100, "Did Mount by count={}\n", count);
         break;
       } else {
         /* An unmount request. We failed to unmount - report an error */
@@ -171,7 +171,7 @@ static bool do_mount(DeviceControlRecord* dcr, bool mount, int dotimeout)
   }
 
   FreePoolMemory(results);
-  Dmsg1(200, "============ mount=%d\n", mount);
+  Dmsg1(200, "============ mount={}\n", mount);
   return true;
 }
 

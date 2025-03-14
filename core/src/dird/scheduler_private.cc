@@ -51,14 +51,14 @@ static constexpr auto seconds_per_minute = seconds(60);
 static bool IsAutomaticSchedulerJob(JobResource* job)
 {
   Dmsg1(local_debuglevel + 100,
-        "Scheduler: Check if job IsAutomaticSchedulerJob %s.\n",
+        "Scheduler: Check if job IsAutomaticSchedulerJob {}.\n",
         job->resource_name_);
   if (job->schedule == nullptr) { return false; }
   if (!job->schedule->enabled) { return false; }
   if (!job->enabled) { return false; }
   if ((job->client != nullptr) && !job->client->enabled) { return false; }
   Dmsg1(local_debuglevel + 100,
-        "Scheduler: Check if job IsAutomaticSchedulerJob %s: Yes.\n",
+        "Scheduler: Check if job IsAutomaticSchedulerJob {}: Yes.\n",
         job->resource_name_);
   return true;
 }
@@ -151,7 +151,7 @@ void SchedulerPrivate::WaitForJobsToRun()
       }
       JobControlRecord* jcr = TryCreateJobControlRecord(run_job);
       if (jcr != nullptr) {
-        Dmsg1(local_debuglevel, "Scheduler: Running job %s.\n",
+        Dmsg1(local_debuglevel, "Scheduler: Running job {}.\n",
               run_job.job->resource_name_);
         jcr->dir_impl->job_trigger = next_job.job_trigger;
         ExecuteJobCallback_(jcr);
@@ -161,8 +161,8 @@ void SchedulerPrivate::WaitForJobsToRun()
       time_t wait_interval{std::min(time_adapter->default_wait_interval_,
                                     next_job.runtime - now)};
       Dmsg2(local_debuglevel,
-            "Scheduler: WaitForJobsToRun is sleeping for %d seconds. Next "
-            "job: %s.",
+            "Scheduler: WaitForJobsToRun is sleeping for {} seconds. Next "
+            "job: {}.",
             wait_interval, next_job.job->resource_name_);
 
       time_adapter->time_source_->SleepFor(seconds(wait_interval));
@@ -204,7 +204,7 @@ void SchedulerPrivate::AddJobsForThisAndNextHourToQueue()
   foreach_res (job, R_JOB) {
     if (!IsAutomaticSchedulerJob(job)) { continue; }
 
-    Dmsg1(local_debuglevel, "Got job: %s\n", job->resource_name_);
+    Dmsg1(local_debuglevel, "Got job: {}\n", job->resource_name_);
 
     for (RunResource* run = job->schedule->run; run != nullptr;
          run = run->next) {
@@ -213,7 +213,7 @@ void SchedulerPrivate::AddJobsForThisAndNextHourToQueue()
       bool run_next_hour
           = run->date_time_mask.TriggersOnDayAndHour(date_time_next_hour.time);
 
-      Dmsg3(local_debuglevel, "run@%p: run_now=%d run_next_hour=%d\n", run,
+      Dmsg3(local_debuglevel, "run@{:p}: run_now={} run_next_hour={}\n", run,
             run_this_hour, run_next_hour);
 
       if (run_this_hour || run_next_hour) {
@@ -239,7 +239,7 @@ void SchedulerPrivate::AddJobToQueue(JobResource* job,
                                      time_t runtime,
                                      JobTrigger job_trigger)
 {
-  Dmsg1(local_debuglevel + 100, "Scheduler: Try AddJobToQueue %s.\n",
+  Dmsg1(local_debuglevel + 100, "Scheduler: Try AddJobToQueue {}.\n",
         job->resource_name_);
 
   if (run != nullptr) {
@@ -249,13 +249,13 @@ void SchedulerPrivate::AddJobToQueue(JobResource* job,
   if ((runtime + 59) < now) { return; }
 
   try {
-    Dmsg1(local_debuglevel + 100, "Scheduler: Put job %s into queue.\n",
+    Dmsg1(local_debuglevel + 100, "Scheduler: Put job {} into queue.\n",
           job->resource_name_);
 
     prioritised_job_item_queue.EmplaceItem(job, run, runtime, job_trigger);
 
   } catch (const std::invalid_argument& e) {
-    Dmsg1(local_debuglevel + 100, "Could not emplace job: %s\n", e.what());
+    Dmsg1(local_debuglevel + 100, "Could not emplace job: {}\n", e.what());
   }
 }
 

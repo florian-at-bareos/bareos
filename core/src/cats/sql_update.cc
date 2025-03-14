@@ -246,7 +246,7 @@ bool BareosDb::UpdatePoolRecord(JobControlRecord* jcr, PoolDbRecord* pr)
   Mmsg(cmd, "SELECT count(*) from Media WHERE PoolId=%s",
        edit_int64(pr->PoolId, ed4));
   pr->NumVols = GetSqlRecordMax(jcr);
-  Dmsg1(400, "NumVols=%d\n", pr->NumVols);
+  Dmsg1(400, "NumVols={}\n", pr->NumVols);
 
   Mmsg(cmd,
        "UPDATE Pool SET NumVols=%u,MaxVols=%u,UseOnce=%d,UseCatalog=%d,"
@@ -293,13 +293,13 @@ bool BareosDb::UpdateMediaRecord(JobControlRecord* jcr, MediaDbRecord* mr)
   char esc_medianame[MAX_ESCAPE_NAME_LENGTH];
   char esc_status[MAX_ESCAPE_NAME_LENGTH];
 
-  Dmsg1(100, "update_media: FirstWritten=%d\n", mr->FirstWritten);
+  Dmsg1(100, "update_media: FirstWritten={}\n", mr->FirstWritten);
   DbLocker _{this};
   EscapeString(jcr, esc_medianame, mr->VolumeName, strlen(mr->VolumeName));
   EscapeString(jcr, esc_status, mr->VolStatus, strlen(mr->VolStatus));
 
   if (mr->set_first_written) {
-    Dmsg1(400, "Set FirstWritten Vol=%s\n", mr->VolumeName);
+    Dmsg1(400, "Set FirstWritten Vol={}\n", mr->VolumeName);
     ttime = mr->FirstWritten;
     bstrutime(dt, sizeof(dt), ttime);
     Mmsg(cmd,
@@ -307,7 +307,7 @@ bool BareosDb::UpdateMediaRecord(JobControlRecord* jcr, MediaDbRecord* mr)
          "WHERE VolumeName='%s'",
          dt, esc_medianame);
     UpdateDb(jcr, cmd);
-    Dmsg1(400, "Firstwritten=%d\n", mr->FirstWritten);
+    Dmsg1(400, "Firstwritten={}\n", mr->FirstWritten);
   }
 
   /* Label just done? */
@@ -355,7 +355,7 @@ bool BareosDb::UpdateMediaRecord(JobControlRecord* jcr, MediaDbRecord* mr)
        edit_uint64(mr->RecyclePoolId, ed11), mr->RecycleCount, mr->Recycle,
        mr->ActionOnPurge, mr->MinBlocksize, mr->MaxBlocksize, esc_medianame);
 
-  Dmsg1(400, "%s\n", cmd);
+  Dmsg1(400, "{}\n", cmd);
 
   bool retval = UpdateDb(jcr, cmd) > 0;
 
@@ -402,7 +402,7 @@ bool BareosDb::UpdateMediaDefaults(JobControlRecord* jcr, MediaDbRecord* mr)
          mr->MinBlocksize, mr->MaxBlocksize, edit_int64(mr->PoolId, ed5));
   }
 
-  Dmsg1(400, "%s\n", cmd);
+  Dmsg1(400, "{}\n", cmd);
 
   return UpdateDb(jcr, cmd) != -1;
 }
@@ -440,7 +440,7 @@ void BareosDb::MakeInchangerUnique(JobControlRecord* jcr, MediaDbRecord* mr)
            "Slot=%d AND StorageId=%s",
            mr->Slot, edit_int64(mr->StorageId, ed1), mr->VolumeName);
     }
-    Dmsg1(100, "%s\n", cmd);
+    Dmsg1(100, "{}\n", cmd);
     UpdateDb(jcr, cmd);
   }
 }

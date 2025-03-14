@@ -222,7 +222,7 @@ void Device::rLock(bool locked)
       int status;
       char ed1[50], ed2[50];
 
-      Dmsg3(sd_debuglevel, "rLock blked=%s no_wait=%s me=%s\n", print_blocked(),
+      Dmsg3(sd_debuglevel, "rLock blked={} no_wait={} me={}\n", print_blocked(),
             edit_pthread(no_wait_id, ed1, sizeof(ed1)),
             edit_pthread(pthread_self(), ed2, sizeof(ed2)));
       if ((status = pthread_cond_wait(&wait, &mutex_)) != 0) {
@@ -250,7 +250,7 @@ void _blockDevice(const char* file, int line, Device* dev, int state)
   ASSERT(dev->blocked() == BST_NOT_BLOCKED);
   dev->SetBlocked(state);           /* make other threads wait */
   dev->no_wait_id = pthread_self(); /* allow us to continue */
-  Dmsg3(sd_debuglevel, "set blocked=%s from %s:%d\n", dev->print_blocked(),
+  Dmsg3(sd_debuglevel, "set blocked={} from {}:{}\n", dev->print_blocked(),
         file, line);
 }
 
@@ -261,7 +261,7 @@ void _blockDevice(const char* file, int line, Device* dev, int state)
  */
 void _unBlockDevice(const char* file, int line, Device* dev)
 {
-  Dmsg3(sd_debuglevel, "unblock %s from %s:%d\n", dev->print_blocked(), file,
+  Dmsg3(sd_debuglevel, "unblock {} from {}:{}\n", dev->print_blocked(), file,
         line);
   ASSERT(dev->blocked());
   dev->SetBlocked(BST_NOT_BLOCKED);
@@ -281,13 +281,13 @@ void _stealDeviceLock(const char* file,
                       bsteal_lock_t* hold,
                       int state)
 {
-  Dmsg3(sd_debuglevel, "steal lock. old=%s from %s:%d\n", dev->print_blocked(),
+  Dmsg3(sd_debuglevel, "steal lock. old={} from {}:{}\n", dev->print_blocked(),
         file, line);
   hold->dev_blocked = dev->blocked();
   hold->dev_prev_blocked = dev->dev_prev_blocked;
   hold->no_wait_id = dev->no_wait_id;
   dev->SetBlocked(state);
-  Dmsg1(sd_debuglevel, "steal lock. new=%s\n", dev->print_blocked());
+  Dmsg1(sd_debuglevel, "steal lock. new={}\n", dev->print_blocked());
   dev->no_wait_id = pthread_self();
   dev->Unlock();
 }
@@ -301,13 +301,13 @@ void _giveBackDeviceLock(const char* file,
                          Device* dev,
                          bsteal_lock_t* hold)
 {
-  Dmsg3(sd_debuglevel, "return lock. old=%s from %s:%d\n", dev->print_blocked(),
+  Dmsg3(sd_debuglevel, "return lock. old={} from {}:{}\n", dev->print_blocked(),
         file, line);
   dev->Lock();
   dev->SetBlocked(hold->dev_blocked);
   dev->dev_prev_blocked = hold->dev_prev_blocked;
   dev->no_wait_id = hold->no_wait_id;
-  Dmsg1(sd_debuglevel, "return lock. new=%s\n", dev->print_blocked());
+  Dmsg1(sd_debuglevel, "return lock. new={}\n", dev->print_blocked());
   if (dev->num_waiting > 0) {
     pthread_cond_broadcast(&dev->wait); /* wake them up */
   }

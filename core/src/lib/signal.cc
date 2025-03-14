@@ -117,7 +117,7 @@ extern "C" void SignalHandler(int sig)
 
   // If we come back more than once, get out fast!
   if (already_dead) { exit(BEXIT_FAILURE); }
-  Dmsg2(900, "sig=%d %s\n", sig, sig_names[sig]);
+  Dmsg2(900, "sig={} {}\n", sig, sig_names[sig]);
 
   // Ignore certain signals -- SIGUSR2 used to interrupt threads
   if (sig == SIGCHLD || sig == SIGUSR2) { return; }
@@ -169,9 +169,9 @@ extern "C" void SignalHandler(int sig)
     SecureErase(NULL, "./core"); /* get rid of any old core file */
 
     snprintf(pid_buf, 20, "%d", (int)main_pid);
-    Dmsg1(300, "Working=%s\n", working_directory);
-    Dmsg1(300, "btpath=%s\n", btpath);
-    Dmsg1(300, "exepath=%s\n", exepath);
+    Dmsg1(300, "Working={}\n", working_directory);
+    Dmsg1(300, "btpath={}\n", btpath);
+    Dmsg1(300, "exepath={}\n", exepath);
     switch (pid = fork()) {
       case -1: /* error */
         fprintf(stderr, T_("Fork error: ERR=%s\n"), strerror(errno));

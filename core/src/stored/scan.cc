@@ -79,7 +79,7 @@ bool Device::ScanDirectoryForVolume(DeviceControlRecord* dcr)
   if (!(dp = opendir(mount_point))) {
     BErrNo be;
     dev_errno = errno;
-    Dmsg3(29, "scan_dir_for_vol: failed to open dir %s (dev=%s), ERR=%s\n",
+    Dmsg3(29, "scan_dir_for_vol: failed to open dir {} (dev={}), ERR={}\n",
           mount_point, print_name(), be.bstrerror());
     goto get_out;
   }
@@ -99,7 +99,7 @@ bool Device::ScanDirectoryForVolume(DeviceControlRecord* dcr)
       dev_errno = EIO;
       Dmsg2(
           129,
-          "scan_dir_for_vol: failed to find suitable file in dir %s (dev=%s)\n",
+          "scan_dir_for_vol: failed to find suitable file in dir {} (dev={})\n",
           mount_point, print_name());
       break;
     }

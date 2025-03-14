@@ -85,8 +85,8 @@ int ReadDevVolumeLabel(DeviceControlRecord* dcr)
   dcr->dev->SetLabelBlocksize(dcr);
 
   Dmsg5(100,
-        "Enter ReadVolumeLabel res=%d device=%s vol=%s dev_Vol=%s "
-        "max_blocksize=%u\n",
+        "Enter ReadVolumeLabel res={} device={} vol={} dev_Vol={} "
+        "max_blocksize={}\n",
         dcr->dev->NumReserved(), dcr->dev->print_name(), VolName,
         dcr->dev->VolHdr.VolumeName[0] ? dcr->dev->VolHdr.VolumeName : "*NULL*",
         dcr->dev->max_block_size);
@@ -105,7 +105,7 @@ int ReadDevVolumeLabel(DeviceControlRecord* dcr)
   if (!dcr->dev->rewind(dcr)) {
     Mmsg(jcr->errmsg, T_("Couldn't rewind device %s: ERR=%s\n"),
          dcr->dev->print_name(), dcr->dev->print_errmsg());
-    Dmsg1(130, "return VOL_NO_MEDIA: %s", jcr->errmsg);
+    Dmsg1(130, "return VOL_NO_MEDIA: {}", jcr->errmsg);
     return VOL_NO_MEDIA;
   }
   bstrncpy(dcr->dev->VolHdr.Id, "**error**", sizeof(dcr->dev->VolHdr.Id));
@@ -151,17 +151,17 @@ int ReadDevVolumeLabel(DeviceControlRecord* dcr)
          T_("Requested Volume \"%s\" on %s is not a Bareos "
             "labeled Volume, because: ERR=%s"),
          NPRT(VolName), dcr->dev->print_name(), dcr->dev->print_errmsg());
-    Dmsg1(130, "%s", jcr->errmsg);
+    Dmsg1(130, "{}", jcr->errmsg);
   } else if (!ReadRecordFromBlock(dcr, record)) {
     Mmsg(jcr->errmsg, T_("Could not read Volume label from block.\n"));
-    Dmsg1(130, "%s", jcr->errmsg);
+    Dmsg1(130, "{}", jcr->errmsg);
   } else if (!UnserVolumeLabel(dcr->dev, record)) {
     Mmsg(jcr->errmsg, T_("Could not UnSerialize Volume label: ERR=%s\n"),
          dcr->dev->print_errmsg());
-    Dmsg1(130, "%s", jcr->errmsg);
+    Dmsg1(130, "{}", jcr->errmsg);
   } else if (!bstrcmp(dcr->dev->VolHdr.Id, BareosId)) {
     Mmsg(jcr->errmsg, T_("Volume Header Id bad: %s\n"), dcr->dev->VolHdr.Id);
-    Dmsg1(130, "%s", jcr->errmsg);
+    Dmsg1(130, "{}", jcr->errmsg);
   } else {
     ok = true;
   }
@@ -187,7 +187,7 @@ int ReadDevVolumeLabel(DeviceControlRecord* dcr)
     Mmsg(jcr->errmsg,
          T_("Volume on %s has wrong Bareos version. Wanted %d got %d\n"),
          dcr->dev->print_name(), BareosTapeVersion, dcr->dev->VolHdr.VerNum);
-    Dmsg1(130, "VOL_VERSION_ERROR: %s", jcr->errmsg);
+    Dmsg1(130, "VOL_VERSION_ERROR: {}", jcr->errmsg);
     status = VOL_VERSION_ERROR;
     goto bail_out;
   }
@@ -198,7 +198,7 @@ int ReadDevVolumeLabel(DeviceControlRecord* dcr)
       && dcr->dev->VolHdr.LabelType != VOL_LABEL) {
     Mmsg(jcr->errmsg, T_("Volume on %s has bad Bareos label type: %x\n"),
          dcr->dev->print_name(), dcr->dev->VolHdr.LabelType);
-    Dmsg1(130, "%s", jcr->errmsg);
+    Dmsg1(130, "{}", jcr->errmsg);
     if (!dcr->dev->poll && jcr->sd_impl->label_errors++ > 100) {
       Jmsg(jcr, M_FATAL, 0, T_("Too many tries: %s"), jcr->errmsg);
     }
@@ -210,14 +210,14 @@ int ReadDevVolumeLabel(DeviceControlRecord* dcr)
   dcr->dev->SetLabeled(); /* set has Bareos label */
 
   /* Compare Volume Names */
-  Dmsg2(130, "Compare Vol names: VolName=%s hdr=%s\n", VolName ? VolName : "*",
+  Dmsg2(130, "Compare Vol names: VolName={} hdr={}\n", VolName ? VolName : "*",
         dcr->dev->VolHdr.VolumeName);
   if (VolName && *VolName && *VolName != '*'
       && !bstrcmp(dcr->dev->VolHdr.VolumeName, VolName)) {
     Mmsg(jcr->errmsg,
          T_("Wrong Volume mounted on device %s: Wanted %s have %s\n"),
          dcr->dev->print_name(), VolName, dcr->dev->VolHdr.VolumeName);
-    Dmsg1(130, "%s", jcr->errmsg);
+    Dmsg1(130, "{}", jcr->errmsg);
     /* Cancel Job if too many label errors
      *  => we are in a loop */
     if (!dcr->dev->poll && jcr->sd_impl->label_errors++ > 100) {
@@ -241,11 +241,11 @@ int ReadDevVolumeLabel(DeviceControlRecord* dcr)
     }
   }
 
-  Dmsg1(100, "Call reserve_volume=%s\n", dcr->dev->VolHdr.VolumeName);
+  Dmsg1(100, "Call reserve_volume={}\n", dcr->dev->VolHdr.VolumeName);
   if (reserve_volume(dcr, dcr->dev->VolHdr.VolumeName) == NULL) {
     Mmsg2(jcr->errmsg, T_("Could not reserve volume %s on %s\n"),
           dcr->dev->VolHdr.VolumeName, dcr->dev->print_name());
-    Dmsg2(150, "Could not reserve volume %s on %s\n",
+    Dmsg2(150, "Could not reserve volume {} on {}\n",
           dcr->dev->VolHdr.VolumeName, dcr->dev->print_name());
     status = VOL_NAME_ERROR;
     goto bail_out;
@@ -274,7 +274,7 @@ ok_out:
 bail_out:
   EmptyBlock(dcr->block);
   dcr->dev->rewind(dcr);
-  Dmsg1(150, "return %d\n", status);
+  Dmsg1(150, "return {}\n", status);
   return status;
 }
 
@@ -305,7 +305,7 @@ static bool WriteVolumeLabelToBlock(DeviceControlRecord* dcr)
           dev->print_name());
     return false;
   } else {
-    Dmsg2(130, "Wrote label of %d bytes to block. Vol=%s\n", rec.data_len,
+    Dmsg2(130, "Wrote label of {} bytes to block. Vol={}\n", rec.data_len,
           dcr->VolumeName);
   }
   FreePoolMemory(rec.data);
@@ -350,7 +350,7 @@ bool WriteNewVolumeLabelToDev(DeviceControlRecord* dcr,
   /* Set the new filename for open, ... */
   dev->setVolCatName(VolName);
   dcr->setVolCatName(VolName);
-  Dmsg1(150, "New VolName=%s\n", VolName);
+  Dmsg1(150, "New VolName={}\n", VolName);
 
 
   if (!dev->open(dcr, DeviceMode::OPEN_READ_WRITE)) {
@@ -362,7 +362,7 @@ bool WriteNewVolumeLabelToDev(DeviceControlRecord* dcr,
       goto bail_out;
     }
   }
-  Dmsg1(150, "Label type=%d\n", dev->label_type);
+  Dmsg1(150, "Label type={}\n", dev->label_type);
 
   /* Let any stored plugin know that we are about to write a new label to the
    * volume. */
@@ -373,7 +373,7 @@ bool WriteNewVolumeLabelToDev(DeviceControlRecord* dcr,
 
   EmptyBlock(dcr->block);
   if (!dev->rewind(dcr)) {
-    Dmsg2(130, "Bad status on %s from rewind: ERR=%s\n", dev->print_name(),
+    Dmsg2(130, "Bad status on {} from rewind: ERR={}\n", dev->print_name(),
           dev->print_errmsg());
     if (!forge_on) { goto bail_out; }
   }
@@ -402,19 +402,19 @@ bool WriteNewVolumeLabelToDev(DeviceControlRecord* dcr,
   rec->maskedStream = 0;
 
   if (!WriteRecordToBlock(dcr, rec)) {
-    Dmsg2(130, "Bad Label write on %s: ERR=%s\n", dev->print_name(),
+    Dmsg2(130, "Bad Label write on {}: ERR={}\n", dev->print_name(),
           dev->print_errmsg());
     FreeRecord(rec);
     goto bail_out;
   } else {
-    Dmsg2(130, "Wrote label of %d bytes to %s\n", rec->data_len,
+    Dmsg2(130, "Wrote label of {} bytes to {}\n", rec->data_len,
           dev->print_name());
     FreeRecord(rec);
   }
 
   Dmsg0(130, "Call WriteBlockToDev()\n");
   if (!dcr->WriteBlockToDev()) {
-    Dmsg2(130, "Bad Label write on %s: ERR=%s\n", dev->print_name(),
+    Dmsg2(130, "Bad Label write on {}: ERR={}\n", dev->print_name(),
           dev->print_errmsg());
     goto bail_out;
   }
@@ -437,7 +437,7 @@ bool WriteNewVolumeLabelToDev(DeviceControlRecord* dcr,
   if (reserve_volume(dcr, VolName) == NULL) {
     Mmsg2(jcr->errmsg, T_("Could not reserve volume %s on %s\n"),
           dev->VolHdr.VolumeName, dev->print_name());
-    Dmsg1(100, "%s", jcr->errmsg);
+    Dmsg1(100, "{}", jcr->errmsg);
     goto bail_out;
   }
   dev = dcr->dev; /* may have changed in reserve_volume */
@@ -508,7 +508,7 @@ static void CreateVolumeLabelRecord(DeviceControlRecord* dcr,
   rec->VolSessionTime = jcr->VolSessionTime;
   rec->Stream = jcr->sd_impl->NumWriteVolumes;
   rec->maskedStream = jcr->sd_impl->NumWriteVolumes;
-  Dmsg2(150, "Created Vol label rec: FI=%s len=%d\n",
+  Dmsg2(150, "Created Vol label rec: FI={} len={}\n",
         FI_to_ascii(buf, rec->FileIndex), rec->data_len);
 }
 
@@ -622,7 +622,7 @@ bool WriteSessionLabel(DeviceControlRecord* dcr, int label)
   char buf1[100], buf2[100];
 
   rec = new_record();
-  Dmsg1(130, "session_label record=%x\n", rec);
+  Dmsg1(130, "session_label record={:x}\n", rec);
   if (label != SOS_LABEL && label != EOS_LABEL) {
     Jmsg1(jcr, M_ABORT, 0, T_("Bad Volume session label = %d\n"), label);
   }
@@ -648,14 +648,14 @@ bool WriteSessionLabel(DeviceControlRecord* dcr, int label)
   }
 
   Dmsg6(150,
-        "Write sesson_label record JobId=%d FI=%s SessId=%d Strm=%s len=%d "
-        "remainder=%d\n",
+        "Write sesson_label record JobId={} FI={} SessId={} Strm={} len={} "
+        "remainder={}\n",
         jcr->JobId, FI_to_ascii(buf1, rec->FileIndex), rec->VolSessionId,
         stream_to_ascii(buf2, rec->Stream, rec->FileIndex), rec->data_len,
         rec->remainder);
 
   FreeRecord(rec);
-  Dmsg2(150, "Leave WriteSessionLabel Block=%ud File=%ud\n", dev->GetBlockNum(),
+  Dmsg2(150, "Leave WriteSessionLabel Block={}d File={}d\n", dev->GetBlockNum(),
         dev->GetFile());
   return true;
 }
@@ -1022,7 +1022,7 @@ bool DeviceControlRecord::RewriteVolumeLabel(bool recycle)
     return false;
   }
 
-  Dmsg2(190, "set append found freshly labeled volume. fd=%d dev=%x\n", dev->fd,
+  Dmsg2(190, "set append found freshly labeled volume. fd={} dev={:x}\n", dev->fd,
         dev);
 
   // Let any stored plugin know that we are (re)writing the label.
@@ -1038,7 +1038,7 @@ bool DeviceControlRecord::RewriteVolumeLabel(bool recycle)
     return false;
   }
 
-  Dmsg1(150, "wrote vol label to block. Vol=%s\n", dcr->VolumeName);
+  Dmsg1(150, "wrote vol label to block. Vol={}\n", dcr->VolumeName);
 
   dev->setVolCatInfo(false);
   dev->VolCatInfo.VolCatBytes = 0; /* reset byte count */
@@ -1055,7 +1055,7 @@ bool DeviceControlRecord::RewriteVolumeLabel(bool recycle)
       return false;
     }
     if (recycle) {
-      Dmsg1(150, "Doing recycle. Vol=%s\n", dcr->VolumeName);
+      Dmsg1(150, "Doing recycle. Vol={}\n", dcr->VolumeName);
       if (!dev->d_truncate(dcr)) {
         Jmsg2(jcr, M_FATAL, 0, T_("Truncate error on device %s: ERR=%s\n"),
               dev->print_name(), dev->print_errmsg());
@@ -1083,7 +1083,7 @@ bool DeviceControlRecord::RewriteVolumeLabel(bool recycle)
     }
 
     /* Attempt write to check write permission */
-    Dmsg1(200, "Attempt to write to device fd=%d.\n", dev->fd);
+    Dmsg1(200, "Attempt to write to device fd={}.\n", dev->fd);
     if (!dcr->WriteBlockToDev()) {
       Jmsg2(jcr, M_ERROR, 0, T_("Unable to write device %s: ERR=%s\n"),
             dev->print_name(), dev->print_errmsg());
@@ -1108,7 +1108,7 @@ bool DeviceControlRecord::RewriteVolumeLabel(bool recycle)
     dev->VolCatInfo.VolCatWrites = 1;
     dev->VolCatInfo.VolCatReads = 1;
   }
-  Dmsg1(150, "dir_update_vol_info. Set Append vol=%s\n", dcr->VolumeName);
+  Dmsg1(150, "dir_update_vol_info. Set Append vol={}\n", dcr->VolumeName);
   dev->VolCatInfo.VolFirstWritten = time(NULL);
   bstrncpy(dev->VolCatInfo.VolCatStatus, "Append",
            sizeof(dev->VolCatInfo.VolCatStatus));
@@ -1128,7 +1128,7 @@ bool DeviceControlRecord::RewriteVolumeLabel(bool recycle)
   }
   /* End writing real Volume label (from pre-labeled tape), or recycling
    *  the volume. */
-  Dmsg1(150, "OK from rewrite vol label. Vol=%s\n", dcr->VolumeName);
+  Dmsg1(150, "OK from rewrite vol label. Vol={}\n", dcr->VolumeName);
 
   /* reset blocksizes from volinfo to device as we set blocksize to
    * DEFAULT_BLOCK_SIZE to write the label */

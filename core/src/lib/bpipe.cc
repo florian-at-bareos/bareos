@@ -73,12 +73,12 @@ int RunProgram(char* prog, int wait, POOLMEM*& results)
 
   if (stat1 < 0) {
     BErrNo be;
-    Dmsg2(150, "Run program fgets stat=%d ERR=%s\n", stat1,
+    Dmsg2(150, "Run program fgets stat={} ERR={}\n", stat1,
           be.bstrerror(errno));
   } else if (stat1 != 0) {
-    Dmsg1(150, "Run program fgets stat=%d\n", stat1);
+    Dmsg1(150, "Run program fgets stat={}\n", stat1);
     if (bpipe->timer_id) {
-      Dmsg1(150, "Run program fgets killed=%d\n", bpipe->timer_id->killed);
+      Dmsg1(150, "Run program fgets killed={}\n", bpipe->timer_id->killed);
       /* NB: I'm not sure it is really useful for RunProgram. Without the
        * following lines RunProgram would not detect if the program was killed
        * by the watchdog. */
@@ -90,7 +90,7 @@ int RunProgram(char* prog, int wait, POOLMEM*& results)
   }
   stat2 = CloseBpipe(bpipe);
   stat1 = stat2 != 0 ? stat2 : stat1;
-  Dmsg1(150, "Run program returning %d\n", stat1);
+  Dmsg1(150, "Run program returning {}\n", stat1);
 
   return stat1;
 }
@@ -139,19 +139,19 @@ int RunProgramFullOutput(char* prog, int wait, POOLMEM*& results)
     PmStrcat(tmp, buf);
     if (feof(bpipe->rfd)) {
       stat1 = 0;
-      Dmsg1(900, "Run program fgets stat=%d\n", stat1);
+      Dmsg1(900, "Run program fgets stat={}\n", stat1);
       break;
     } else {
       stat1 = ferror(bpipe->rfd);
     }
     if (stat1 < 0) {
       BErrNo be;
-      Dmsg2(200, "Run program fgets stat=%d ERR=%s\n", stat1, be.bstrerror());
+      Dmsg2(200, "Run program fgets stat={} ERR={}\n", stat1, be.bstrerror());
       break;
     } else if (stat1 != 0) {
-      Dmsg1(900, "Run program fgets stat=%d\n", stat1);
+      Dmsg1(900, "Run program fgets stat={}\n", stat1);
       if (bpipe->timer_id && bpipe->timer_id->killed) {
-        Dmsg1(250, "Run program saw fgets killed=%d\n",
+        Dmsg1(250, "Run program saw fgets killed={}\n",
               bpipe->timer_id->killed);
         break;
       }
@@ -163,18 +163,18 @@ int RunProgramFullOutput(char* prog, int wait, POOLMEM*& results)
    * and set the timer values to avoid edge cases where the program ends
    * just as the timer kills it. */
   if (bpipe->timer_id && bpipe->timer_id->killed) {
-    Dmsg1(150, "Run program fgets killed=%d\n", bpipe->timer_id->killed);
+    Dmsg1(150, "Run program fgets killed={}\n", bpipe->timer_id->killed);
     PmStrcpy(tmp, T_("Program killed by BAREOS (timeout)\n"));
     stat1 = ETIME;
   }
 
   PmStrcpy(results, tmp);
-  Dmsg3(1900, "resadr=0x%x reslen=%d res=%s\n", results, strlen(results),
+  Dmsg3(1900, "resadr=0x{:x} reslen={} res={}\n", results, strlen(results),
         results);
   stat2 = CloseBpipe(bpipe);
   stat1 = stat2 != 0 ? stat2 : stat1;
 
-  Dmsg1(900, "Run program returning %d\n", stat1);
+  Dmsg1(900, "Run program returning {}\n", stat1);
 bail_out:
   FreePoolMemory(tmp);
   free(buf);

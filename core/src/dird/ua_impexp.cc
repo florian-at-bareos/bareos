@@ -114,7 +114,7 @@ static inline void validate_slot_list(UaContext* ua,
                          != NULL) {
                 continue;
               }
-              Dmsg1(100, "Deselecting slot %hd doesn't have wanted status.\n",
+              Dmsg1(100, "Deselecting slot {} doesn't have wanted status.\n",
                     vl->bareos_slot_number);
               ua->WarningMsg(
                   T_("Deselecting slot %hd doesn't have wanted status.\n"),
@@ -134,7 +134,7 @@ static inline void validate_slot_list(UaContext* ua,
                          == NULL) {
                 continue;
               }
-              Dmsg1(100, "Deselecting slot %hd doesn't have wanted status.\n",
+              Dmsg1(100, "Deselecting slot {} doesn't have wanted status.\n",
                     vl->bareos_slot_number);
               ua->WarningMsg(
                   T_("Deselecting slot %hd doesn't have wanted status.\n"),
@@ -266,7 +266,7 @@ static inline changer_vol_list_t* scan_slots_for_volnames(
             }
             vl1->VolName
                 = get_volume_name_from_SD(ua, vl1->bareos_slot_number, drive);
-            Dmsg2(100, "Got Vol=%s from SD for Slot=%hd\n", vl1->VolName,
+            Dmsg2(100, "Got Vol={} from SD for Slot={}\n", vl1->VolName,
                   vl1->bareos_slot_number);
             break;
           case slot_status_t::kSlotStatusEmpty:
@@ -282,7 +282,7 @@ static inline changer_vol_list_t* scan_slots_for_volnames(
               }
               vl2->VolName
                   = get_volume_name_from_SD(ua, vl1->bareos_slot_number, drive);
-              Dmsg2(100, "Got Vol=%s from SD for Slot=%hd\n", vl2->VolName,
+              Dmsg2(100, "Got Vol={} from SD for Slot={}\n", vl2->VolName,
                     vl1->bareos_slot_number);
             }
             break;
@@ -420,7 +420,7 @@ static inline bool get_slot_list_using_volname(UaContext* ua,
               // See if the wanted volume is loaded in this slot.
               Dmsg3(
                   100,
-                  "Checking for volume name in slot %hd, wanted %s, found %s\n",
+                  "Checking for volume name in slot {}, wanted {}, found {}\n",
                   vl1->bareos_slot_number, volumename,
                   (vl1->VolName) ? vl1->VolName : "NULL");
               if (vl1->VolName && bstrcmp(vl1->VolName, volumename)) {
@@ -434,15 +434,15 @@ static inline bool get_slot_list_using_volname(UaContext* ua,
                                            vl1->bareos_slot_number);
               if (vl2 != NULL) {
                 Dmsg3(100,
-                      "Checking for volume name in drive %hd, wanted %s, found "
-                      "%s\n",
+                      "Checking for volume name in drive {}, wanted {}, found "
+                      "{}\n",
                       vl2->bareos_slot_number, volumename,
                       (vl2->VolName) ? vl2->VolName : "NULL");
                 if (vl2->VolName && bstrcmp(vl2->VolName, volumename)) {
                   found = true;
                 }
               } else {
-                Dmsg1(100, "Skipping empty slot %hd\n",
+                Dmsg1(100, "Skipping empty slot {}\n",
                       vl1->bareos_slot_number);
               }
               break;
@@ -465,14 +465,14 @@ static inline bool get_slot_list_using_volname(UaContext* ua,
     if (found) {
       SetBit(vl1->bareos_slot_number - 1, selected_slot_list);
     } else {
-      Dmsg1(100, "No volume named %s in changer or in selected source slots.\n",
+      Dmsg1(100, "No volume named {} in changer or in selected source slots.\n",
             volumename);
       ua->WarningMsg(
           T_("No volume named %s in changer or in selected source slots.\n"),
           volumename);
     }
   } else {
-    Dmsg1(100, "Skipping illegal volumename %s.\n", volumename);
+    Dmsg1(100, "Skipping illegal volumename {}.\n", volumename);
     ua->WarningMsg(T_("Skipping illegal volumename %s.\n"), volumename);
   }
 
@@ -550,7 +550,7 @@ static inline slot_number_t auto_fill_slot_selection(
   foreach_dlist (vl, vol_list->contents) {
     // Make sure slot_type and slot_status match.
     if (vl->slot_type != type || vl->slot_status != content) {
-      Dmsg3(100, "Skipping slot %hd, Type %hd, Content %hd\n",
+      Dmsg3(100, "Skipping slot {}, Type {}, Content {}\n",
             vl->bareos_slot_number, vl->slot_type, vl->slot_status);
       continue;
     }
@@ -563,7 +563,7 @@ static inline slot_number_t auto_fill_slot_selection(
         && vol_is_loaded_in_drive(store, vol_list, vl->bareos_slot_number)
                != NULL) {
       Dmsg3(100,
-            "Skipping slot %hd, Type %hd, Content %hd is empty but loaded in "
+            "Skipping slot {}, Type {}, Content {} is empty but loaded in "
             "drive\n",
             vl->bareos_slot_number, vl->slot_type, vl->slot_status);
       continue;
@@ -572,7 +572,7 @@ static inline slot_number_t auto_fill_slot_selection(
     /* Mark the slot as selected in the slot list.
      * And increase the number of slots selected. */
     Dmsg3(100,
-          "Selected slot %hd which has slot_type %hd and content_type %hd\n",
+          "Selected slot {} which has slot_type {} and content_type {}\n",
           vl->bareos_slot_number, vl->slot_type, vl->slot_status);
     SetBit(vl->bareos_slot_number - 1, slot_list);
     cnt++;
@@ -618,7 +618,7 @@ static inline bool verify_slot_list(StorageResource* store,
                                            vl->bareos_slot_number)
                     != NULL) {
                   Dmsg3(100,
-                        "Skipping slot %hd, Type %hd, Content %hd is empty but "
+                        "Skipping slot {}, Type {}, Content {} is empty but "
                         "loaded in drive\n",
                         vl->bareos_slot_number, vl->slot_type, vl->slot_status);
                   return false;
@@ -637,7 +637,7 @@ static inline bool verify_slot_list(StorageResource* store,
           }
 
           // Not the wanted type or content and not a special case.
-          Dmsg3(100, "Skipping slot %hd, Type %hd, Content %hd\n",
+          Dmsg3(100, "Skipping slot {}, Type {}, Content {}\n",
                 vl->bareos_slot_number, vl->slot_type, vl->slot_status);
           return false;
         }
@@ -692,8 +692,8 @@ static inline bool update_internal_slot_list(changer_vol_list_t* vol_list,
     vl1->VolName = NULL;
     vl1->slot_status = slot_status_t::kSlotStatusEmpty;
     Dmsg5(100,
-          "Update internal slotlist slot %hd with volname %s, content %hd and "
-          "slot %hd with content %hd and volname NULL\n",
+          "Update internal slotlist slot {} with volname {}, content {} and "
+          "slot {} with content {} and volname NULL\n",
           vl2->bareos_slot_number, (vl2->VolName) ? vl2->VolName : "NULL",
           vl2->slot_status, vl1->bareos_slot_number, vl1->slot_status);
     return true;
@@ -753,8 +753,8 @@ static bool release_loaded_volume(UaContext* ua,
     vl1->slot_status = slot_status_t::kSlotStatusEmpty;
     vl1->currently_loaded_slot_number = 0;
     Dmsg5(100,
-          "Update internal slotlist slot %hd with volname %s, content %hd and "
-          "slot %hd with content %hd and volname NULL\n",
+          "Update internal slotlist slot {} with volname {}, content {} and "
+          "slot {} with content {} and volname NULL\n",
           vl2->bareos_slot_number, (vl2->VolName) ? vl2->VolName : "NULL",
           vl2->slot_status, vl1->bareos_slot_number, vl1->slot_status);
     return true;
@@ -833,7 +833,7 @@ static char* move_volumes_in_autochanger(UaContext* ua,
           if (vl != NULL) {
             if (!release_loaded_volume(ua, store, vl->bareos_slot_number,
                                        vol_list)) {
-              Dmsg1(100, "Failed to release volume in drive %hd\n",
+              Dmsg1(100, "Failed to release volume in drive {}\n",
                     vl->bareos_slot_number);
               ua->WarningMsg(T_("Failed to release volume in drive %hd\n"),
                              vl->bareos_slot_number);
@@ -848,16 +848,16 @@ static char* move_volumes_in_autochanger(UaContext* ua,
       // If we found a source and destination slot perform the move.
       if (transfer_volume(ua, store, transfer_from, transfer_to)) {
         Dmsg2(100,
-              "Successfully moved volume from source slot %hd to destination "
-              "slot %hd\n",
+              "Successfully moved volume from source slot {} to destination "
+              "slot {}\n",
               transfer_from, transfer_to);
         update_internal_slot_list(vol_list, transfer_from, transfer_to);
         SetBit(transfer_from - 1, visited_slot_list);
         SetBit(transfer_to - 1, visited_slot_list);
       } else {
         Dmsg2(100,
-              "Failed to move volume from source slot %hd to destination slot "
-              "%hd\n",
+              "Failed to move volume from source slot {} to destination slot "
+              "{}\n",
               transfer_from, transfer_to);
         ua->WarningMsg(T_("Failed to move volume from source slot %hd to "
                           "destination slot %hd\n"),
@@ -1010,7 +1010,7 @@ static bool PerformMoveOperation(UaContext* ua, enum e_move_op operation)
       break;
   }
 
-  Dmsg2(100, "src_slots = %hd, dst_slots = %hd\n", nr_enabled_src_slots,
+  Dmsg2(100, "src_slots = {}, dst_slots = {}\n", nr_enabled_src_slots,
         nr_enabled_dst_slots);
 
   /* First generic sanity check if there is a source selection the number

@@ -425,12 +425,12 @@ void* process_director_commands(JobControlRecord* jcr, BareosSocket* dir)
       // Read command
       if (dir->recv() < 0) { break; /* connection terminated */ }
       dir->msg[dir->message_length] = 0;
-      Dmsg1(100, "<dird: %s\n", dir->msg);
+      Dmsg1(100, "<dird: {}\n", dir->msg);
 
       auto* to_execute = SelectCommandByName(dir->msg);
 
       if (!to_execute) {
-        Dmsg1(100, "Command \"%s\" not found.\n", dir->msg);
+        Dmsg1(100, "Command \"{}\" not found.\n", dir->msg);
         dir->fsend(errmsg);
         break;
       }
@@ -438,16 +438,16 @@ void* process_director_commands(JobControlRecord* jcr, BareosSocket* dir)
       /* if director is a monitor but the command does not allow monitor access,
        * we reject the command and stop. */
       if (!to_execute->monitoraccess && jcr->fd_impl->director->monitor) {
-        Dmsg1(100, "Command \"%s\" is invalid.\n", to_execute->cmd);
+        Dmsg1(100, "Command \"{}\" is invalid.\n", to_execute->cmd);
         dir->fsend(invalid_cmd);
         dir->signal(BNET_EOD);
         break;
       }
 
-      Dmsg1(100, "Executing %s command.\n", to_execute->cmd);
+      Dmsg1(100, "Executing {} command.\n", to_execute->cmd);
 
       if (!to_execute->func(jcr)) { /* do command */
-        Dmsg1(100, "Quit command loop. Canceled=%d\n", jcr->IsJobCanceled());
+        Dmsg1(100, "Quit command loop. Canceled={}\n", jcr->IsJobCanceled());
         break; /* error or fully terminated, get out */
       }
     }
@@ -471,7 +471,7 @@ void* process_director_commands(JobControlRecord* jcr, BareosSocket* dir)
                  edit_uint64(jcr->ReadBytes, ed1),
                  edit_uint64(jcr->JobBytes, ed2), jcr->JobErrors,
                  jcr->fd_impl->enable_vss, jcr->fd_impl->crypto.pki_encrypt);
-      Dmsg1(110, "End FD msg: %s\n", dir->msg);
+      Dmsg1(110, "End FD msg: {}\n", dir->msg);
     }
 
     GeneratePluginEvent(jcr, bEventJobEnd);
@@ -571,7 +571,7 @@ static bool ParseOkVersion(const char* string)
   int number = 0;
 
   number = sscanf(string, OKversion, &name, &version, &day, &month, &year);
-  Dmsg2(120, "OK message: %s, Version: %s\n", name, version);
+  Dmsg2(120, "OK message: {}, Version: {}\n", name, version);
   return (number == 5);
 }
 
@@ -597,12 +597,12 @@ static void* handle_connection_to_director(void* director_resource)
             dir_res->resource_name_, retry_period);
       sleep(retry_period);
     } else {
-      Dmsg1(120, "Connected to \"%s\".\n", dir_res->resource_name_);
+      Dmsg1(120, "Connected to \"{}\".\n", dir_res->resource_name_);
 
       // Returns: 1 if data available, 0 if timeout, -1 if error
       data_available = 0;
       while ((data_available == 0) && (!quit_client_initiate_connection)) {
-        Dmsg2(120, "Waiting for data from Director \"%s\" (timeout: %ds)\n",
+        Dmsg2(120, "Waiting for data from Director \"{}\" (timeout: {}s)\n",
               dir_res->resource_name_, timeout_data);
         data_available = dir_bsock->WaitDataIntr(timeout_data);
       }
@@ -625,7 +625,7 @@ static void* handle_connection_to_director(void* director_resource)
     }
   }
 
-  Dmsg1(100, "Exiting Client Initiated Connection thread for %s\n",
+  Dmsg1(100, "Exiting Client Initiated Connection thread for {}\n",
         dir_res->resource_name_);
   if (jcr) {
     // cleanup old data structures
@@ -658,7 +658,7 @@ bool StartConnectToDirectorThreads()
               "is missing.\n",
               dir_res->resource_name_);
       } else {
-        Dmsg3(120, "Connecting to Director \"%s\", address %s:%d.\n",
+        Dmsg3(120, "Connecting to Director \"{}\", address {}:{}.\n",
               dir_res->resource_name_, dir_res->address, dir_res->port);
         thread = (pthread_t*)malloc(sizeof(pthread_t));
         if ((pthread_create_result
@@ -731,7 +731,7 @@ static bool SecureerasereqCmd(JobControlRecord* jcr)
   BareosSocket* dir = jcr->dir_bsock;
 
   setting = me->secure_erase_cmdline ? me->secure_erase_cmdline : "*None*";
-  Dmsg1(200, "Secure Erase Cmd Request: %s\n", setting);
+  Dmsg1(200, "Secure Erase Cmd Request: {}\n", setting);
   return dir->fsend(OKsecureerase, setting);
 }
 
@@ -779,7 +779,7 @@ static bool SetauthorizationCmd(JobControlRecord* jcr)
   }
 
   SetStorageAuthKeyAndTlsPolicy(jcr, sd_auth_key.c_str(), jcr->sd_tls_policy);
-  Dmsg2(120, "JobId=%d Auth=%s\n", jcr->JobId, jcr->sd_auth_key);
+  Dmsg2(120, "JobId={} Auth={}\n", jcr->JobId, jcr->sd_auth_key);
 
   return dir->fsend(OkAuthorization);
 }
@@ -824,7 +824,7 @@ static bool SetdebugCmd(JobControlRecord* jcr)
   int32_t level, trace_flag, hangup_flag, timestamp_flag;
   int scan;
 
-  Dmsg1(50, "SetdebugCmd: %s", dir->msg);
+  Dmsg1(50, "SetdebugCmd: {}", dir->msg);
   scan = sscanf(dir->msg, setdebugv2cmd, &level, &trace_flag, &hangup_flag,
                 &timestamp_flag);
   if (scan != 4) {
@@ -850,13 +850,13 @@ static bool SetdebugCmd(JobControlRecord* jcr)
   SetHangup(hangup_flag);
   if (scan == 4) {
     SetTimestamp(timestamp_flag);
-    Dmsg5(50, "level=%d trace=%d hangup=%d timestamp=%d tracefilename=%s\n",
+    Dmsg5(50, "level={} trace={} hangup={} timestamp={} tracefilename={}\n",
           level, GetTrace(), GetHangup(), GetTimestamp(),
           tracefilename.c_str());
     return dir->fsend(OKsetdebugv1, level, GetTrace(), GetHangup(),
                       GetTimestamp(), tracefilename.c_str());
   } else {
-    Dmsg4(50, "level=%d trace=%d hangup=%d tracefilename=%s\n", level,
+    Dmsg4(50, "level={} trace={} hangup={} tracefilename={}\n", level,
           GetTrace(), GetHangup(), tracefilename.c_str());
     return dir->fsend(OKsetdebugv0, level, GetTrace(), GetHangup(),
                       tracefilename.c_str());
@@ -921,7 +921,7 @@ static bool job_cmd(JobControlRecord* jcr)
             : command.tls_policy_;
 
   SetStorageAuthKeyAndTlsPolicy(jcr, command.sd_auth_key_, tls_policy);
-  Dmsg3(120, "JobId=%d Auth=%s TlsPolicy=%d\n", jcr->JobId, jcr->sd_auth_key,
+  Dmsg3(120, "JobId={} Auth={} TlsPolicy={}\n", jcr->JobId, jcr->sd_auth_key,
         tls_policy);
   Mmsg(jcr->errmsg, "JobId=%d Job=%s", jcr->JobId, jcr->Job);
   NewPlugins(jcr); /* instantiate plugins for this jcr */
@@ -977,7 +977,7 @@ static bool RunscriptCmd(JobControlRecord* jcr)
   cmd = new RunScript;
   cmd->SetJobCodeCallback(job_code_callback_filed);
 
-  Dmsg1(100, "RunscriptCmd: '%s'\n", dir->msg);
+  Dmsg1(100, "RunscriptCmd: '{}'\n", dir->msg);
 
   // Note, we cannot sscanf into bools
   if (sscanf(dir->msg, runscriptcmd, &on_success, &on_failure, &fail_on_error,
@@ -1043,7 +1043,7 @@ static bool RestoreObjectCmd(JobControlRecord* jcr)
   rop.pkt_size = sizeof(rop);
   rop.pkt_end = sizeof(rop);
 
-  Dmsg1(100, "Enter restoreobject_cmd: %s", dir->msg);
+  Dmsg1(100, "Enter restoreobject_cmd: {}", dir->msg);
   if (bstrcmp(dir->msg, endrestoreobjectcmd)) {
     GeneratePluginEvent(jcr, bEventRestoreObject, nullptr);
     return dir->fsend(OKRestoreObject);
@@ -1072,14 +1072,14 @@ static bool RestoreObjectCmd(JobControlRecord* jcr)
   UnbashSpaces(rop.plugin_name);
 
   Dmsg7(100,
-        "Recv object: JobId=%u objlen=%d full_len=%d objinx=%d objtype=%d "
-        "FI=%d plugin_name=%s\n",
+        "Recv object: JobId={} objlen={} full_len={} objinx={} objtype={} "
+        "FI={} plugin_name={}\n",
         rop.JobId, rop.object_len, rop.object_full_len, rop.object_index,
         rop.object_type, FileIndex, rop.plugin_name);
 
   // Read Object name
   if (dir->recv() < 0) { goto bail_out; }
-  Dmsg2(100, "Recv Oname object: len=%d Oname=%s\n", dir->message_length,
+  Dmsg2(100, "Recv Oname object: len={} Oname={}\n", dir->message_length,
         dir->msg);
   rop.object_name = strdup(dir->msg);
 
@@ -1097,10 +1097,10 @@ static bool RestoreObjectCmd(JobControlRecord* jcr)
       int out_len = rop.object_full_len + 100;
       POOLMEM* obj = GetMemory(out_len);
 
-      Dmsg2(100, "Inflating from %d to %d\n", rop.object_len,
+      Dmsg2(100, "Inflating from {} to {}\n", rop.object_len,
             rop.object_full_len);
       status = Zinflate(rop.object, rop.object_len, obj, out_len);
-      Dmsg1(100, "Zinflate status=%d\n", status);
+      Dmsg1(100, "Zinflate status={}\n", status);
 
       if (out_len != rop.object_full_len) {
         Jmsg3(jcr, M_ERROR, 0,
@@ -1125,7 +1125,7 @@ static bool RestoreObjectCmd(JobControlRecord* jcr)
     memset(object_content.c_str(), 0, rop.object_len + 1);
     memcpy(object_content.c_str(), rop.object, rop.object_len);
 
-    Dmsg2(100, "Recv Object: len=%d Object=%s\n", rop.object_len,
+    Dmsg2(100, "Recv Object: len={} Object={}\n", rop.object_len,
           object_content.c_str());
   }
 
@@ -1143,7 +1143,7 @@ static bool RestoreObjectCmd(JobControlRecord* jcr)
 
   if (rop.plugin_name) { free(rop.plugin_name); }
 
-  Dmsg1(100, "Send: %s", OKRestoreObject);
+  Dmsg1(100, "Send: {}", OKRestoreObject);
   return true;
 
 bail_out:
@@ -1185,7 +1185,7 @@ static bool FilesetCmd(JobControlRecord* jcr)
 
   while (dir->recv() >= 0) {
     StripTrailingJunk(dir->msg);
-    Dmsg1(500, "Fileset: %s\n", dir->msg);
+    Dmsg1(500, "Fileset: {}\n", dir->msg);
     AddFileset(jcr, std::string{dir->msg}.c_str());
   }
 
@@ -1233,7 +1233,7 @@ static bool BootstrapCmd(JobControlRecord* jcr)
   Mmsg(fname, "%s/%s.%s.%d.bootstrap", me->working_directory,
        me->resource_name_, jcr->Job, bsr_uniq);
   unlock_mutex(bsr_mutex);
-  Dmsg1(400, "bootstrap=%s\n", fname);
+  Dmsg1(400, "bootstrap={}\n", fname);
   jcr->RestoreBootstrap = fname;
   bs = fopen(fname, "a+b"); /* create file */
   if (!bs) {
@@ -1249,7 +1249,7 @@ static bool BootstrapCmd(JobControlRecord* jcr)
   }
 
   while (dir->recv() >= 0) {
-    Dmsg1(200, "filed<dird: bootstrap: %s", dir->msg);
+    Dmsg1(200, "filed<dird: bootstrap: {}", dir->msg);
     fputs(dir->msg, bs);
   }
   fclose(bs);
@@ -1265,7 +1265,7 @@ static bool LevelCmd(JobControlRecord* jcr)
   int mtime_only;
 
   level = GetMemory(dir->message_length + 1);
-  Dmsg1(10, "LevelCmd: %s", dir->msg);
+  Dmsg1(10, "LevelCmd: {}", dir->msg);
 
   // Keep compatibility with older directors
   if (strstr(dir->msg, "accurate")) { jcr->accurate = true; }
@@ -1309,7 +1309,7 @@ static bool LevelCmd(JobControlRecord* jcr)
     }
 
     since_time = str_to_uint64(buf); /* this is the since time */
-    Dmsg2(100, "since_time=%lld prev_job=%s\n", since_time,
+    Dmsg2(100, "since_time={} prev_job={}\n", since_time,
           jcr->fd_impl->PrevJob);
     /* Sync clocks by polling him for the time. We take 10 samples of his time
      * throwing out the first two. */
@@ -1325,15 +1325,15 @@ static bool LevelCmd(JobControlRecord* jcr)
       }
       his_time = str_to_uint64(buf);
       rt = GetCurrentBtime() - bt_start; /* compute round trip time */
-      Dmsg2(100, "Dirtime=%s FDtime=%s\n", edit_uint64(his_time, ed1),
+      Dmsg2(100, "Dirtime={} FDtime={}\n", edit_uint64(his_time, ed1),
             edit_uint64(bt_start, ed2));
       bt_adj += bt_start - his_time - rt / 2;
-      Dmsg2(100, "rt=%s adj=%s\n", edit_uint64(rt, ed1),
+      Dmsg2(100, "rt={} adj={}\n", edit_uint64(rt, ed1),
             edit_uint64(bt_adj, ed2));
     }
 
     bt_adj = bt_adj / 8; /* compute average time */
-    Dmsg2(100, "rt=%s adj=%s\n", edit_uint64(rt, ed1),
+    Dmsg2(100, "rt={} adj={}\n", edit_uint64(rt, ed1),
           edit_uint64(bt_adj, ed2));
     adj = BtimeToUtime(bt_adj);
     since_time += adj; /* adjust for clock difference */
@@ -1353,7 +1353,7 @@ static bool LevelCmd(JobControlRecord* jcr)
     }
     dir->signal(BNET_EOD);
 
-    Dmsg2(100, "adj=%lld since_time=%lld\n", adj, since_time);
+    Dmsg2(100, "adj={} since_time={}\n", adj, since_time);
     jcr->fd_impl->incremental
         = true; /* set incremental or decremental backup */
     jcr->fd_impl->since_time = since_time; /* set since time */
@@ -1388,7 +1388,7 @@ static bool SessionCmd(JobControlRecord* jcr)
 {
   BareosSocket* dir = jcr->dir_bsock;
 
-  Dmsg1(100, "SessionCmd: %s", dir->msg);
+  Dmsg1(100, "SessionCmd: {}", dir->msg);
   if (sscanf(dir->msg, sessioncmd, jcr->VolumeName, &jcr->VolSessionId,
              &jcr->VolSessionTime, &jcr->fd_impl->StartFile,
              &jcr->fd_impl->EndFile, &jcr->fd_impl->StartBlock,
@@ -1430,7 +1430,7 @@ static void SetStorageAuthKeyAndTlsPolicy(JobControlRecord* jcr,
   Dmsg0(5, "set sd auth key\n");
 
   jcr->sd_tls_policy = policy;
-  Dmsg1(5, "set sd ssl_policy to %d\n", policy);
+  Dmsg1(5, "set sd ssl_policy to {}\n", policy);
 }
 
 // Get address of storage daemon from Director
@@ -1443,7 +1443,7 @@ static bool StorageCmd(JobControlRecord* jcr)
   BareosSocket* dir = jcr->dir_bsock;
   BareosSocket* storage_daemon_socket = new BareosSocketTCP;
 
-  Dmsg1(100, "StorageCmd: %s", dir->msg);
+  Dmsg1(100, "StorageCmd: {}", dir->msg);
   sd_auth_key.check_size(dir->message_length);
   if (sscanf(dir->msg, storaddrv1cmd, stored_addr, &stored_port, &tls_policy,
              sd_auth_key.c_str())
@@ -1458,7 +1458,7 @@ static bool StorageCmd(JobControlRecord* jcr)
 
   SetStorageAuthKeyAndTlsPolicy(jcr, sd_auth_key.c_str(), tls_policy);
 
-  Dmsg3(110, "Open storage: %s:%d ssl=%d\n", stored_addr, stored_port,
+  Dmsg3(110, "Open storage: {}:{} ssl={}\n", stored_addr, stored_port,
         tls_policy);
 
   storage_daemon_socket->SetSourceAddress(me->FDsrc_addr);
@@ -1481,7 +1481,7 @@ static bool StorageCmd(JobControlRecord* jcr)
           T_("Storage daemon"), stored_addr, nullptr, stored_port, 1)) {
     Jmsg(jcr, M_FATAL, 0, T_("Failed to connect to Storage daemon: %s:%d\n"),
          stored_addr, stored_port);
-    Dmsg2(100, "Failed to connect to Storage daemon: %s:%d\n", stored_addr,
+    Dmsg2(100, "Failed to connect to Storage daemon: {}:{}\n", stored_addr,
           stored_port);
     goto bail_out;
   }
@@ -1738,7 +1738,7 @@ static bool BackupCmd(JobControlRecord* jcr)
 
   if (sscanf(dir->msg, "backup FileIndex=%ld\n", &FileIndex) == 1) {
     jcr->JobFiles = FileIndex;
-    Dmsg1(100, "JobFiles=%ld\n", jcr->JobFiles);
+    Dmsg1(100, "JobFiles={}\n", jcr->JobFiles);
   }
 
   /* Validate some options given to the backup make sense for the compiled in
@@ -1776,7 +1776,7 @@ static bool BackupCmd(JobControlRecord* jcr)
 
   jcr->setJobStatusWithPriorityCheck(JS_Blocked);
   jcr->setJobType(JT_BACKUP);
-  Dmsg1(100, "begin backup ff=%p\n", jcr->fd_impl->ff);
+  Dmsg1(100, "begin backup ff={:p}\n", jcr->fd_impl->ff);
 
   if (sd == nullptr) {
     Jmsg(jcr, M_FATAL, 0, T_("Cannot contact Storage daemon\n"));
@@ -1785,20 +1785,20 @@ static bool BackupCmd(JobControlRecord* jcr)
   }
 
   dir->fsend(OKbackup);
-  Dmsg1(110, "filed>dird: %s", dir->msg);
+  Dmsg1(110, "filed>dird: {}", dir->msg);
 
   // Send Append Open Session to Storage daemon
   sd->fsend(append_open);
-  Dmsg1(110, ">stored: %s", sd->msg);
+  Dmsg1(110, ">stored: {}", sd->msg);
 
   // Expect to receive back the Ticket number
   if (BgetMsg(sd) >= 0) {
-    Dmsg1(110, "<stored: %s", sd->msg);
+    Dmsg1(110, "<stored: {}", sd->msg);
     if (sscanf(sd->msg, OK_open, &jcr->fd_impl->Ticket) != 1) {
       Jmsg(jcr, M_FATAL, 0, T_("Bad response to append open: %s\n"), sd->msg);
       goto cleanup;
     }
-    Dmsg1(110, "Got Ticket=%d\n", jcr->fd_impl->Ticket);
+    Dmsg1(110, "Got Ticket={}\n", jcr->fd_impl->Ticket);
   } else {
     Jmsg(jcr, M_FATAL, 0, T_("Bad response from stored to open command\n"));
     goto cleanup;
@@ -1806,14 +1806,14 @@ static bool BackupCmd(JobControlRecord* jcr)
 
   // Send Append data command to Storage daemon
   sd->fsend(append_data, jcr->fd_impl->Ticket);
-  Dmsg1(110, ">stored: %s", sd->msg);
+  Dmsg1(110, ">stored: {}", sd->msg);
 
   // Expect to get OK data
   if (!response(jcr, sd, OK_data, "Append Data")) {
-    Dmsg1(110, "<stored: %s", sd->msg);
+    Dmsg1(110, "<stored: {}", sd->msg);
     goto cleanup;
   }
-  Dmsg1(110, "<stored: %s", sd->msg);
+  Dmsg1(110, "<stored: {}", sd->msg);
 
   GeneratePluginEvent(jcr, bEventStartBackupJob);
 
@@ -1912,7 +1912,7 @@ static bool BackupCmd(JobControlRecord* jcr)
 #endif
 
   // Send Files to Storage daemon
-  Dmsg1(110, "begin blast ff=%p\n", (FindFilesPacket*)jcr->fd_impl->ff);
+  Dmsg1(110, "begin blast ff={:p}\n", (FindFilesPacket*)jcr->fd_impl->ff);
   if (!BlastDataToStorageDaemon(jcr, cipher)) {
     jcr->setJobStatusWithPriorityCheck(JS_ErrorTerminated);
     BnetSuppressErrorMessages(sd, 1);
@@ -1943,7 +1943,7 @@ static bool BackupCmd(JobControlRecord* jcr)
     while (BgetMsg(sd) >= 0) { /* stop on signal or error */
       if (sscanf(sd->msg, OK_close, &SDJobStatus) == 1) {
         ok = 1;
-        Dmsg2(200, "SDJobStatus = %d %c\n", SDJobStatus, (char)SDJobStatus);
+        Dmsg2(200, "SDJobStatus = {} {:c}\n", SDJobStatus, (char)SDJobStatus);
       }
     }
     if (!ok) {
@@ -2013,7 +2013,7 @@ static bool VerifyCmd(JobControlRecord* jcr)
   GeneratePluginEvent(jcr, bEventLevel, (void*)(intptr_t)jcr->getJobLevel());
   GeneratePluginEvent(jcr, bEventStartVerifyJob);
 
-  Dmsg1(110, "filed>dird: %s", dir->msg);
+  Dmsg1(110, "filed>dird: {}", dir->msg);
 
   switch (jcr->getJobLevel()) {
     case L_VERIFY_INIT:
@@ -2027,7 +2027,7 @@ static bool VerifyCmd(JobControlRecord* jcr)
       send_hb.reset();
       // Send Close session command to Storage daemon
       sd->fsend(read_close, jcr->fd_impl->Ticket);
-      Dmsg1(130, "filed>stored: %s", sd->msg);
+      Dmsg1(130, "filed>stored: {}", sd->msg);
 
       /* ****FIXME**** check response */
       BgetMsg(sd); /* get OK */
@@ -2087,7 +2087,7 @@ static BareosSocket* connect_to_director(JobControlRecord* jcr,
     }
   }
 
-  Dmsg1(10, "Opened connection with Director %s\n", dir_res->resource_name_);
+  Dmsg1(10, "Opened connection with Director {}\n", dir_res->resource_name_);
   jcr->dir_bsock = director_socket.get();
 
   director_socket->InitBnetDump(
@@ -2167,7 +2167,7 @@ static bool RestoreCmd(JobControlRecord* jcr)
   // Turn / into nothing
   if (IsPathSeparator(args[0]) && args[1] == '\0') { args[0] = '\0'; }
 
-  Dmsg2(150, "Got replace %c, where=%s\n", replace, args);
+  Dmsg2(150, "Got replace {:c}, where={}\n", replace, args);
   UnbashSpaces(args);
 
   // Keep track of newly created directories to apply them correct attributes
@@ -2189,7 +2189,7 @@ static bool RestoreCmd(JobControlRecord* jcr)
   jcr->prefix_links = prefix_links;
 
   dir->fsend(OKrestore);
-  Dmsg1(110, "filed>dird: %s", dir->msg);
+  Dmsg1(110, "filed>dird: {}", dir->msg);
 
   jcr->setJobStatusWithPriorityCheck(JS_Blocked);
 
@@ -2239,7 +2239,7 @@ static bool RestoreCmd(JobControlRecord* jcr)
 
   // Send Close session command to Storage daemon
   sd->fsend(read_close, jcr->fd_impl->Ticket);
-  Dmsg1(100, "filed>stored: %s", sd->msg);
+  Dmsg1(100, "filed>stored: {}", sd->msg);
 
   BgetMsg(sd); /* get OK */
 
@@ -2269,7 +2269,7 @@ static bool RestoreCmd(JobControlRecord* jcr)
              jcr->fd_impl->pVSSClient->GetWriterInfo(i));
       }
     } else {
-      Dmsg1(100, "CloseRestore fail - %08x\n", errno);
+      Dmsg1(100, "CloseRestore fail - {:08x}\n", errno);
     }
   }
 #endif
@@ -2315,23 +2315,23 @@ static bool OpenSdReadSession(JobControlRecord* jcr)
     Jmsg(jcr, M_FATAL, 0, T_("Improper calling sequence.\n"));
     return false;
   }
-  Dmsg4(120, "VolSessId=%ld VolsessT=%ld SF=%ld EF=%ld\n", jcr->VolSessionId,
+  Dmsg4(120, "VolSessId={} VolsessT={} SF={} EF={}\n", jcr->VolSessionId,
         jcr->VolSessionTime, jcr->fd_impl->StartFile, jcr->fd_impl->EndFile);
-  Dmsg2(120, "JobId=%d vol=%s\n", jcr->JobId, "DummyVolume");
+  Dmsg2(120, "JobId={} vol={}\n", jcr->JobId, "DummyVolume");
   // Open Read Session with Storage daemon
   sd->fsend(read_open, "DummyVolume", jcr->VolSessionId, jcr->VolSessionTime,
             jcr->fd_impl->StartFile, jcr->fd_impl->EndFile,
             jcr->fd_impl->StartBlock, jcr->fd_impl->EndBlock);
-  Dmsg1(110, ">stored: %s", sd->msg);
+  Dmsg1(110, ">stored: {}", sd->msg);
 
   // Get ticket number
   if (BgetMsg(sd) >= 0) {
-    Dmsg1(110, "filed<stored: %s", sd->msg);
+    Dmsg1(110, "filed<stored: {}", sd->msg);
     if (sscanf(sd->msg, OK_open, &jcr->fd_impl->Ticket) != 1) {
       Jmsg(jcr, M_FATAL, 0, T_("Bad response to SD read open: %s\n"), sd->msg);
       return false;
     }
-    Dmsg1(110, "filed: got Ticket=%d\n", jcr->fd_impl->Ticket);
+    Dmsg1(110, "filed: got Ticket={}\n", jcr->fd_impl->Ticket);
   } else {
     Jmsg(jcr, M_FATAL, 0,
          T_("Bad response from stored to read open command\n"));
@@ -2340,7 +2340,7 @@ static bool OpenSdReadSession(JobControlRecord* jcr)
 
   // Start read of data with Storage daemon
   sd->fsend(read_data, jcr->fd_impl->Ticket);
-  Dmsg1(110, ">stored: %s", sd->msg);
+  Dmsg1(110, ">stored: {}", sd->msg);
 
   // Get OK data
   if (!response(jcr, sd, OK_data, "Read Data")) { return false; }

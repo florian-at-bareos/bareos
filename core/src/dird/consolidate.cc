@@ -74,7 +74,7 @@ static inline void StartNewConsolidationJob(const JobResource* consolidate_job,
        jcr->accurate ? "yes" : "no", jcr->dir_impl->spool_data ? "yes" : "no",
        consolidate_job->resource_name_);
 
-  Dmsg1(debuglevel, "=============== consolidate cmd=%s\n", ua->cmd);
+  Dmsg1(debuglevel, "=============== consolidate cmd={}\n", ua->cmd);
   ParseUaArgs(ua); /* parse command */
 
   jobid = DoRunCmd(ua, ua->cmd);
@@ -124,7 +124,7 @@ static bool ConsolidateJobs(JobControlRecord* jcr)
       // First determine the number of total incrementals
       db_list_ctx all_jobids_ctx;
       jcr->db->AccurateGetJobids(jcr, &jcr->dir_impl->jr, &all_jobids_ctx);
-      Dmsg1(10, "unlimited jobids list:  %s.\n",
+      Dmsg1(10, "unlimited jobids list:  {}.\n",
             all_jobids_ctx.GetAsString().c_str());
 
       /* If we are doing always incremental, we need to limit the search to
@@ -139,15 +139,15 @@ static bool ConsolidateJobs(JobControlRecord* jcr)
              T_("%s: considering jobs older than %s for consolidation.\n"),
              job->resource_name_, sdt);
         Dmsg4(10,
-              T_("%s: considering jobs with ClientId %d and FilesetId %d older "
-                 "than %s for consolidation.\n"),
+              T_("{}: considering jobs with ClientId {} and FilesetId {} older "
+                 "than {} for consolidation.\n"),
               job->resource_name_, jcr->dir_impl->jr.ClientId,
               jcr->dir_impl->jr.FileSetId, sdt);
       }
 
       db_list_ctx jobids_ctx;
       jcr->db->AccurateGetJobids(jcr, &jcr->dir_impl->jr, &jobids_ctx);
-      Dmsg1(10, "consolidate candidates:  %s.\n",
+      Dmsg1(10, "consolidate candidates:  {}.\n",
             jobids_ctx.GetAsString().c_str());
 
       const db_list_ctx zero_file_jobs
@@ -174,7 +174,7 @@ static bool ConsolidateJobs(JobControlRecord* jcr)
       /* Calculate limit for query. We specify how many incrementals should be
        * left. the limit is total number of incrementals - number required - 1
        */
-      Dmsg2(10, "Incrementals found/required. (%d/%d).\n", incrementals_total,
+      Dmsg2(10, "Incrementals found/required. ({}/{}).\n", incrementals_total,
             job->AlwaysIncrementalKeepNumber);
       if (incrementals_total <= job->AlwaysIncrementalKeepNumber) {
         Jmsg(jcr, M_INFO, 0,
@@ -187,13 +187,13 @@ static bool ConsolidateJobs(JobControlRecord* jcr)
           = incrementals_total - job->AlwaysIncrementalKeepNumber;
 
       jcr->dir_impl->jr.limit = max_incrementals_to_consolidate + 1;
-      Dmsg3(10, "total: %d, to_consolidate: %d, limit: %d.\n",
+      Dmsg3(10, "total: {}, to_consolidate: {}, limit: {}.\n",
             incrementals_total, max_incrementals_to_consolidate,
             jcr->dir_impl->jr.limit);
       jobids_ctx.clear();
       jcr->db->AccurateGetJobids(jcr, &jcr->dir_impl->jr, &jobids_ctx);
       const int32_t incrementals_to_consolidate = jobids_ctx.size() - 1;
-      Dmsg2(10, "%d consolidate ids after limit: %s.\n", jobids_ctx.size(),
+      Dmsg2(10, "{} consolidate ids after limit: {}.\n", jobids_ctx.size(),
             jobids_ctx.GetAsString().c_str());
       if (incrementals_to_consolidate < 1) {
         Jmsg(jcr, M_INFO, 0,
@@ -224,7 +224,7 @@ static bool ConsolidateJobs(JobControlRecord* jcr)
         // Get db record of oldest jobid and check its age
         auto prev_jr = JobDbRecord{};
         prev_jr.JobId = std::stoul(oldestjobid);
-        Dmsg1(10, "Previous JobId=%s\n", oldestjobid.c_str());
+        Dmsg1(10, "Previous JobId={}\n", oldestjobid.c_str());
 
         if (!jcr->db->GetJobRecord(jcr, &prev_jr)) {
           Jmsg(jcr, M_FATAL, 0,

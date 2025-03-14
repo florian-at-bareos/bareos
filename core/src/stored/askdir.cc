@@ -113,7 +113,7 @@ static bool DoGetVolumeInfo(DeviceControlRecord* dcr)
     return false;
   }
   VolumeCatalogInfo vol;
-  Dmsg1(debuglevel, "<dird %s", dir->msg);
+  Dmsg1(debuglevel, "<dird {}", dir->msg);
   n = sscanf(dir->msg, OK_media, vol.VolCatName, &vol.VolCatJobs,
              &vol.VolCatFiles, &vol.VolCatBlocks, &vol.VolCatBytes,
              &vol.VolCatMounts, &vol.VolCatErrors, &vol.VolCatWrites,
@@ -123,7 +123,7 @@ static bool DoGetVolumeInfo(DeviceControlRecord* dcr)
              &vol.LabelType, &vol.VolMediaId, vol.VolEncrKey,
              &vol.VolMinBlocksize, &vol.VolMaxBlocksize);
   if (n != 24) {
-    Dmsg3(debuglevel, "Bad response from Dir fields=%d, len=%d: %s", n,
+    Dmsg3(debuglevel, "Bad response from Dir fields={}, len={}: {}", n,
           dir->message_length, dir->msg);
     Mmsg(jcr->errmsg, T_("Error getting Volume info: %s"), dir->msg);
     return false;
@@ -144,14 +144,14 @@ static bool DoGetVolumeInfo(DeviceControlRecord* dcr)
   }
 
   Dmsg4(debuglevel,
-        "DoGetVolumeInfo return true slot=%d Volume=%s, "
-        "VolminBlocksize=%u VolMaxBlocksize=%u\n",
+        "DoGetVolumeInfo return true slot={} Volume={}, "
+        "VolminBlocksize={} VolMaxBlocksize={}\n",
         vol.Slot, vol.VolCatName, vol.VolMinBlocksize, vol.VolMaxBlocksize);
   Dmsg2(debuglevel,
-        "setting dcr->VolMinBlocksize(%u) to vol.VolMinBlocksize(%u)\n",
+        "setting dcr->VolMinBlocksize({}) to vol.VolMinBlocksize({})\n",
         dcr->VolMinBlocksize, vol.VolMinBlocksize);
   Dmsg2(debuglevel,
-        "setting dcr->VolMaxBlocksize(%u) to vol.VolMaxBlocksize(%u)\n",
+        "setting dcr->VolMaxBlocksize({}) to vol.VolMaxBlocksize({})\n",
         dcr->VolMaxBlocksize, vol.VolMaxBlocksize);
 
   // Assign the volcatinfo to the dcr.
@@ -182,7 +182,7 @@ bool StorageDaemonDeviceControlRecord::DirGetVolumeInfo(
   BashSpaces(getVolCatName());
   dir->fsend(Get_Vol_Info, jcr->Job, getVolCatName(),
              (writing == GET_VOL_INFO_FOR_WRITE) ? 1 : 0);
-  Dmsg1(debuglevel, ">dird %s", dir->msg);
+  Dmsg1(debuglevel, ">dird {}", dir->msg);
   UnbashSpaces(getVolCatName());
   ok = DoGetVolumeInfo(this);
   unlock_mutex(vol_info_mutex);
@@ -207,7 +207,7 @@ bool StorageDaemonDeviceControlRecord::DirFindNextAppendableVolume()
   BareosSocket* dir = jcr->dir_bsock;
   PoolMem unwanted_volumes(PM_MESSAGE);
 
-  Dmsg2(debuglevel, "DirFindNextAppendableVolume: reserved=%d Vol=%s\n",
+  Dmsg2(debuglevel, "DirFindNextAppendableVolume: reserved={} Vol={}\n",
         IsReserved(), VolumeName);
 
   /* Try the twenty oldest or most available volumes. Note,
@@ -227,7 +227,7 @@ bool StorageDaemonDeviceControlRecord::DirFindNextAppendableVolume()
     UnbashSpaces(media_type);
     UnbashSpaces(pool_name);
     UnbashSpaces(unwanted_volumes.c_str());
-    Dmsg1(debuglevel, ">dird %s", dir->msg);
+    Dmsg1(debuglevel, ">dird {}", dir->msg);
 
     if (DoGetVolumeInfo(this)) {
       if (vol_index == 1) {
@@ -238,26 +238,26 @@ bool StorageDaemonDeviceControlRecord::DirFindNextAppendableVolume()
       }
 
       if (Can_i_write_volume()) {
-        Dmsg1(debuglevel, "Call reserve_volume for write. Vol=%s\n",
+        Dmsg1(debuglevel, "Call reserve_volume for write. Vol={}\n",
               VolumeName);
         if (reserve_volume(this, VolumeName) == NULL) {
-          Dmsg2(debuglevel, "Could not reserve volume %s on %s\n", VolumeName,
+          Dmsg2(debuglevel, "Could not reserve volume {} on {}\n", VolumeName,
                 dev->print_name());
           continue;
         }
-        Dmsg1(debuglevel, "DirFindNextAppendableVolume return true. vol=%s\n",
+        Dmsg1(debuglevel, "DirFindNextAppendableVolume return true. vol={}\n",
               VolumeName);
         retval = true;
         goto get_out;
       } else {
-        Dmsg1(debuglevel, "Volume %s is in use.\n", VolumeName);
+        Dmsg1(debuglevel, "Volume {} is in use.\n", VolumeName);
 
         // If volume is not usable, it is in use by someone else
         SetFoundInUse();
         continue;
       }
     }
-    Dmsg2(debuglevel, "No vol. index %d return false. dev=%s\n", vol_index,
+    Dmsg2(debuglevel, "No vol. index {} return false. dev={}\n", vol_index,
           dev->print_name());
     break;
   }
@@ -296,7 +296,7 @@ bool StorageDaemonDeviceControlRecord::DirUpdateVolumeInfo(
 
   // Lock during Volume update
   lock_mutex(vol_info_mutex);
-  Dmsg1(debuglevel, "Update cat VolBytes=%lld\n", vol->VolCatBytes);
+  Dmsg1(debuglevel, "Update cat VolBytes={}\n", vol->VolCatBytes);
 
   // Just labeled or relabeled the tape
   if (label == is_labeloperation::True) {
@@ -315,17 +315,17 @@ bool StorageDaemonDeviceControlRecord::DirUpdateVolumeInfo(
       label, InChanger, /* bool in structure */
       edit_int64(vol->VolReadTime, ed3), edit_int64(vol->VolWriteTime, ed4),
       edit_uint64(vol->VolFirstWritten, ed5));
-  Dmsg1(debuglevel, ">dird %s", dir->msg);
+  Dmsg1(debuglevel, ">dird {}", dir->msg);
 
   // Do not lock device here because it may be locked from label
   if (!jcr->IsJobCanceled()) {
     if (!DoGetVolumeInfo(this)) {
       Jmsg(jcr, M_FATAL, 0, "%s", jcr->errmsg);
-      Dmsg2(debuglevel, T_("Didn't get vol info vol=%s: ERR=%s\n"),
+      Dmsg2(debuglevel, T_("Didn't get vol info vol={}: ERR={}\n"),
             vol->VolCatName, jcr->errmsg);
       goto bail_out;
     }
-    Dmsg1(420, "get_volume_info() %s", dir->msg);
+    Dmsg1(420, "get_volume_info() {}", dir->msg);
 
     // Update dev Volume info in case something changed (e.g. expired)
     dev->VolCatInfo = VolCatInfo;
@@ -364,7 +364,7 @@ bool StorageDaemonDeviceControlRecord::DirCreateJobmediaRecord(bool zero)
                StartFile, EndFile, StartBlock, EndBlock, Copy, Stripe,
                edit_uint64(VolMediaId, ed1));
   }
-  Dmsg1(debuglevel, ">dird %s", dir->msg);
+  Dmsg1(debuglevel, ">dird {}", dir->msg);
 
   if (dir->recv() <= 0) {
     Dmsg0(debuglevel, "create_jobmedia error BnetRecv\n");
@@ -372,10 +372,10 @@ bool StorageDaemonDeviceControlRecord::DirCreateJobmediaRecord(bool zero)
          dir->bstrerror());
     return false;
   }
-  Dmsg1(debuglevel, "<dird %s", dir->msg);
+  Dmsg1(debuglevel, "<dird {}", dir->msg);
 
   if (!bstrcmp(dir->msg, OK_create)) {
-    Dmsg1(debuglevel, "Bad response from Dir: %s\n", dir->msg);
+    Dmsg1(debuglevel, "Bad response from Dir: {}\n", dir->msg);
     Jmsg(jcr, M_FATAL, 0, T_("Error creating JobMedia record: %s\n"), dir->msg);
     return false;
   }
@@ -425,7 +425,7 @@ bool StorageDaemonDeviceControlRecord::DirUpdateFileAttributes(
   ser_uint32(record->data_len);
   SerBytes(record->data, record->data_len);
   dir->message_length = SerLength(dir->msg);
-  Dmsg1(1800, ">dird %s", dir->msg); /* Attributes */
+  Dmsg1(1800, ">dird {}", dir->msg); /* Attributes */
 
   return dir->send();
 }
@@ -481,16 +481,16 @@ bool StorageDaemonDeviceControlRecord::DirAskSysopToCreateAppendableVolume()
                 "    Media type:   %s\n"),
              jcr->Job, dev->print_name(), pool_name, media_type);
         Jmsg(jcr, M_MOUNT, 0, "%s", dev->errmsg);
-        Dmsg1(debuglevel, "%s", dev->errmsg);
+        Dmsg1(debuglevel, "{}", dev->errmsg);
       }
     }
 
     jcr->sendJobStatus(JS_WaitMedia);
 
     status = WaitForSysop(this);
-    Dmsg1(debuglevel, "Back from WaitForSysop status=%d\n", status);
+    Dmsg1(debuglevel, "Back from WaitForSysop status={}\n", status);
     if (dev->poll) {
-      Dmsg1(debuglevel, "Poll timeout in create append vol on device %s\n",
+      Dmsg1(debuglevel, "Poll timeout in create append vol on device {}\n",
             dev->print_name());
       continue;
     }
@@ -502,7 +502,7 @@ bool StorageDaemonDeviceControlRecord::DirAskSysopToCreateAppendableVolume()
                 "%s\n"),
              dev->print_name(), jcr->Job);
         Jmsg(jcr, M_FATAL, 0, "%s", dev->errmsg);
-        Dmsg1(debuglevel, "Gave up waiting on device %s\n", dev->print_name());
+        Dmsg1(debuglevel, "Gave up waiting on device {}\n", dev->print_name());
         return false; /* exceeded maximum waits */
       }
       continue;
@@ -514,7 +514,7 @@ bool StorageDaemonDeviceControlRecord::DirAskSysopToCreateAppendableVolume()
       Jmsg(jcr, M_FATAL, 0, "%s", dev->errmsg);
       return false;
     }
-    Dmsg1(debuglevel, "Someone woke me for device %s\n", dev->print_name());
+    Dmsg1(debuglevel, "Someone woke me for device {}\n", dev->print_name());
   }
 
 get_out:
@@ -579,18 +579,18 @@ bool StorageDaemonDeviceControlRecord::DirAskSysopToMountVolume(int mode)
       }
       Jmsg(jcr, M_MOUNT, 0, msg, VolumeName, jcr->Job, dev->print_name(),
            pool_name, media_type);
-      Dmsg3(debuglevel, "Mount \"%s\" on device \"%s\" for Job %s\n",
+      Dmsg3(debuglevel, "Mount \"{}\" on device \"{}\" for Job {}\n",
             VolumeName, dev->print_name(), jcr->Job);
     }
 
     jcr->sendJobStatus(JS_WaitMount);
 
     status = WaitForSysop(this); /* wait on device */
-    Dmsg1(debuglevel, "Back from WaitForSysop status=%d\n", status);
+    Dmsg1(debuglevel, "Back from WaitForSysop status={}\n", status);
     if (dev->poll) {
-      Dmsg1(debuglevel, "Poll timeout in mount vol on device %s\n",
+      Dmsg1(debuglevel, "Poll timeout in mount vol on device {}\n",
             dev->print_name());
-      Dmsg1(debuglevel, "Blocked=%s\n", dev->print_blocked());
+      Dmsg1(debuglevel, "Blocked={}\n", dev->print_blocked());
       goto get_out;
     }
 
@@ -601,7 +601,7 @@ bool StorageDaemonDeviceControlRecord::DirAskSysopToMountVolume(int mode)
                 "%s\n"),
              dev->print_name(), jcr->Job);
         Jmsg(jcr, M_FATAL, 0, "%s", dev->errmsg);
-        Dmsg1(debuglevel, "Gave up waiting on device %s\n", dev->print_name());
+        Dmsg1(debuglevel, "Gave up waiting on device {}\n", dev->print_name());
         return false; /* exceeded maximum waits */
       }
       continue;
@@ -613,7 +613,7 @@ bool StorageDaemonDeviceControlRecord::DirAskSysopToMountVolume(int mode)
       Jmsg(jcr, M_FATAL, 0, "%s", dev->errmsg);
       return false;
     }
-    Dmsg1(debuglevel, "Someone woke me for device %s\n", dev->print_name());
+    Dmsg1(debuglevel, "Someone woke me for device {}\n", dev->print_name());
     break;
   }
 
@@ -660,7 +660,7 @@ bool DeleteNullJobmediaRecords(JobControlRecord* jcr)
          T_("Network error on BnetRecv in DeleteNullJobmediaRecords.\n"));
     return false;
   }
-  Dmsg1(100, ">dird %s", dir->msg);
+  Dmsg1(100, ">dird {}", dir->msg);
   if (strncmp(dir->msg, "1000", 4) == 0) { return true; }
   return false;
 }
@@ -669,7 +669,7 @@ bool DeviceControlRecord::DirGetVolumeInfo(enum get_vol_info_rw)
 {
   Dmsg0(100, "Fake DirGetVolumeInfo\n");
   setVolCatName(VolumeName);
-  Dmsg1(500, "Vol=%s\n", getVolCatName());
+  Dmsg1(500, "Vol={}\n", getVolCatName());
   return 1;
 }
 

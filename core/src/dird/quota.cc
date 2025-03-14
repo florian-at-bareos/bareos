@@ -46,9 +46,9 @@ uint64_t FetchRemainingQuotas(JobControlRecord* jcr)
   // Quotas not being used ?
   if (!jcr->dir_impl->HasQuota) { return 0; }
 
-  Dmsg2(debuglevel, "JobSumTotalBytes for JobId %d is %llu\n", jcr->JobId,
+  Dmsg2(debuglevel, "JobSumTotalBytes for JobId {} is {}\n", jcr->JobId,
         jcr->dir_impl->jr.JobSumTotalBytes);
-  Dmsg1(debuglevel, "Fetching remaining quotas for JobId %d\n", jcr->JobId);
+  Dmsg1(debuglevel, "Fetching remaining quotas for JobId {}\n", jcr->JobId);
 
   // If strict quotas on and grace exceeded, enforce the softquota
   if (jcr->dir_impl->res.client->StrictQuotas
@@ -87,7 +87,7 @@ uint64_t FetchRemainingQuotas(JobControlRecord* jcr)
   }
 
   Dmsg4(debuglevel,
-        "Quota for %s is %llu. Remainder is %llu, QuotaLimit: %llu\n",
+        "Quota for {} is {}. Remainder is {}, QuotaLimit: {}\n",
         jcr->dir_impl->jr.Name, jcr->dir_impl->jr.JobSumTotalBytes, remaining,
         jcr->dir_impl->res.client->QuotaLimit);
 
@@ -110,7 +110,7 @@ bool CheckHardquotas(JobControlRecord* jcr)
   // Do not check if hardquota is not set
   if (jcr->dir_impl->res.client->HardQuota == 0) { goto bail_out; }
 
-  Dmsg1(debuglevel, "Checking hard quotas for JobId %d\n", jcr->JobId);
+  Dmsg1(debuglevel, "Checking hard quotas for JobId {}\n", jcr->JobId);
   if (!jcr->dir_impl->HasQuota) {
     if (jcr->dir_impl->res.client->QuotaIncludeFailedJobs) {
       if (DbLocker _{jcr->db}; !jcr->db->get_quota_jobbytes(
@@ -138,7 +138,7 @@ bool CheckHardquotas(JobControlRecord* jcr)
     goto bail_out;
   }
 
-  Dmsg2(debuglevel, "Quota for JobID: %d is %llu\n", jcr->dir_impl->jr.JobId,
+  Dmsg2(debuglevel, "Quota for JobID: {} is {}\n", jcr->dir_impl->jr.JobId,
         jcr->dir_impl->jr.JobSumTotalBytes);
 
 bail_out:
@@ -169,7 +169,7 @@ bool CheckSoftquotas(JobControlRecord* jcr)
   // Do not check if the softquota is not set
   if (jcr->dir_impl->res.client->SoftQuota == 0) { goto bail_out; }
 
-  Dmsg1(debuglevel, "Checking soft quotas for JobId %d\n", jcr->JobId);
+  Dmsg1(debuglevel, "Checking soft quotas for JobId {}\n", jcr->JobId);
   if (!jcr->dir_impl->HasQuota) {
     if (jcr->dir_impl->res.client->QuotaIncludeFailedJobs) {
       if (DbLocker _{jcr->db}; !jcr->db->get_quota_jobbytes(
@@ -193,18 +193,18 @@ bool CheckSoftquotas(JobControlRecord* jcr)
     jcr->dir_impl->HasQuota = true;
   }
 
-  Dmsg2(debuglevel, "Quota for %s is %llu\n", jcr->dir_impl->jr.Name,
+  Dmsg2(debuglevel, "Quota for {} is {}\n", jcr->dir_impl->jr.Name,
         jcr->dir_impl->jr.JobSumTotalBytes);
-  Dmsg2(debuglevel, "QuotaLimit for %s is %llu\n", jcr->dir_impl->jr.Name,
+  Dmsg2(debuglevel, "QuotaLimit for {} is {}\n", jcr->dir_impl->jr.Name,
         jcr->dir_impl->res.client->QuotaLimit);
-  Dmsg2(debuglevel, "HardQuota for %s is %llu\n", jcr->dir_impl->jr.Name,
+  Dmsg2(debuglevel, "HardQuota for {} is {}\n", jcr->dir_impl->jr.Name,
         jcr->dir_impl->res.client->HardQuota);
-  Dmsg2(debuglevel, "SoftQuota for %s is %llu\n", jcr->dir_impl->jr.Name,
+  Dmsg2(debuglevel, "SoftQuota for {} is {}\n", jcr->dir_impl->jr.Name,
         jcr->dir_impl->res.client->SoftQuota);
-  Dmsg2(debuglevel, "SoftQuota Grace Period for %s is %d\n",
+  Dmsg2(debuglevel, "SoftQuota Grace Period for {} is {}\n",
         jcr->dir_impl->jr.Name,
         jcr->dir_impl->res.client->SoftQuotaGracePeriod);
-  Dmsg2(debuglevel, "SoftQuota Grace Time for %s is %d\n",
+  Dmsg2(debuglevel, "SoftQuota Grace Time for {} is {}\n",
         jcr->dir_impl->jr.Name, jcr->dir_impl->res.client->GraceTime);
 
   if ((jcr->dir_impl->jr.JobSumTotalBytes + jcr->dir_impl->SDJobBytes)
@@ -213,7 +213,7 @@ bool CheckSoftquotas(JobControlRecord* jcr)
      * Check if gracetime has been set */
     if (jcr->dir_impl->res.client->GraceTime == 0
         && jcr->dir_impl->res.client->SoftQuotaGracePeriod) {
-      Dmsg1(debuglevel, "UpdateQuotaGracetime: %d\n", now);
+      Dmsg1(debuglevel, "UpdateQuotaGracetime: {}\n", now);
       if (DbLocker _{jcr->db};
           !jcr->db->UpdateQuotaGracetime(jcr, &jcr->dir_impl->jr)) {
         Jmsg(jcr, M_WARNING, 0, T_("Error setting Quota gracetime: ERR=%s\n"),

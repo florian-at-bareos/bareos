@@ -55,7 +55,7 @@ void sd::TearDown()
   {
     DeviceResource* d = nullptr;
     foreach_res (d, R_DEVICE) {
-      Dmsg1(10, "Term device %s (%s)\n", d->resource_name_,
+      Dmsg1(10, "Term device {} ({})\n", d->resource_name_,
             d->archive_device_string);
       if (d->dev) {
         d->dev->ClearVolhdr();

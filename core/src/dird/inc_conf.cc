@@ -389,13 +389,13 @@ static void ScanIncludeOptions(LEX* lc, int keyword, char* opts, int optlen)
     bstrncat(opts, "V", optlen); /* indicate Verify */
     bstrncat(opts, lc->str, optlen);
     bstrncat(opts, ":", optlen); /* Terminate it */
-    Dmsg3(900, "Catopts=%s option=%s optlen=%d\n", opts, option, optlen);
+    Dmsg3(900, "Catopts={} option={} optlen={}\n", opts, option, optlen);
   } else if (keyword == INC_KW_ACCURATE) { /* special case */
     IsInPermittedSet(lc, T_("accurate"), PERMITTED_ACCURATE_OPTIONS);
     bstrncat(opts, "C", optlen); /* indicate Accurate */
     bstrncat(opts, lc->str, optlen);
     bstrncat(opts, ":", optlen); /* Terminate it */
-    Dmsg3(900, "Catopts=%s option=%s optlen=%d\n", opts, option, optlen);
+    Dmsg3(900, "Catopts={} option={} optlen={}\n", opts, option, optlen);
   } else if (keyword == INC_KW_STRIPPATH) { /* special case */
     if (!IsAnInteger(lc->str)) {
       scan_err1(lc, T_("Expected a strip path positive integer, got: %s:"),
@@ -405,7 +405,7 @@ static void ScanIncludeOptions(LEX* lc, int keyword, char* opts, int optlen)
     bstrncat(opts, "P", optlen); /* indicate strip path */
     bstrncat(opts, lc->str, optlen);
     bstrncat(opts, ":", optlen); /* Terminate it */
-    Dmsg3(900, "Catopts=%s option=%s optlen=%d\n", opts, option, optlen);
+    Dmsg3(900, "Catopts={} option={} optlen={}\n", opts, option, optlen);
   } else if (keyword == INC_KW_SIZE) { /* special case */
     if (!ParseSizeMatch(lc->str, &size_matching)) {
       scan_err1(lc, T_("Expected a parseable size, got: %s:"), lc->str);
@@ -414,7 +414,7 @@ static void ScanIncludeOptions(LEX* lc, int keyword, char* opts, int optlen)
     bstrncat(opts, "z", optlen); /* indicate size */
     bstrncat(opts, lc->str, optlen);
     bstrncat(opts, ":", optlen); /* Terminate it */
-    Dmsg3(900, "Catopts=%s option=%s optlen=%d\n", opts, option, optlen);
+    Dmsg3(900, "Catopts={} option={} optlen={}\n", opts, option, optlen);
   } else {
     // Standard keyword options for Include/Exclude
     for (i = 0; FS_options[i].name; i++) {
@@ -430,7 +430,7 @@ static void ScanIncludeOptions(LEX* lc, int keyword, char* opts, int optlen)
       return;
     } else { /* add option */
       bstrncat(opts, option, optlen);
-      Dmsg3(900, "Catopts=%s option=%s optlen=%d\n", opts, option, optlen);
+      Dmsg3(900, "Catopts={} option={} optlen={}\n", opts, option, optlen);
     }
   }
   lc->options = lcopts;
@@ -477,7 +477,7 @@ static void StoreRegex(LEX* lc, ResourceItem* item, int pass)
           res_incexe->current_opts->regex.append(strdup(lc->str));
           newsize = res_incexe->current_opts->regex.size();
         }
-        Dmsg4(900, "set %s %p size=%d %s\n", type, res_incexe->current_opts,
+        Dmsg4(900, "set {} {:p} size={} {}\n", type, res_incexe->current_opts,
               newsize, lc->str);
         break;
       default:
@@ -532,7 +532,7 @@ static void StoreWild(LEX* lc, ResourceItem* item, int pass)
           res_incexe->current_opts->wild.append(strdup(lc->str));
           newsize = res_incexe->current_opts->wild.size();
         }
-        Dmsg4(9, "set %s %p size=%d %s\n", type, res_incexe->current_opts,
+        Dmsg4(9, "set {} {:p} size={} {}\n", type, res_incexe->current_opts,
               newsize, lc->str);
         break;
       default:
@@ -556,7 +556,7 @@ static void StoreFstype(LEX* lc, ResourceItem*, int pass)
       case BCT_UNQUOTED_STRING:
       case BCT_QUOTED_STRING:
         res_incexe->current_opts->fstype.append(strdup(lc->str));
-        Dmsg3(900, "set fstype %p size=%d %s\n", res_incexe->current_opts,
+        Dmsg3(900, "set fstype {:p} size={} {}\n", res_incexe->current_opts,
               res_incexe->current_opts->fstype.size(), lc->str);
         break;
       default:
@@ -580,7 +580,7 @@ static void StoreDrivetype(LEX* lc, ResourceItem*, int pass)
       case BCT_UNQUOTED_STRING:
       case BCT_QUOTED_STRING:
         res_incexe->current_opts->Drivetype.append(strdup(lc->str));
-        Dmsg3(900, "set Drivetype %p size=%d %s\n", res_incexe->current_opts,
+        Dmsg3(900, "set Drivetype {:p} size={} {}\n", res_incexe->current_opts,
               res_incexe->current_opts->Drivetype.size(), lc->str);
         break;
       default:
@@ -603,7 +603,7 @@ static void StoreMeta(LEX* lc, ResourceItem*, int pass)
       case BCT_UNQUOTED_STRING:
       case BCT_QUOTED_STRING:
         res_incexe->current_opts->meta.append(strdup(lc->str));
-        Dmsg3(900, "set meta %p size=%d %s\n", res_incexe->current_opts,
+        Dmsg3(900, "set meta {:p} size={} {}\n", res_incexe->current_opts,
               res_incexe->current_opts->meta.size(), lc->str);
         break;
       default:
@@ -648,7 +648,7 @@ static void StoreOption(
   ScanIncludeOptions(lc, keyword, inc_opts, sizeof(inc_opts));
   if (pass == 1) {
     bstrncat(res_incexe->current_opts->opts, inc_opts, MAX_FOPTS);
-    Dmsg2(900, "new pass=%d incexe opts=%s\n", pass,
+    Dmsg2(900, "new pass={} incexe opts={}\n", pass,
           res_incexe->current_opts->opts);
   }
 
@@ -684,7 +684,7 @@ static void ApplyDefaultValuesForUnsetOptions(
     if (!was_set_in_config) {
       bstrncat(res_incexe->current_opts->opts, default_value.c_str(),
                MAX_FOPTS);
-      Dmsg2(900, "setting default value for keyword-id=%d, %s\n", keyword_id,
+      Dmsg2(900, "setting default value for keyword-id={}, {}\n", keyword_id,
             default_value.c_str());
     }
   }
@@ -815,7 +815,7 @@ static void StoreFname(LEX* lc, ResourceItem*, int pass, bool)
           res_incexe->name_list.init(10, true);
         }
         res_incexe->name_list.append(strdup(lc->str));
-        Dmsg1(900, "Add to name_list %s\n", lc->str);
+        Dmsg1(900, "Add to name_list {}\n", lc->str);
         break;
       }
       default:
@@ -865,7 +865,7 @@ static void StorePluginName(LEX* lc, ResourceItem*, int pass, bool exclude)
           res_incexe->plugin_list.init(10, true);
         }
         res_incexe->plugin_list.append(strdup(lc->str));
-        Dmsg1(900, "Add to plugin_list %s\n", lc->str);
+        Dmsg1(900, "Add to plugin_list {}\n", lc->str);
         break;
       }
       default:
@@ -891,7 +891,7 @@ static void StoreExcludedir(LEX* lc, ResourceItem*, int pass, bool exclude)
       res_incexe->ignoredir.init(10, true);
     }
     res_incexe->ignoredir.append(strdup(lc->str));
-    Dmsg1(900, "Add to ignoredir_list %s\n", lc->str);
+    Dmsg1(900, "Add to ignoredir_list {}\n", lc->str);
   }
   ScanToEol(lc);
 }
@@ -971,10 +971,10 @@ static void StoreNewinc(LEX* lc, ResourceItem* item, int index, int pass)
     // store the pointer from res_incexe in each appropriate container
     if (item->code == 0) { /* include */
       res_fs->include_items.push_back(res_incexe);
-      Dmsg1(900, "num_includes=%d\n", res_fs->include_items.size());
+      Dmsg1(900, "num_includes={}\n", res_fs->include_items.size());
     } else { /* exclude */
       res_fs->exclude_items.push_back(res_incexe);
-      Dmsg1(900, "num_excludes=%d\n", res_fs->exclude_items.size());
+      Dmsg1(900, "num_excludes={}\n", res_fs->exclude_items.size());
     }
     res_incexe = nullptr;
   }

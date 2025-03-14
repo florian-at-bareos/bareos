@@ -502,7 +502,7 @@ void NdmpLoghandler(struct ndmlog* log, char* tag, int level, char* msg)
    * level and let the normal debug logging handle if it needs to be printed
    * or not. */
   internal_level = level * 100;
-  Dmsg3(internal_level, "NDMP: [%s] [%d] %s\n", tag, level, msg);
+  Dmsg3(internal_level, "NDMP: [{}] [{}] {}\n", tag, level, msg);
 }
 
 /**
@@ -520,7 +520,7 @@ extern "C" void ndmp_log_delivery_cb_to_dmsg(struct ndmlog* log,
   nis = (NIS*)log->ctx;
   if (!nis || !nis->jcr) { return; }
 
-  Dmsg1((int)nis->LogLevel, "%s\n", msg);
+  Dmsg1((int)nis->LogLevel, "{}\n", msg);
 }
 
 

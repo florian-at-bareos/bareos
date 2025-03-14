@@ -61,7 +61,7 @@ TlsPolicy ConfiguredTlsPolicyGetterPrivate::GetTlsPolicyForRootConsole() const
   TlsResource* own_tls_resource = dynamic_cast<TlsResource*>(
       my_config_.GetNextRes(my_config_.r_own_, nullptr));
   if (!own_tls_resource) {
-    Dmsg1(100, "Could not find own tls resource: %d\n", my_config_.r_own_);
+    Dmsg1(100, "Could not find own tls resource: {}\n", my_config_.r_own_);
     return kBnetTlsUnknown;
   }
   return own_tls_resource->GetPolicy();
@@ -80,7 +80,7 @@ TlsPolicy ConfiguredTlsPolicyGetterPrivate::GetTlsPolicyForJob(
         std::remove(unified_job_name.begin(), unified_job_name.end(), '\n'),
         unified_job_name.end());
   } else {
-    Dmsg1(100, "Could not get unified job name: %s\n", name.c_str());
+    Dmsg1(100, "Could not get unified job name: {}\n", name.c_str());
     return TlsPolicy::kBnetTlsUnknown;
   }
   return JcrGetTlsPolicy(unified_job_name.c_str());
@@ -97,7 +97,7 @@ TlsPolicy ConfiguredTlsPolicyGetterPrivate::GetTlsPolicyForResourceCodeAndName(
   TlsResource* foreign_tls_resource = dynamic_cast<TlsResource*>(
       my_config_.GetResWithName(r_code, name.c_str()));
   if (!foreign_tls_resource) {
-    Dmsg2(100, "Could not find foreign tls resource: %s-%s\n",
+    Dmsg2(100, "Could not find foreign tls resource: {}-{}\n",
           r_code_str.c_str(), name.c_str());
     return TlsPolicy::kBnetTlsUnknown;
   }
@@ -118,7 +118,7 @@ bool ConfiguredTlsPolicyGetter::GetConfiguredTlsPolicyFromCleartextHello(
     tls_policy = impl_->GetTlsPolicyForResourceCodeAndName(r_code_str, name);
   }
   if (tls_policy == TlsPolicy::kBnetTlsUnknown) {
-    Dmsg2(100, "Could not find foreign tls resource: %s-%s\n",
+    Dmsg2(100, "Could not find foreign tls resource: {}-{}\n",
           r_code_str.c_str(), name.c_str());
     return false;
   } else {

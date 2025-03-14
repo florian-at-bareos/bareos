@@ -214,7 +214,7 @@ void NdmpLoghandler(struct ndmlog* log, char* tag, int level, char* msg)
    * level and let the normal debug logging handle if it needs to be printed
    * or not. */
   internal_level = level * 100;
-  Dmsg3(internal_level, "NDMP: [%s] [%d] %s\n", tag, level, msg);
+  Dmsg3(internal_level, "NDMP: [{}] [{}] {}\n", tag, level, msg);
 }
 
 // Clear text authentication callback.
@@ -402,7 +402,7 @@ static inline bool bndmp_read_data_from_block(JobControlRecord* jcr,
     }
 
     if (rec != rctx->rec) {
-      Dmsg1(400, T_("recstream: %d, rctxstream: %d .\n"), rec->maskedStream,
+      Dmsg1(400, T_("recstream: {}, rctxstream: {} .\n"), rec->maskedStream,
             rctx->rec->maskedStream);
     }
 
@@ -590,7 +590,7 @@ extern "C" ndmp9_error bndmp_tape_open(struct ndm_session* sess,
     PoolMem virtual_filename(PM_FNAME);
 
     // Setup internal system for writing data.
-    Dmsg1(100, "Start append data. res=%d\n", dcr->dev->NumReserved());
+    Dmsg1(100, "Start append data. res={}\n", dcr->dev->NumReserved());
 
     /* One NDMP backup Job can be one or more save sessions so we keep
      * track if we already acquired the storage. */
@@ -607,7 +607,7 @@ extern "C" ndmp9_error bndmp_tape_open(struct ndm_session* sess,
       // Keep track that we acquired the storage.
       jcr->sd_impl->acquired_storage = true;
 
-      Dmsg1(50, "Begin append device=%s\n", dcr->dev->print_name());
+      Dmsg1(50, "Begin append device={}\n", dcr->dev->print_name());
 
       // Change the Job to running state.
       jcr->sendJobStatus(JS_Running);
@@ -658,7 +658,7 @@ extern "C" ndmp9_error bndmp_tape_open(struct ndm_session* sess,
         goto bail_out;
       }
 
-      Dmsg2(200, "Found %d volumes names to restore. First=%s\n",
+      Dmsg2(200, "Found {} volumes names to restore. First={}\n",
             jcr->sd_impl->NumReadVolumes, jcr->sd_impl->VolList->VolumeName);
 
       // Ready device for reading
@@ -676,7 +676,7 @@ extern "C" ndmp9_error bndmp_tape_open(struct ndm_session* sess,
       // Change the Job to running state.
       jcr->sendJobStatus(JS_Running);
 
-      Dmsg1(50, "Begin reading device=%s\n", dcr->dev->print_name());
+      Dmsg1(50, "Begin reading device={}\n", dcr->dev->print_name());
 
       PositionDeviceToFirstFile(jcr, dcr);
       jcr->sd_impl->read_session.mount_next_volume = false;
@@ -942,7 +942,7 @@ void EndOfNdmpBackup(JobControlRecord* jcr)
     /* Check if we can still write. This may not be the case
      *  if we are at the end of the tape or we got a fatal I/O error. */
     if (dcr->dev && dcr->dev->CanWrite()) {
-      Dmsg1(200, "Write EOS label JobStatus=%c\n", jcr->getJobStatus());
+      Dmsg1(200, "Write EOS label JobStatus={:c}\n", jcr->getJobStatus());
 
       if (!WriteSessionLabel(dcr, EOS_LABEL)) {
         /* Print only if JobStatus JS_Terminated and not cancelled to avoid
@@ -1143,7 +1143,7 @@ extern "C" void* ndmp_thread_server(void* arg)
   RemoveDuplicateAddresses(ntsa->addr_list);
 
   char allbuf[256 * 10];
-  Dmsg1(100, "Addresses %s\n",
+  Dmsg1(100, "Addresses {}\n",
         BuildAddressesString(ntsa->addr_list, allbuf, sizeof(allbuf)));
 
 #  ifdef HAVE_POLL

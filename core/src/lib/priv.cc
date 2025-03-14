@@ -58,7 +58,7 @@ void drop(char* uname, char* gname, bool keep_readall_caps)
   uid_t uid;
   char username[1000];
 
-  Dmsg2(900, "uname=%s gname=%s\n", uname ? uname : "NONE",
+  Dmsg2(900, "uname={} gname={}\n", uname ? uname : "NONE",
         gname ? gname : "NONE");
   if (!uname && !gname) { return; /* Nothing to do */ }
 

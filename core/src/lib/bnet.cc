@@ -535,7 +535,7 @@ bool BareosSocket::ReceiveAndEvaluateResponseMessage(uint32_t& id_out,
   StopTimer();
 
   if (ret <= 0) {
-    Dmsg1(100, "Error while receiving response message: %s", msg);
+    Dmsg1(100, "Error while receiving response message: {}", msg);
     return false;
   }
 
@@ -559,7 +559,7 @@ bool BareosSocket::FormatAndSendResponseMessage(
 
   StartTimer(30);  // 30 seconds
   if (!send(m.c_str(), m.size())) {
-    Dmsg1(100, "Could not send response message: %s\n", m.c_str());
+    Dmsg1(100, "Could not send response message: {}\n", m.c_str());
     StopTimer();
     return false;
   }

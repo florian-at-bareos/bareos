@@ -67,7 +67,7 @@ bool BareosDbPostgresql::SqlBatchStartFileTable(JobControlRecord*)
     Bmicrosleep(5, 0);
   }
   if (!result_) {
-    Dmsg1(50, "Query failed: %s\n", query);
+    Dmsg1(50, "Query failed: {}\n", query);
     goto bail_out;
   }
 
@@ -77,7 +77,7 @@ bool BareosDbPostgresql::SqlBatchStartFileTable(JobControlRecord*)
     num_rows_ = 0;
     status_ = 1;
   } else {
-    Dmsg1(50, "Result status failed: %s\n", query);
+    Dmsg1(50, "Result status failed: {}\n", query);
     goto bail_out;
   }
 
@@ -118,7 +118,7 @@ bool BareosDbPostgresql::SqlBatchEndFileTable(JobControlRecord*,
     status_ = 0;
     Mmsg1(errmsg, T_("error ending batch mode: %s"),
           PQerrorMessage(db_handle_));
-    Dmsg1(500, "failure %s\n", errmsg);
+    Dmsg1(500, "failure {}\n", errmsg);
   }
 
   pg_result = PQgetResult(db_handle_);
@@ -236,7 +236,7 @@ bool BareosDbPostgresql::SqlBatchInsertFileTable(JobControlRecord*,
     status_ = 0;
     Mmsg1(errmsg, T_("error copying in batch mode: %s"),
           PQerrorMessage(db_handle_));
-    Dmsg1(500, "failure %s\n", errmsg);
+    Dmsg1(500, "failure {}\n", errmsg);
   }
 
   Dmsg0(500, "SqlBatchInsertFileTable finishing\n");

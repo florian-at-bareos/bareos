@@ -55,12 +55,12 @@ int Zdeflate(char* in, int in_len, char* out, int& out_len)
 
   strm.next_in = (Bytef*)in;
   strm.avail_in = in_len;
-  Dmsg1(200, "In: %d bytes\n", strm.avail_in);
+  Dmsg1(200, "In: {} bytes\n", strm.avail_in);
   strm.avail_out = out_len;
   strm.next_out = (Bytef*)out;
   ret = deflate(&strm, Z_FINISH);
   out_len = out_len - strm.avail_out;
-  Dmsg1(200, "compressed=%d\n", out_len);
+  Dmsg1(200, "compressed={}\n", out_len);
   (void)deflateEnd(&strm);
   return ret;
 #else
@@ -92,12 +92,12 @@ int Zinflate(char* in, int in_len, char* out, int& out_len)
     return ret;
   }
 
-  Dmsg1(200, "In len: %d bytes\n", strm.avail_in);
+  Dmsg1(200, "In len: {} bytes\n", strm.avail_in);
   strm.avail_out = out_len;
   strm.next_out = (Bytef*)out;
   ret = inflate(&strm, Z_FINISH);
   out_len -= strm.avail_out;
-  Dmsg1(200, "Uncompressed=%d\n", out_len);
+  Dmsg1(200, "Uncompressed={}\n", out_len);
   (void)inflateEnd(&strm);
   return ret;
 #else

@@ -70,7 +70,7 @@ void BareosDb::BuildPathHierarchy(JobControlRecord* jcr,
   uint64_t pathid = str_to_int64(org_pathid);
   char* bkp = path;
 
-  Dmsg1(dbglevel, "BuildPathHierarchy(%s)\n", new_path);
+  Dmsg1(dbglevel, "BuildPathHierarchy({})\n", new_path);
 
   /* Does the ppathid exist for this? use a memory cache ...
    * In order to avoid the full loop, we consider that if a dir is already in
@@ -143,7 +143,7 @@ bool BareosDb::UpdatePathHierarchyCache(JobControlRecord* jcr,
   Mmsg(cmd, "SELECT 1 FROM Job WHERE JobId = %s AND HasCache=1", jobid);
 
   if (!QueryDb(jcr, cmd) || SqlNumRows() > 0) {
-    Dmsg1(dbglevel, "Already computed %d\n", (uint32_t)JobId);
+    Dmsg1(dbglevel, "Already computed {}\n", (uint32_t)JobId);
     retval = true;
     goto bail_out;
   }
@@ -152,7 +152,7 @@ bool BareosDb::UpdatePathHierarchyCache(JobControlRecord* jcr,
   Mmsg(cmd, "SELECT 1 FROM Job WHERE JobId = %s AND HasCache=-1", jobid);
 
   if (!QueryDb(jcr, cmd) || SqlNumRows() > 0) {
-    Dmsg1(dbglevel, "already in progress %d\n", (uint32_t)JobId);
+    Dmsg1(dbglevel, "already in progress {}\n", (uint32_t)JobId);
     retval = false;
     goto bail_out;
   }
@@ -179,7 +179,7 @@ bool BareosDb::UpdatePathHierarchyCache(JobControlRecord* jcr,
        jobid, jobid);
 
   if (!QueryDb(jcr, cmd)) {
-    Dmsg1(dbglevel, "Can't fill PathVisibility %d\n", (uint32_t)JobId);
+    Dmsg1(dbglevel, "Can't fill PathVisibility {}\n", (uint32_t)JobId);
     goto bail_out;
   }
 
@@ -199,7 +199,7 @@ bool BareosDb::UpdatePathHierarchyCache(JobControlRecord* jcr,
        jobid);
 
   if (!QueryDb(jcr, cmd)) {
-    Dmsg1(dbglevel, "Can't get new Path %d\n", (uint32_t)JobId);
+    Dmsg1(dbglevel, "Can't get new Path {}\n", (uint32_t)JobId);
     goto bail_out;
   }
 
@@ -279,7 +279,7 @@ void BareosDb::BvfsUpdateCache(JobControlRecord* jcr)
        "WHERE NOT EXISTS "
        "(SELECT 1 FROM Job WHERE JobId=PathVisibility.JobId)");
   nb = DeleteDb(jcr, cmd);
-  Dmsg1(dbglevel, "Affected row(s) = %d\n", nb);
+  Dmsg1(dbglevel, "Affected row(s) = {}\n", nb);
   EndTransaction(jcr);
 }
 
@@ -303,7 +303,7 @@ bool BareosDb::BvfsUpdatePathHierarchyCache(JobControlRecord* jcr,
       goto bail_out;
     }
 
-    Dmsg1(dbglevel, "Updating cache for %lld\n", (uint64_t)JobId);
+    Dmsg1(dbglevel, "Updating cache for {}\n", (uint64_t)JobId);
     if (!UpdatePathHierarchyCache(jcr, ppathid_cache, JobId)) {
       retval = false;
     }
@@ -317,7 +317,7 @@ int BareosDb::BvfsLsDirs(PoolMem& query, void* ctx)
 {
   int nb_record = 0;
 
-  Dmsg1(dbglevel_sql, "q=%s\n", query.c_str());
+  Dmsg1(dbglevel_sql, "q={}\n", query.c_str());
 
   DbLocker _{this};
 
@@ -334,7 +334,7 @@ int BareosDb::BvfsBuildLsFileQuery(PoolMem& query,
 {
   int nb_record = 0;
 
-  Dmsg1(dbglevel_sql, "q=%s\n", query.c_str());
+  Dmsg1(dbglevel_sql, "q={}\n", query.c_str());
 
   DbLocker _{this};
   SqlQuery(query.c_str(), ResultHandler, ctx);
@@ -346,7 +346,7 @@ int BareosDb::BvfsBuildLsFileQuery(PoolMem& query,
 
 static int ResultHandler(void*, int fields, char** row)
 {
-  Dmsg1(100, "ResultHandler(*,%d,**)", fields);
+  Dmsg1(100, "ResultHandler(*,{},**)", fields);
   if (fields == 4) {
     Pmsg4(0, "%s\t%s\t%s\t%s\n", row[0], row[1], row[2], row[3]);
   } else if (fields == 5) {
@@ -500,7 +500,7 @@ void Bvfs::GetAllFileVersions(DBId_t pathid,
   PoolMem query(PM_MESSAGE);
   PoolMem filter(PM_MESSAGE);
 
-  Dmsg3(dbglevel, "GetAllFileVersions(%lld, %s, %s)\n", (uint64_t)pathid, fname,
+  Dmsg3(dbglevel, "GetAllFileVersions({}, {}, {})\n", (uint64_t)pathid, fname,
         client);
 
   if (see_copies) {
@@ -549,7 +549,7 @@ bool Bvfs::ls_dirs()
   PoolMem sub_dirs_query(PM_MESSAGE);
   PoolMem union_query(PM_MESSAGE);
 
-  Dmsg1(dbglevel, "ls_dirs(%lld)\n", (uint64_t)pwd_id);
+  Dmsg1(dbglevel, "ls_dirs({})\n", (uint64_t)pwd_id);
 
   if (*jobids == 0) { return false; }
 
@@ -603,7 +603,7 @@ bool Bvfs::ls_files()
   PoolMem filter(PM_MESSAGE);
   PoolMem query(PM_MESSAGE);
 
-  Dmsg1(dbglevel, "ls_files(%lld)\n", (uint64_t)pwd_id);
+  Dmsg1(dbglevel, "ls_files({})\n", (uint64_t)pwd_id);
   if (*jobids == 0) { return false; }
 
   if (!pwd_id) { ChDir(get_root()); }
@@ -732,7 +732,7 @@ bool Bvfs::compute_restore_list(char* fileid,
       goto bail_out;
     }
     if (bstrcmp(tmp2.c_str(), "")) { /* path not found */
-      Dmsg3(dbglevel, "Path not found %lld q=%s s=%s\n", id, tmp.c_str(),
+      Dmsg3(dbglevel, "Path not found {} q={} s={}\n", id, tmp.c_str(),
             tmp2.c_str());
       break;
     }
@@ -814,7 +814,7 @@ bool Bvfs::compute_restore_list(char* fileid,
     init = true;
   }
 
-  Dmsg1(dbglevel_sql, "q=%s\n", query.c_str());
+  Dmsg1(dbglevel_sql, "q={}\n", query.c_str());
 
   if (!db->SqlQuery(query.c_str())) {
     Dmsg0(dbglevel, "Can't execute q\n");
@@ -825,7 +825,7 @@ bool Bvfs::compute_restore_list(char* fileid,
                 output_table, output_table);
 
   /* TODO: handle jobid filter */
-  Dmsg1(dbglevel_sql, "q=%s\n", query.c_str());
+  Dmsg1(dbglevel_sql, "q={}\n", query.c_str());
   if (!db->SqlQuery(query.c_str())) {
     Dmsg0(dbglevel, "Can't execute q\n");
     goto bail_out;

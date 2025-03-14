@@ -103,7 +103,7 @@ static bool NeedToListDevice(const char* devicenames, const char* devicename)
   char *cur, *bp;
   PoolMem namelist;
 
-  Dmsg2(200, "NeedToListDevice devicenames %s, devicename %s\n", devicenames,
+  Dmsg2(200, "NeedToListDevice devicenames {}, devicename {}\n", devicenames,
         devicename);
 
   // Make a local copy that we can split on ','
@@ -948,7 +948,7 @@ bool DotstatusCmd(JobControlRecord* jcr)
   }
   UnbashSpaces(cmd);
 
-  Dmsg1(200, "cmd=%s\n", cmd.c_str());
+  Dmsg1(200, "cmd={}\n", cmd.c_str());
 
   if (Bstrcasecmp(cmd.c_str(), "current")) {
     dir->fsend(OKdotstatus, cmd.c_str());

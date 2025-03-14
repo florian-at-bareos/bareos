@@ -138,8 +138,8 @@ static inline bool native_send_label_request(UaContext* ua,
     ua->SendMsg(T_("Sending label command for Volume \"%s\" Slot %hd ...\n"),
                 mr->VolumeName, mr->Slot);
     Dmsg8(100,
-          "label %s VolumeName=%s PoolName=%s MediaType=%s "
-          "Slot=%hd drive=%hd MinBlocksize=%d MaxBlocksize=%d\n",
+          "label {} VolumeName={} PoolName={} MediaType={} "
+          "Slot={} drive={} MinBlocksize={} MaxBlocksize={}\n",
           dev_name, mr->VolumeName, pr->Name, mr->MediaType, mr->Slot, drive,
           pr->MinBlocksize, pr->MaxBlocksize);
   }
@@ -293,7 +293,7 @@ static inline bool IsCleaningTape(UaContext* ua,
       = bstrncmp(mr->VolumeName, ua->jcr->dir_impl->res.pool->cleaning_prefix,
                  strlen(ua->jcr->dir_impl->res.pool->cleaning_prefix));
 
-  Dmsg4(100, "CLNprefix=%s: Vol=%s: len=%d bstrncmp=%s\n",
+  Dmsg4(100, "CLNprefix={}: Vol={}: len={} bstrncmp={}\n",
         ua->jcr->dir_impl->res.pool->cleaning_prefix, mr->VolumeName,
         strlen(ua->jcr->dir_impl->res.pool->cleaning_prefix),
         retval ? "true" : "false");

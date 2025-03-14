@@ -53,7 +53,7 @@ void CheckpointHandler::UpdateJobmediaRecord(JobControlRecord* jcr)
 
 void CheckpointHandler::UpdateJobrecord(JobControlRecord* jcr)
 {
-  Dmsg2(100, T_("... update job record: %llu bytes %lu files\n"), jcr->JobBytes,
+  Dmsg2(100, T_("... update job record: {} bytes {} files\n"), jcr->JobBytes,
         jcr->JobFiles);
   jcr->sd_impl->dcr->DirAskToUpdateJobRecord();
 }

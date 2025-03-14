@@ -518,7 +518,7 @@ static inline int BopenEncrypted(BareosFilePacket* bfd,
     std::wstring utf16 = make_win32_path_UTF8_2_wchar(fname);
 
     // Unicode open.
-    Dmsg1(100, "OpenEncryptedFileRawW=%s\n", FromUtf16(utf16).c_str());
+    Dmsg1(100, "OpenEncryptedFileRawW={}\n", FromUtf16(utf16).c_str());
     if (p_OpenEncryptedFileRawW(utf16.c_str(), ulFlags, &(bfd->pvContext))) {
       bfd->mode = BF_CLOSED;
     }
@@ -526,7 +526,7 @@ static inline int BopenEncrypted(BareosFilePacket* bfd,
     // ASCII open.
     PoolMem win32_fname(PM_FNAME);
     unix_name_to_win32(win32_fname.addr(), fname);
-    Dmsg1(100, "OpenEncryptedFileRawA=%s\n", win32_fname.c_str());
+    Dmsg1(100, "OpenEncryptedFileRawA={}\n", win32_fname.c_str());
     if (p_OpenEncryptedFileRawA(win32_fname.c_str(), ulFlags,
                                 &(bfd->pvContext))) {
       bfd->mode = BF_CLOSED;
@@ -547,20 +547,20 @@ static inline int BopenNonencrypted(BareosFilePacket* bfd,
 
   if (bfd->cmd_plugin && plugin_bopen) {
     int rtnstat;
-    Dmsg1(50, "call plugin_bopen fname=%s\n", fname);
+    Dmsg1(50, "call plugin_bopen fname={}\n", fname);
     rtnstat = plugin_bopen(bfd, fname, flags, mode);
-    Dmsg1(50, "return from plugin_bopen status=%d\n", rtnstat);
+    Dmsg1(50, "return from plugin_bopen status={}\n", rtnstat);
     if (rtnstat >= 0) {
       if (flags & O_CREAT || flags & O_WRONLY) { /* Open existing for write */
-        Dmsg1(50, "plugin_open for write OK file=%s.\n", fname);
+        Dmsg1(50, "plugin_open for write OK file={}.\n", fname);
         bfd->mode = BF_WRITE;
       } else {
-        Dmsg1(50, "plugin_open for read OK file=%s.\n", fname);
+        Dmsg1(50, "plugin_open for read OK file={}.\n", fname);
         bfd->mode = BF_READ;
       }
     } else {
       bfd->mode = BF_CLOSED;
-      Dmsg1(000, "==== plugin_bopen returned bad status=%d\n", rtnstat);
+      Dmsg1(000, "==== plugin_bopen returned bad status={}\n", rtnstat);
     }
     return bfd->mode == BF_CLOSED ? -1 : 1;
   }
@@ -584,7 +584,7 @@ static inline int BopenNonencrypted(BareosFilePacket* bfd,
     // Unicode open for create write
     if (p_CreateFileW && p_MultiByteToWideChar) {
       std::wstring utf16 = make_win32_path_UTF8_2_wchar(fname);
-      Dmsg1(100, "Create CreateFileW=%s\n", FromUtf16(utf16).c_str());
+      Dmsg1(100, "Create CreateFileW={}\n", FromUtf16(utf16).c_str());
       bfd->fh = p_CreateFileW(utf16.c_str(), dwaccess, /* Requested access */
                               0,                       /* Shared mode */
                               NULL,                    /* SecurityAttributes */
@@ -595,7 +595,7 @@ static inline int BopenNonencrypted(BareosFilePacket* bfd,
       PoolMem ansi(PM_FNAME);
       unix_name_to_win32(ansi.addr(), fname);
       // ASCII open
-      Dmsg1(100, "Create CreateFileA=%s\n", ansi.c_str());
+      Dmsg1(100, "Create CreateFileA={}\n", ansi.c_str());
       bfd->fh = p_CreateFileA(ansi.c_str(), dwaccess, /* Requested access */
                               0,                      /* Shared mode */
                               NULL,                   /* SecurityAttributes */
@@ -622,7 +622,7 @@ static inline int BopenNonencrypted(BareosFilePacket* bfd,
     if (p_CreateFileW && p_MultiByteToWideChar) {
       // unicode open for open existing write
       std::wstring utf16 = make_win32_path_UTF8_2_wchar(fname);
-      Dmsg1(100, "Write only CreateFileW=%s\n", FromUtf16(utf16).c_str());
+      Dmsg1(100, "Write only CreateFileW={}\n", FromUtf16(utf16).c_str());
       bfd->fh = p_CreateFileW(utf16.c_str(), dwaccess, /* Requested access */
                               0,                       /* Shared mode */
                               NULL,                    /* SecurityAttributes */
@@ -633,7 +633,7 @@ static inline int BopenNonencrypted(BareosFilePacket* bfd,
       PoolMem ansi(PM_FNAME);
       unix_name_to_win32(ansi.addr(), fname);
       // ASCII open
-      Dmsg1(100, "Write only CreateFileA=%s\n", ansi.c_str());
+      Dmsg1(100, "Write only CreateFileA={}\n", ansi.c_str());
       bfd->fh = p_CreateFileA(ansi.c_str(), dwaccess, /* Requested access */
                               0,                      /* Shared mode */
                               NULL,                   /* SecurityAttributes */
@@ -663,7 +663,7 @@ static inline int BopenNonencrypted(BareosFilePacket* bfd,
     if (p_CreateFileW && p_MultiByteToWideChar) {
       // Unicode open for open existing read
       std::wstring utf16 = make_win32_path_UTF8_2_wchar(fname);
-      Dmsg1(100, "Read CreateFileW=%s\n", FromUtf16(utf16).c_str());
+      Dmsg1(100, "Read CreateFileW={}\n", FromUtf16(utf16).c_str());
       bfd->fh = p_CreateFileW(utf16.c_str(), dwaccess, /* Requested access */
                               dwshare,                 /* Share modes */
                               NULL,                    /* SecurityAttributes */
@@ -674,7 +674,7 @@ static inline int BopenNonencrypted(BareosFilePacket* bfd,
       PoolMem ansi(PM_FNAME);
       unix_name_to_win32(ansi.addr(), fname);
       // ASCII open
-      Dmsg1(100, "Read CreateFileA=%s\n", ansi.c_str());
+      Dmsg1(100, "Read CreateFileA={}\n", ansi.c_str());
       bfd->fh = p_CreateFileA(ansi.c_str(), dwaccess, /* Requested access */
                               dwshare,                /* Share modes */
                               NULL,                   /* SecurityAttributes */
@@ -709,7 +709,7 @@ int bopen(BareosFilePacket* bfd,
           mode_t mode,
           dev_t rdev)
 {
-  Dmsg4(100, "bopen: fname %s, flags %08o, mode %04o, rdev %u\n", fname, flags,
+  Dmsg4(100, "bopen: fname {}, flags {:08o}, mode {:04o}, rdev {}\n", fname, flags,
         (mode & ~S_IFMT), rdev);
 
   /* If the FILE_ATTRIBUTES_DEDUPED_ITEM bit is set this is a deduped file
@@ -840,7 +840,7 @@ ssize_t bread(BareosFilePacket* bfd, void* buf, size_t count)
     if (bfd->fh == INVALID_HANDLE_VALUE) {
       return plugin_bread(bfd, buf, count);
     }
-    Dmsg1(400, "bread handled in core via bfd->fh=%d\n", bfd->fh);
+    Dmsg1(400, "bread handled in core via bfd->fh={}\n", bfd->fh);
   }
   if (bfd->use_backup_api) {
     if (!p_BackupRead(bfd->fh, (BYTE*)buf, count, &bfd->rw_bytes,
@@ -873,7 +873,7 @@ ssize_t bwrite(BareosFilePacket* bfd, void* buf, size_t count)
     if (bfd->fh == INVALID_HANDLE_VALUE) {
       return plugin_bwrite(bfd, buf, count);
     }
-    Dmsg1(400, "bwrite handled in core via bfd->fh=%d\n", bfd->fh);
+    Dmsg1(400, "bwrite handled in core via bfd->fh={}\n", bfd->fh);
   }
 
 
@@ -1024,18 +1024,18 @@ int bopen(BareosFilePacket* bfd,
           mode_t mode,
           dev_t rdev)
 {
-  Dmsg4(100, "bopen: fname %s, flags %08o, mode %04o, rdev %u\n", fname, flags,
+  Dmsg4(100, "bopen: fname {}, flags {:08o}, mode {:04o}, rdev {}\n", fname, flags,
         (mode & ~S_IFMT), rdev);
 
   if (bfd->cmd_plugin && plugin_bopen) {
-    Dmsg1(400, "call plugin_bopen fname=%s\n", fname);
+    Dmsg1(400, "call plugin_bopen fname={}\n", fname);
     int retval = plugin_bopen(bfd, fname, flags, mode);
-    Dmsg1(400, "Plugin bopen stat=%d\n", retval);
+    Dmsg1(400, "Plugin bopen stat={}\n", retval);
     return retval;
   }
 
   /* Normal file open */
-  Dmsg1(debuglevel, "open file %s\n", fname);
+  Dmsg1(debuglevel, "open file {}\n", fname);
 
   /* We use fnctl to set O_NOATIME if requested to avoid open error */
   bfd->filedes = open(fname, flags & ~O_NOATIME, mode);
@@ -1059,7 +1059,7 @@ int bopen(BareosFilePacket* bfd,
   }
   bfd->BErrNo = errno;
   bfd->flags_ = flags;
-  Dmsg1(400, "Open file %d\n", bfd->filedes);
+  Dmsg1(400, "Open file {}\n", bfd->filedes);
   errno = bfd->BErrNo;
 
   bfd->win32Decomplugin_private_context.bIsInData = false;
@@ -1069,7 +1069,7 @@ int bopen(BareosFilePacket* bfd,
   /* If not RDWR or WRONLY must be Read Only */
   if (bfd->filedes != -1 && !(flags & (O_RDWR | O_WRONLY))) {
     int status = posix_fadvise(bfd->filedes, 0, 0, POSIX_FADV_WILLNEED);
-    Dmsg3(400, "Did posix_fadvise WILLNEED on %s filedes=%d status=%d\n", fname,
+    Dmsg3(400, "Did posix_fadvise WILLNEED on {} filedes={} status={}\n", fname,
           bfd->filedes, status);
   }
 #  endif
@@ -1101,7 +1101,7 @@ int bclose(BareosFilePacket* bfd)
 
   if (bfd->filedes == -1) { return 0; }
 
-  Dmsg1(400, "Close file %d\n", bfd->filedes);
+  Dmsg1(400, "Close file {}\n", bfd->filedes);
 
   if (bfd->cmd_plugin && plugin_bclose) {
     status = plugin_bclose(bfd);
@@ -1114,7 +1114,7 @@ int bclose(BareosFilePacket* bfd)
     if (!(bfd->flags_ & (O_RDWR | O_WRONLY))) {
       /* Tell OS we don't need it any more */
       posix_fadvise(bfd->filedes, 0, 0, POSIX_FADV_DONTNEED);
-      Dmsg1(400, "Did posix_fadvise DONTNEED on filedes=%d\n", bfd->filedes);
+      Dmsg1(400, "Did posix_fadvise DONTNEED on filedes={}\n", bfd->filedes);
     }
 #  endif
 
@@ -1137,7 +1137,7 @@ ssize_t bread(BareosFilePacket* bfd, void* buf, size_t count)
 
   char* ptr = static_cast<char*>(buf);
 
-  Dmsg1(400, "bread handled in core via bfd->filedes=%d\n", bfd->filedes);
+  Dmsg1(400, "bread handled in core via bfd->filedes={}\n", bfd->filedes);
   ASSERT(static_cast<ssize_t>(count) >= 0);
   ssize_t bytes_read = 0;
   while (bytes_read < static_cast<ssize_t>(count)) {
@@ -1165,7 +1165,7 @@ ssize_t bwrite(BareosFilePacket* bfd, void* buf, size_t count)
 
   const char* ptr = static_cast<const char*>(buf);
 
-  Dmsg1(400, "bwrite handled in core via bfd->filedes=%d\n", bfd->filedes);
+  Dmsg1(400, "bwrite handled in core via bfd->filedes={}\n", bfd->filedes);
   ASSERT(static_cast<ssize_t>(count) >= 0);
   ssize_t bytes_written = 0;
   while (bytes_written < static_cast<ssize_t>(count)) {

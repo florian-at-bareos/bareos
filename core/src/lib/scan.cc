@@ -141,7 +141,7 @@ char* next_arg(char** s)
 
   /* skip past spaces to next arg */
   for (p = *s; *p && B_ISSPACE(*p);) { p++; }
-  Dmsg1(900, "Next arg=%s\n", p);
+  Dmsg1(900, "Next arg={}\n", p);
   for (n = q = p; *p;) {
     if (*p == '\\') { /* slash? */
       p++;            /* yes, skip it */
@@ -165,7 +165,7 @@ char* next_arg(char** s)
   }
   *q = 0;
   *s = p;
-  Dmsg2(900, "End arg=%s next=%s\n", n, p);
+  Dmsg2(900, "End arg={} next={}\n", n, p);
   return n;
 }
 
@@ -293,7 +293,7 @@ void SplitPathAndFilename(const char* fname,
   } else {                   /* no, whole thing must be path name */
     f = fname;
   }
-  Dmsg2(200, "after strip len=%d f=%s\n", len, f);
+  Dmsg2(200, "after strip len={} f={}\n", len, f);
   *fnl = fname - f + len;
   if (*fnl > 0) {
     file = CheckPoolMemorySize(file, *fnl + 1);
@@ -308,8 +308,8 @@ void SplitPathAndFilename(const char* fname,
   }
   path[*pnl] = '\0';
 
-  Dmsg2(200, "pnl=%d fnl=%d\n", *pnl, *fnl);
-  Dmsg3(200, "split fname=%s path=%s file=%s\n", fname, path, file);
+  Dmsg2(200, "pnl={} fnl={}\n", *pnl, *fnl);
+  Dmsg3(200, "split fname={} path={} file={}\n", fname, path, file);
 }
 
 // Extremely simple sscanf. Handles only %(u,d,hu,hd,ld,qd,qu,lu,lld,llu,c,nns)
@@ -427,13 +427,13 @@ int bsscanf(const char* buf, const char* fmt, ...)
       while (B_ISSPACE(*buf)) { buf++; }
       /* Plain text must match */
     } else if (*buf++ != *fmt++) {
-      //       Dmsg2(000, "Mismatch buf=%c fmt=%c\n", *--buf, *--fmt);
+      //       Dmsg2(000, "Mismatch buf={:c} fmt={:c}\n", *--buf, *--fmt);
       error = true;
       break;
     }
   }
   va_end(ap);
-  // Dmsg2(000, "Error=%d count=%d\n", error, count);
+  // Dmsg2(000, "Error={} count={}\n", error, count);
   if (error) { count = -1; }
   return count;
 }

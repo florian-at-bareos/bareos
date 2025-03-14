@@ -92,7 +92,7 @@ static void* io_thread(void* data)
     if (!dev->DequeueChunk()) { break; }
   }
 
-  Dmsg1(100, "Stopping IO-thread threadid=%s\n",
+  Dmsg1(100, "Stopping IO-thread threadid={}\n",
         edit_pthread(pthread_self(), ed1, sizeof(ed1)));
 
   return NULL;
@@ -103,7 +103,7 @@ char* ChunkedDevice::allocate_chunkbuffer()
 {
   char* buffer = (char*)malloc(current_chunk_->chunk_size);
 
-  Dmsg2(100, "New allocated buffer of %d bytes at %p\n",
+  Dmsg2(100, "New allocated buffer of {} bytes at {:p}\n",
         current_chunk_->chunk_size, buffer);
 
   return buffer;
@@ -112,7 +112,7 @@ char* ChunkedDevice::allocate_chunkbuffer()
 // Free a chunk buffer.
 void ChunkedDevice::FreeChunkbuffer(char* buffer)
 {
-  Dmsg2(100, "Freeing buffer of %d bytes at %p\n", current_chunk_->chunk_size,
+  Dmsg2(100, "Freeing buffer of {} bytes at {:p}\n", current_chunk_->chunk_size,
         buffer);
 
   free(buffer);
@@ -121,7 +121,7 @@ void ChunkedDevice::FreeChunkbuffer(char* buffer)
 // Free a chunk_io_request.
 void ChunkedDevice::FreeChunkIoRequest(chunk_io_request* request)
 {
-  Dmsg2(100, "Freeing chunk io request of %d bytes at %p\n",
+  Dmsg2(100, "Freeing chunk io request of {} bytes at {:p}\n",
         sizeof(chunk_io_request), request);
 
   if (request->release) { FreeChunkbuffer(request->buffer); }
@@ -161,7 +161,7 @@ bool ChunkedDevice::StartIoThreads()
     memcpy(&handle->thread_id, &thread_id, sizeof(pthread_t));
     thread_ids_->append(handle);
 
-    Dmsg1(100, "Started new IO-thread threadid=%s\n",
+    Dmsg1(100, "Started new IO-thread threadid={}\n",
           edit_pthread(thread_id, ed1, sizeof(ed1)));
   }
 
@@ -184,12 +184,12 @@ void ChunkedDevice::StopThreads()
     for (auto* handle : thread_ids_) {
       switch (handle->type) {
         case WAIT_CANCEL_THREAD:
-          Dmsg1(100, "Canceling thread with threadid=%s\n",
+          Dmsg1(100, "Canceling thread with threadid={}\n",
                 edit_pthread(handle->thread_id, ed1, sizeof(ed1)));
           pthread_cancel(handle->thread_id);
           break;
         case WAIT_JOIN_THREAD:
-          Dmsg1(100, "Waiting to join with threadid=%s\n",
+          Dmsg1(100, "Waiting to join with threadid={}\n",
                 edit_pthread(handle->thread_id, ed1, sizeof(ed1)));
           pthread_join(handle->thread_id, NULL);
           break;
@@ -223,7 +223,7 @@ bool ChunkedDevice::SetInflightChunk(chunk_io_request* request)
        request->chunk);
   PmStrcat(inflight_file, "%inflight");
 
-  Dmsg3(100, "Creating inflight file %s for volume %s, chunk %d\n",
+  Dmsg3(100, "Creating inflight file {} for volume {}, chunk {}\n",
         inflight_file.c_str(), request->volname, request->chunk);
 
   int inflight_fd
@@ -251,7 +251,7 @@ void ChunkedDevice::ClearInflightChunk(chunk_io_request* request)
          request->chunk);
     PmStrcat(inflight_file, "%inflight");
 
-    Dmsg3(100, "Removing inflight file %s for volume %s, chunk %d\n",
+    Dmsg3(100, "Removing inflight file {} for volume {}, chunk {}\n",
           inflight_file.c_str(), request->volname, request->chunk);
 
     if (stat(inflight_file.c_str(), &st) != 0) { return; }
@@ -325,7 +325,7 @@ static void UpdateChunkIoRequest(void* old_item, void* new_item)
    * means all pointers are the same only the wbuflen and the
    * release flag of the chunk_io_request differ. So we only
    * copy those two fields and not the others. */
-  Dmsg0(200, "Updating chunk request at %p from new request at %p\n", old_req,
+  Dmsg0(200, "Updating chunk request at {:p} from new request at {:p}\n", old_req,
         new_req);
   ASSERT(new_req->wbuflen >= old_req->wbuflen);
   if (new_req->buffer == old_req->buffer) {
@@ -342,7 +342,7 @@ bool ChunkedDevice::EnqueueChunk(chunk_io_request* request)
 {
   chunk_io_request *new_request, *enqueued_request;
 
-  Dmsg2(100, "Enqueueing chunk %d of volume %s (%d bytes)\n", request->chunk,
+  Dmsg2(100, "Enqueueing chunk {} of volume {} ({} bytes)\n", request->chunk,
         request->volname, request->wbuflen);
 
   if (!io_threads_started_) {
@@ -358,7 +358,7 @@ bool ChunkedDevice::EnqueueChunk(chunk_io_request* request)
   new_request->tries = 0;
   new_request->release = request->release;
 
-  Dmsg2(100, "Allocated chunk io request of %d bytes at %p\n",
+  Dmsg2(100, "Allocated chunk io request of {} bytes at {:p}\n",
         sizeof(chunk_io_request), new_request);
 
   /* Enqueue the item onto the ordered circular buffer.
@@ -414,7 +414,7 @@ bool ChunkedDevice::DequeueChunk()
         &ts, DEFAULT_RECHECK_INTERVAL);
     if (!new_request) { return false; }
 
-    Dmsg3(100, "Flushing chunk %d of volume %s by thread %s\n",
+    Dmsg3(100, "Flushing chunk {} of volume {} by thread {}\n",
           new_request->chunk, new_request->volname,
           edit_pthread(pthread_self(), ed1, sizeof(ed1)));
 
@@ -446,7 +446,7 @@ bool ChunkedDevice::DequeueChunk()
        * circular buffer we will not try dequeueing any new item either until a
        * new item is put onto the ordered circular buffer or after the retry
        * interval has expired. */
-      Dmsg2(100, "Enqueueing chunk %d of volume %s for retry of upload later\n",
+      Dmsg2(100, "Enqueueing chunk {} of volume {} for retry of upload later\n",
             new_request->chunk, new_request->volname);
 
       /* Enqueue the item onto the ordered circular buffer.
@@ -458,7 +458,7 @@ bool ChunkedDevice::DequeueChunk()
           true /* no_signal */);
       // See if the enqueue succeeded.
       if (!enqueued_request) {
-        Dmsg2(100, "Error: Chunk %d of volume %s not appended to queue\n",
+        Dmsg2(100, "Error: Chunk {} of volume {} not appended to queue\n",
               new_request->chunk, new_request->volname);
         return false;
       }
@@ -467,7 +467,7 @@ bool ChunkedDevice::DequeueChunk()
        * If it is different there was already a chunk io request for the
        * same chunk on the ordered circular buffer. */
       if (enqueued_request != new_request) {
-        Dmsg2(100, "Attempted to append chunk %d of volume %s twice\n",
+        Dmsg2(100, "Attempted to append chunk {} of volume {} twice\n",
               new_request->chunk, new_request->volname);
         FreeChunkIoRequest(new_request);
       }
@@ -512,7 +512,7 @@ bool ChunkedDevice::FlushChunk(bool release_chunk, bool move_to_next_chunk)
     retval = EnqueueChunk(&request);
   } else {
     // no multithreading
-    Dmsg1(100, "Try to flush chunk number: %d\n", request.chunk);
+    Dmsg1(100, "Try to flush chunk number: {}\n", request.chunk);
     retval = FlushRemoteChunk(&request);
   }
 
@@ -532,7 +532,7 @@ bool ChunkedDevice::FlushChunk(bool release_chunk, bool move_to_next_chunk)
     if (release_chunk && io_threads_) { current_chunk_->buffer = NULL; }
   }
 
-  if (!retval) { Dmsg1(100, "%s", errmsg); }
+  if (!retval) { Dmsg1(100, "{}", errmsg); }
 
   return retval;
 }
@@ -683,7 +683,7 @@ ssize_t ChunkedDevice::ReadChunked(int, void* buffer, size_t count)
 
       bytes_left = MIN((ssize_t)count,
                        ((ssize_t)current_chunk_->buflen - wanted_offset));
-      Dmsg2(200, "Reading complete %d byte read-request from chunk offset %d\n",
+      Dmsg2(200, "Reading complete {} byte read-request from chunk offset {}\n",
             bytes_left, wanted_offset);
 
       if (bytes_left < 0) {
@@ -714,8 +714,8 @@ ssize_t ChunkedDevice::ReadChunked(int, void* buffer, size_t count)
 
           if (bytes_left > 0) {
             Dmsg2(200,
-                  "Reading %d bytes of %d byte read-request from end of chunk "
-                  "at offset %d\n",
+                  "Reading {} bytes of {} byte read-request from end of chunk "
+                  "at offset {}\n",
                   bytes_left, count, wanted_offset);
 
             memcpy(((char*)buffer + offset),
@@ -748,7 +748,7 @@ ssize_t ChunkedDevice::ReadChunked(int, void* buffer, size_t count)
 
           if (bytes_left > 0) {
             Dmsg2(200,
-                  "Reading %d bytes of %d byte read-request from next chunk\n",
+                  "Reading {} bytes of {} byte read-request from next chunk\n",
                   bytes_left, count);
 
             memcpy(((char*)buffer + offset), current_chunk_->buffer,
@@ -805,7 +805,7 @@ ssize_t ChunkedDevice::WriteChunked(int, const void* buffer, size_t count)
         && current_chunk_->end_offset >= (boffset_t)((offset_ + count) - 1)) {
       wanted_offset = (offset_ % current_chunk_->chunk_size);
 
-      Dmsg2(200, "Writing complete %d byte write-request to chunk offset %d\n",
+      Dmsg2(200, "Writing complete {} byte write-request to chunk offset {}\n",
             count, wanted_offset);
 
       memcpy(current_chunk_->buffer + wanted_offset, buffer, count);
@@ -836,8 +836,8 @@ ssize_t ChunkedDevice::WriteChunked(int, const void* buffer, size_t count)
 
           if (bytes_left > 0) {
             Dmsg2(200,
-                  "Writing %d bytes of %d byte write-request to end of chunk "
-                  "at offset %d\n",
+                  "Writing {} bytes of {} byte write-request to end of chunk "
+                  "at offset {}\n",
                   bytes_left, count, wanted_offset);
 
             memcpy(current_chunk_->buffer + wanted_offset,
@@ -867,7 +867,7 @@ ssize_t ChunkedDevice::WriteChunked(int, const void* buffer, size_t count)
                                    + 1));
         if (bytes_left > 0) {
           Dmsg2(200,
-                "Writing %d bytes of %d byte write-request to next chunk\n",
+                "Writing {} bytes of {} byte write-request to next chunk\n",
                 bytes_left, count);
 
           memcpy(current_chunk_->buffer, ((char*)buffer + offset), bytes_left);
@@ -1050,7 +1050,7 @@ bool ChunkedDevice::is_written()
    * yet. */
 
   if (current_chunk_->need_flushing) {
-    Dmsg1(100, "volume %s is pending, as current chunk needs flushing\n",
+    Dmsg1(100, "volume {} is pending, as current chunk needs flushing\n",
           current_volname_);
     return false;
   }
@@ -1058,7 +1058,7 @@ bool ChunkedDevice::is_written()
   // Make sure there is also nothing inflight to the backing store anymore.
   int inflight_chunks = NrInflightChunks();
   if (inflight_chunks > 0) {
-    Dmsg2(100, "volume %s is pending, as there are %d inflight chunks\n",
+    Dmsg2(100, "volume {} is pending, as there are {} inflight chunks\n",
           current_volname_, inflight_chunks);
     return false;
   }
@@ -1076,7 +1076,7 @@ bool ChunkedDevice::is_written()
           storagedaemon::PEEK_FIRST, current_volname_, CompareVolumeName);
       if (request) {
         free(request);
-        Dmsg1(100, "volume %s is pending, as there are queued write requests\n",
+        Dmsg1(100, "volume {} is pending, as there are queued write requests\n",
               current_volname_);
         return false;
       }
@@ -1090,14 +1090,14 @@ bool ChunkedDevice::is_written()
   /* compare expected to written volume size */
   size_t remote_volume_size = RemoteVolumeSize();
   Dmsg3(100,
-        "volume: %s, RemoteVolumeSize = %lld, VolCatInfo.VolCatBytes "
-        "= %lld\n",
+        "volume: {}, RemoteVolumeSize = {}, VolCatInfo.VolCatBytes "
+        "= {}\n",
         current_volname_, remote_volume_size, VolCatInfo.VolCatBytes);
 
   if (remote_volume_size < VolCatInfo.VolCatBytes) {
     Dmsg3(100,
-          "volume %s is pending, as 'remote volume size' = %lld < 'catalog "
-          "volume size' = %lld\n",
+          "volume {} is pending, as 'remote volume size' = {} < 'catalog "
+          "volume size' = {}\n",
           current_volname_, remote_volume_size, VolCatInfo.VolCatBytes);
     return false;
   }

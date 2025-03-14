@@ -68,14 +68,14 @@ static void ReadKeyBits(const std::string& keyfile,
       TerminateBscrypto(1);
     }
   }
-  Dmsg1(5, "data size = %d\n", sizeof_data);
+  Dmsg1(5, "data size = {}\n", sizeof_data);
   if (read(kfd, data, sizeof_data) == 0) {
     fprintf(stderr, T_("Cannot read from keyfile %s\n"), keyfile.c_str());
     TerminateBscrypto(1);
   }
   if (kfd > 0) { close(kfd); }
   StripTrailingJunk(data);
-  Dmsg1(10, "Key data = %s\n", data);
+  Dmsg1(10, "Key data = {}\n", data);
 }
 
 static void wrap_key(const std::string& wrap_keyfile,
@@ -400,7 +400,7 @@ int main(int argc, char* const* argv)
     passphrase = generate_crypto_passphrase(DEFAULT_PASSPHRASE_LENGTH);
     if (!passphrase) { TerminateBscrypto(1); }
 
-    Dmsg1(10, T_("Generated passphrase = %.*s\n"), DEFAULT_PASSPHRASE_LENGTH,
+    Dmsg1(10, T_("Generated passphrase = {:.{}}\n"), DEFAULT_PASSPHRASE_LENGTH,
           passphrase);
 
     // See if we need to wrap the passphrase.
@@ -443,7 +443,7 @@ int main(int argc, char* const* argv)
       }
     }
 
-    Dmsg1(10, "Keydata = %s\n", keydata);
+    Dmsg1(10, "Keydata = {}\n", keydata);
 
     if (kfd > 1) {
       close(kfd);
@@ -486,7 +486,7 @@ int main(int argc, char* const* argv)
       }
     }
 
-    Dmsg1(10, "Unwrapped passphrase = %.*s\n", DEFAULT_PASSPHRASE_LENGTH,
+    Dmsg1(10, "Unwrapped passphrase = {:.{}}\n", DEFAULT_PASSPHRASE_LENGTH,
           passphrase);
     fprintf(stdout, T_("%.*s\n"), DEFAULT_PASSPHRASE_LENGTH, passphrase);
 
@@ -523,7 +523,7 @@ int main(int argc, char* const* argv)
 
     if (wrapped_keys) { unwrap_key(keydata, keyfile, wrap_keyfile); }
 
-    Dmsg1(10, "keydata: %s\n", keydata);
+    Dmsg1(10, "keydata: {}\n", keydata);
     if (SetScsiEncryptionKey(-1, device_name.c_str(), keydata)) {
       TerminateBscrypto(0);
     } else {

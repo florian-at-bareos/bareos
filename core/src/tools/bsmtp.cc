@@ -107,7 +107,7 @@ static char* cleanup_addr(std::string addr, char* buf, int buf_len)
     if (*p) { *q++ = *p; }
     *q = 0;
   }
-  Dmsg2(100, "cleanup in=%s out=%s\n", addr.c_str(), buf);
+  Dmsg2(100, "cleanup in={} out={}\n", addr.c_str(), buf);
   return buf;
 }
 
@@ -124,7 +124,7 @@ static void GetResponse(const std::string& mailhost)
     if (debug_level >= 10) {
       fprintf(stderr, "%s <-- %s\n", mailhost.c_str(), buf);
     }
-    Dmsg2(10, "%s --> %s\n", mailhost.c_str(), buf);
+    Dmsg2(10, "{} --> {}\n", mailhost.c_str(), buf);
     if (!isdigit((int)buf[0]) || buf[0] > '3') {
       Pmsg2(0, T_("Fatal malformed reply from %s: %s\n"), mailhost.c_str(),
             buf);
@@ -327,7 +327,7 @@ int main(int argc, char* argv[])
 
   ParseBareosApp(bsmtp_app, argc, argv);
 
-  Dmsg3(20, "%s: mailhost=%s ; mailport=%d\n", host_and_port_source.c_str(),
+  Dmsg3(20, "{}: mailhost={} ; mailport=%d\n", host_and_port_source.c_str(),
         mailhost.c_str(), mailport);
 
 
@@ -378,7 +378,7 @@ int main(int argc, char* argv[])
   strncpy(my_hostname, hp->h_name, sizeof(my_hostname) - 1);
   my_hostname[sizeof(my_hostname) - 1] = '\0';
 #endif
-  Dmsg1(20, "My hostname is: %s\n", my_hostname);
+  Dmsg1(20, "My hostname is: {}\n", my_hostname);
 
   //  Determine from address.
 #if !defined(HAVE_WIN32)
@@ -404,7 +404,7 @@ int main(int argc, char* argv[])
 #endif
     from_addr = buf;
   }
-  Dmsg1(20, "From addr=%s\n", from_addr.c_str());
+  Dmsg1(20, "From addr={}\n", from_addr.c_str());
 
 #if defined(HAVE_WIN32)
   SOCKET s = INVALID_SOCKET;
@@ -545,7 +545,7 @@ lookup_host:
        cleanup_addr(from_addr, buf, sizeof(buf)));
 
   for (const auto& recipient : recipients) {
-    Dmsg1(20, "rcpt to: %s\n", recipient.c_str());
+    Dmsg1(20, "rcpt to: {}\n", recipient.c_str());
     chat(my_hostname, mailhost, "RCPT TO:%s\r\n",
          cleanup_addr(recipient, buf, sizeof(buf)));
   }
@@ -559,7 +559,7 @@ lookup_host:
 
   //  Send message header
   fprintf(sfp, "From: %s\r\n", from_addr.c_str());
-  Dmsg1(10, "From: %s\r\n", from_addr.c_str());
+  Dmsg1(10, "From: {}\r\n", from_addr.c_str());
   // Subject has to be encoded if utf-8 see
   // https://datatracker.ietf.org/doc/html/rfc2047
   if (!subject.empty()) {
@@ -568,25 +568,25 @@ lookup_host:
     int last_nonspace_int
         = last_nonspace == subject.npos ? subject.size() : last_nonspace;
     fprintf(sfp, "Subject: %.*s\r\n", last_nonspace_int, subject.c_str());
-    Dmsg1(10, "Subject: %s\r\n", subject.c_str());
+    Dmsg1(10, "Subject: {}\r\n", subject.c_str());
   }
   if (!reply_addr.empty()) {
     fprintf(sfp, "Reply-To: %s\r\n", reply_addr.c_str());
-    Dmsg1(10, "Reply-To: %s\r\n", reply_addr.c_str());
+    Dmsg1(10, "Reply-To: {}\r\n", reply_addr.c_str());
   }
 
 
   BStringList list_of_recipients;
   list_of_recipients << recipients;
   fprintf(sfp, "To: %s", list_of_recipients.Join(',').c_str());
-  Dmsg1(10, "To: %s", list_of_recipients.Join(',').c_str());
+  Dmsg1(10, "To: {}", list_of_recipients.Join(',').c_str());
 
 
   fprintf(sfp, "\r\n");
   Dmsg0(10, "\r\n");
   if (!cc_addr.empty()) {
     fprintf(sfp, "Cc: %s\r\n", cc_addr.c_str());
-    Dmsg1(10, "Cc: %s\r\n", cc_addr.c_str());
+    Dmsg1(10, "Cc: {}\r\n", cc_addr.c_str());
   }
 
   fprintf(sfp, "MIME-Version: 1.0\r\n");
@@ -603,11 +603,11 @@ lookup_host:
   Dmsg0(10, "Content-Type: text/plain; charset=%s\r\n", charset.c_str());
 
   fprintf(sfp, "Content-Transfer-Encoding: %s\r\n", encoding.c_str());
-  Dmsg0(10, "Content-Transfer-Encoding: %s\r\n", encoding.c_str());
+  Dmsg0(10, "Content-Transfer-Encoding: {}\r\n", encoding.c_str());
 
   GetDateString(buf, sizeof(buf));
   fprintf(sfp, "Date: %s\r\n", buf);
-  Dmsg1(10, "Date: %s\r\n", buf);
+  Dmsg1(10, "Date: {}\r\n", buf);
 
   fprintf(sfp, "\r\n");
 
@@ -615,7 +615,7 @@ lookup_host:
   unsigned long lines = 0;
   while (fgets(buf, sizeof(buf), stdin)) {
     if (maxlines > 0 && ++lines > maxlines) {
-      Dmsg1(20, "skip line because of maxlines limit: %lu\n", maxlines);
+      Dmsg1(20, "skip line because of maxlines limit: {}\n", maxlines);
       while (fgets(buf, sizeof(buf), stdin)) { ++lines; }
       break;
     }
@@ -629,7 +629,7 @@ lookup_host:
   }
 
   if (lines > maxlines) {
-    Dmsg1(10, "hit maxlines limit: %lu\n", maxlines);
+    Dmsg1(10, "hit maxlines limit: {}\n", maxlines);
     fprintf(sfp,
             "\r\n\r\n[maximum of %lu lines exceeded, skipped %lu lines of "
             "output]\r\n",

@@ -95,7 +95,7 @@ bool InitializeComSecurity()
     {
       if (!InitSuccessFull()) {
         Dmsg1(0,
-              "InitializeComSecurity: CoInitializeSecurity returned 0x%08X\n",
+              "InitializeComSecurity: CoInitializeSecurity returned 0x{:08X}\n",
               h);
       }
     }
@@ -187,7 +187,7 @@ static void Win32ConvCleanupCache(void* arg)
 
   Dmsg1(
       debuglevel,
-      "Win32ConvCleanupCache: Cleanup of thread specific cache at address %p\n",
+      "Win32ConvCleanupCache: Cleanup of thread specific cache at address {:p}\n",
       tcc);
 
   delete tcc;
@@ -233,7 +233,7 @@ static class PathConversionCache {
     if (pthread_setspecific(key, tcc.get()) == 0) {
       Dmsg1(
           debuglevel,
-          "Win32ConvInitCache: Setup of thread specific cache at address %p\n",
+          "Win32ConvInitCache: Setup of thread specific cache at address {:p}\n",
           tcc.get());
       return tcc.release();
     } else {
@@ -321,13 +321,13 @@ static inline void conv_unix_to_vss_win32_path(const char* name,
   } else {
     *win32_name = 0;
   }
-  Dmsg1(debuglevel, "path = %s\n", tname);
+  Dmsg1(debuglevel, "path = {}\n", tname);
   if (auto shadow_path = vss_path_converter.Convert(tname + offset);
       shadow_path) {
     bstrncpy(tname, shadow_path.get(), dwSize);
   }
 
-  Dmsg1(debuglevel, "Leave cvt_u_to_win32_path path=%s\n", tname);
+  Dmsg1(debuglevel, "Leave cvt_u_to_win32_path path={}\n", tname);
 }
 
 // Conversion of a Unix filename to a Win32 filename
@@ -353,7 +353,7 @@ std::wstring FromUtf8(std::string_view utf8)
   if (required == 0) {
     errno = b_errno_win32;
     BErrNo be;
-    Dmsg2(300, "Can not convert %s to wide string: %s\n", utf8.data(),
+    Dmsg2(300, "Can not convert {} to wide string: {}\n", utf8.data(),
           be.bstrerror());
     return {};
   }
@@ -368,7 +368,7 @@ std::wstring FromUtf8(std::string_view utf8)
     errno = b_errno_win32;
     BErrNo be;
     Dmsg3(300,
-          "Error during conversion! Expected %d chars but only got %d: %s\n",
+          "Error during conversion! Expected {} chars but only got {}: {}\n",
           required, written, be.bstrerror());
 
     return {};
@@ -390,7 +390,7 @@ std::string FromUtf16(std::wstring_view utf16)
   if (required == 0) {
     errno = b_errno_win32;
     BErrNo be;
-    Dmsg0(300, "Encountered error in utf16 -> utf8 conversion: %s\n",
+    Dmsg0(300, "Encountered error in utf16 -> utf8 conversion: {}\n",
           be.bstrerror());
     return {};
   }
@@ -406,7 +406,7 @@ std::string FromUtf16(std::wstring_view utf16)
     errno = b_errno_win32;
     BErrNo be;
     Dmsg1(300,
-          "Error during conversion! Expected %d chars but only got %d: %s\n",
+          "Error during conversion! Expected {} chars but only got {}: {}\n",
           required, written, be.bstrerror());
 
     return {};
@@ -457,7 +457,7 @@ static std::wstring NormalizePath(std::wstring_view p)
   if (required == 0) {
     errno = b_errno_win32;
     BErrNo be;
-    Dmsg0(300, "Could not get full path length of path %s: %s\n",
+    Dmsg0(300, "Could not get full path length of path {}: {}\n",
           FromUtf16(p).c_str(), be.bstrerror());
   }
   std::wstring literal(required, L'\0');
@@ -469,7 +469,7 @@ static std::wstring NormalizePath(std::wstring_view p)
     errno = b_errno_win32;
     BErrNo be;
     Dmsg3(300,
-          "Error while getting full path of %s; allocated %d chars but needed "
+          "Error while getting full path of {}; allocated %d chars but needed "
           "%d: %s\n",
           FromUtf16(p).c_str(), required, written, be.bstrerror());
   }
@@ -515,11 +515,11 @@ static std::wstring Encode(std::wstring_view p)
    * \x1Y <-> #('a' + Y)
    */
 
-  Dmsg1(500, "encoding \"%s\"\n", FromUtf16(p).c_str());
+  Dmsg1(500, "encoding \"{}\"\n", FromUtf16(p).c_str());
 
   bool first = true;
   for (auto comp : path_components(p)) {
-    Dmsg1(500, "  -> component \"%s\"\n", FromUtf16(comp).c_str());
+    Dmsg1(500, "  -> component \"{}\"\n", FromUtf16(comp).c_str());
     if (first) {
       first = false;
       // if the first component is of the form "_:" then we are inside
@@ -585,7 +585,7 @@ static std::wstring Encode(std::wstring_view p)
   // make sure we pick up the final separator
   if (p.size() > 0 && (p.back() == L'/' || p.back() == L'\\')) { str += L'\\'; }
 
-  Dmsg1(500, " -> result \"%s\"\n", FromUtf16(str).c_str());
+  Dmsg1(500, " -> result \"{}\"\n", FromUtf16(str).c_str());
 
   return str;
 }
@@ -650,11 +650,11 @@ static std::wstring AsFullPath(std::wstring_view p)
    * .     <-> !9 */
 
   std::wstring encoded = Encode(p);
-  Dmsg1(500, "encoded = %s\n", FromUtf16(encoded).c_str());
+  Dmsg1(500, "encoded = {}\n", FromUtf16(encoded).c_str());
   std::wstring normalized = NormalizePath(encoded);
-  Dmsg1(500, "normalized = %s\n", FromUtf16(normalized).c_str());
+  Dmsg1(500, "normalized = {}\n", FromUtf16(normalized).c_str());
   std::wstring decoded = Decode(normalized);
-  Dmsg1(500, "decoded = %s\n", FromUtf16(decoded).c_str());
+  Dmsg1(500, "decoded = {}\n", FromUtf16(decoded).c_str());
 
   return decoded;
 }
@@ -734,7 +734,7 @@ static inline std::wstring make_wchar_win32_path(std::wstring_view path)
   }
 
 
-  Dmsg1(debuglevel, "Leave make_wchar_win32_path=%s\n",
+  Dmsg1(debuglevel, "Leave make_wchar_win32_path={}\n",
         FromUtf16(converted).c_str());
   return converted;
 }
@@ -1007,7 +1007,7 @@ bool CreateJunction(const char* szJunction, const char* szPath)
   if (!UTF8_2_wchar(szJunctionW, szJunction)) { goto bail_out; }
 
   if (!p_CreateDirectoryW((LPCWSTR)szJunctionW, NULL)) {
-    Dmsg1(debuglevel, "CreateDirectory Failed:%s\n", errorString());
+    Dmsg1(debuglevel, "CreateDirectory Failed:{}\n", errorString());
     goto bail_out;
   }
 
@@ -1055,7 +1055,7 @@ bool CreateJunction(const char* szJunction, const char* szPath)
    * For debugging use "fsutil reparsepoint query" */
   if (!DeviceIoControl(hDir, FSCTL_SET_REPARSE_POINT, (LPVOID)buf, data_length,
                        NULL, 0, &dwRet, 0)) {
-    Dmsg1(debuglevel, "DeviceIoControl Failed:%s\n", errorString());
+    Dmsg1(debuglevel, "DeviceIoControl Failed:{}\n", errorString());
     CloseHandle(hDir);
     RemoveDirectoryW((LPCWSTR)szJunctionW);
     goto bail_out;
@@ -1115,7 +1115,7 @@ static inline bool GetVolumeMountPointData(const char* filename,
     }
 
     if (h == INVALID_HANDLE_VALUE) {
-      Dmsg1(debuglevel, "Invalid handle from CreateFileW(%s)\n", utf16.c_str());
+      Dmsg1(debuglevel, "Invalid handle from CreateFileW({})\n", utf16.c_str());
       return false;
     }
 
@@ -1128,7 +1128,7 @@ static inline bool GetVolumeMountPointData(const char* filename,
         FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT, NULL);
 
     if (h == INVALID_HANDLE_VALUE) {
-      Dmsg1(debuglevel, "Invalid handle from CreateFile(%s)\n",
+      Dmsg1(debuglevel, "Invalid handle from CreateFile({})\n",
             win32_fname.c_str());
       return false;
     }
@@ -1174,12 +1174,12 @@ static inline ssize_t GetSymlinkData(const char* filename,
   ssize_t nrconverted = -1;
   HANDLE h = INVALID_HANDLE_VALUE;
 
-  Dmsg1(debuglevel, "Symlink data from %s\n", filename);
+  Dmsg1(debuglevel, "Symlink data from {}\n", filename);
 
   if (p_GetFileAttributesW && p_CreateFileW) {
     std::wstring utf16 = make_win32_path_UTF8_2_wchar(filename);
 
-    Dmsg1(debuglevel, "Trying to get attributes from (W) %s\n",
+    Dmsg1(debuglevel, "Trying to get attributes from (W) {}\n",
           FromUtf16(utf16).c_str());
 
     h = CreateFileW(
@@ -1187,25 +1187,25 @@ static inline ssize_t GetSymlinkData(const char* filename,
         FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT, NULL);
 
     if (h == INVALID_HANDLE_VALUE) {
-      Dmsg1(debuglevel, "Invalid handle from CreateFileW(%s)\n", utf16.c_str());
+      Dmsg1(debuglevel, "Invalid handle from CreateFileW({})\n", utf16.c_str());
       return -1;
     }
   } else if (p_GetFileAttributesA) {
     PoolMem win32_fname(PM_FNAME);
     unix_name_to_win32(win32_fname.addr(), filename);
-    Dmsg1(debuglevel, "Trying to get attributes from (A) %s\n",
+    Dmsg1(debuglevel, "Trying to get attributes from (A) {}\n",
           win32_fname.c_str());
     h = CreateFileA(
         win32_fname.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
         FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT, NULL);
 
     if (h == INVALID_HANDLE_VALUE) {
-      Dmsg1(debuglevel, "Invalid handle from CreateFile(%s)\n",
+      Dmsg1(debuglevel, "Invalid handle from CreateFile({})\n",
             win32_fname.c_str());
       return -1;
     }
   }
-  Dmsg1(debuglevel, "Opened file handle=%lld\n",
+  Dmsg1(debuglevel, "Opened file handle={}\n",
         reinterpret_cast<long long>(h));
   if (h != INVALID_HANDLE_VALUE) {
     bool ok;
@@ -1228,7 +1228,7 @@ static inline ssize_t GetSymlinkData(const char* filename,
                          (LPVOID)buf, (DWORD)buf_length, /* out buffer, btyes */
                          (LPDWORD)&bytes, (LPOVERLAPPED)0);
 
-    Dmsg1(debuglevel, "Received %d bytes (op was %s)\n", bytes,
+    Dmsg1(debuglevel, "Received {} bytes (op was {})\n", bytes,
           ok ? "ok" : "not ok");
 
     if (ok) {
@@ -1255,7 +1255,7 @@ static inline ssize_t GetSymlinkData(const char* filename,
       nrconverted = wchar_2_UTF8(
           path, (wchar_t*)(rdb->SymbolicLinkReparseBuffer.PathBuffer + offset));
 
-      Dmsg1(debuglevel, "Substitute Name = %s (converted = %d)\n", path,
+      Dmsg1(debuglevel, "Substitute Name = {} (converted = {})\n", path,
             nrconverted);
 
       int ofs = 0;
@@ -1276,7 +1276,7 @@ static inline ssize_t GetSymlinkData(const char* filename,
       PmStrcpy(symlinktarget, path + ofs);
       FreePoolMemory(path);
     } else {
-      Dmsg1(debuglevel, "DeviceIoControl failed:%s\n", errorString());
+      Dmsg1(debuglevel, "DeviceIoControl failed:{}\n", errorString());
     }
 
     CloseHandle(h);
@@ -1320,7 +1320,7 @@ static int GetWindowsFileInfo(const char* filename,
   if (p_FindFirstFileW) { /* use unicode */
     std::wstring utf16 = make_win32_path_UTF8_2_wchar(filename);
 
-    Dmsg1(debuglevel, "FindFirstFileW=%s\n", FromUtf16(utf16).c_str());
+    Dmsg1(debuglevel, "FindFirstFileW={}\n", FromUtf16(utf16).c_str());
     fh = p_FindFirstFileW(utf16.c_str(), &info_w);
 #if (_WIN32_WINNT >= 0x0600)
     if (fh != INVALID_HANDLE_VALUE) {
@@ -1334,7 +1334,7 @@ static int GetWindowsFileInfo(const char* filename,
   } else if (p_FindFirstFileA) {  // use ASCII
     PoolMem win32_fname(PM_FNAME);
     unix_name_to_win32(win32_fname.addr(), filename);
-    Dmsg1(debuglevel, "FindFirstFileA=%s\n", win32_fname.c_str());
+    Dmsg1(debuglevel, "FindFirstFileA={}\n", win32_fname.c_str());
     fh = p_FindFirstFileA(win32_fname.c_str(), &info_a);
 #if (_WIN32_WINNT >= 0x0600)
     if (h != INVALID_HANDLE_VALUE) {
@@ -1421,7 +1421,7 @@ static int GetWindowsFileInfo(const char* filename,
 
     /* Note, in creating leading paths, it is normal that the file does not
      * exist. */
-    Dmsg2(2099, "FindFirstFile(%s):%s\n", filename, err);
+    Dmsg2(2099, "FindFirstFile({}):{}\n", filename, err);
     LocalFree((void*)err);
     errno = b_errno_win32;
 
@@ -1454,11 +1454,11 @@ static int GetWindowsFileInfo(const char* filename,
           POOLMEM* vmp = GetPoolMemory(PM_NAME);
           if (GetVolumeMountPointData(filename, vmp)) {
             if (bstrncasecmp(vmp, "\\??\\volume{", 11)) {
-              Dmsg2(debuglevel, "Volume Mount Point %s points to: %s\n",
+              Dmsg2(debuglevel, "Volume Mount Point {} points to: {}\n",
                     filename, vmp);
               sb->st_rdev |= FILE_ATTRIBUTE_VOLUME_MOUNT_POINT;
             } else {
-              Dmsg2(debuglevel, "Junction Point %s points to: %s\n", filename,
+              Dmsg2(debuglevel, "Junction Point {} points to: {}\n", filename,
                     vmp);
               sb->st_rdev |= FILE_ATTRIBUTES_JUNCTION_POINT;
               sb->st_mode |= S_IFLNK;
@@ -1480,10 +1480,10 @@ static int GetWindowsFileInfo(const char* filename,
           slt = CheckPoolMemorySize(slt, MAX_PATH * sizeof(wchar_t));
 
           if (GetSymlinkData(filename, slt) >= 0) {
-            Dmsg2(debuglevel, "Symlinked Directory %s points to: %s\n",
+            Dmsg2(debuglevel, "Symlinked Directory {} points to: {}\n",
                   filename, slt);
           } else {
-            Dmsg1(debuglevel, "Could not read target of symlink %s\n",
+            Dmsg1(debuglevel, "Could not read target of symlink {}\n",
                   filename);
           }
           FreePoolMemory(slt);
@@ -1491,7 +1491,7 @@ static int GetWindowsFileInfo(const char* filename,
         }
         default:
           Dmsg1(debuglevel,
-                "IO_REPARSE_TAG_MOUNT_POINT with unhandled IO_REPARSE_TAG %d\n",
+                "IO_REPARSE_TAG_MOUNT_POINT with unhandled IO_REPARSE_TAG {}\n",
                 *pdwReserved0);
           break;
       }
@@ -1507,10 +1507,10 @@ static int GetWindowsFileInfo(const char* filename,
           sb->st_mode |= S_IFLNK;
 
           if (GetSymlinkData(filename, slt) >= 0) {
-            Dmsg2(debuglevel, "Symlinked File %s points to: %s\n", filename,
+            Dmsg2(debuglevel, "Symlinked File {} points to: {}\n", filename,
                   slt);
           } else {
-            Dmsg1(debuglevel, "Could not read target of symlink %s\n",
+            Dmsg1(debuglevel, "Could not read target of symlink {}\n",
                   filename);
           }
           FreePoolMemory(slt);
@@ -1525,14 +1525,14 @@ static int GetWindowsFileInfo(const char* filename,
           break;
         default:
           Dmsg1(debuglevel,
-                "IO_REPARSE_TAG_MOUNT_POINT with unhandled IO_REPARSE_TAG %d\n",
+                "IO_REPARSE_TAG_MOUNT_POINT with unhandled IO_REPARSE_TAG {}\n",
                 *pdwReserved0);
           break;
       }
     }
   }
 
-  Dmsg2(debuglevel, "st_rdev=%d filename=%s\n", sb->st_rdev, filename);
+  Dmsg2(debuglevel, "st_rdev={} filename={}\n", sb->st_rdev, filename);
 
   sb->st_size = *pnFileSizeHigh;
   sb->st_size <<= 32;
@@ -1555,7 +1555,7 @@ int fstat(intptr_t fd, struct stat* sb)
   if (!GetFileInformationByHandle((HANDLE)_get_osfhandle(fd), &info)) {
     const char* err = errorString();
 
-    Dmsg1(2099, "GetfileInformationByHandle: %s\n", err);
+    Dmsg1(2099, "GetfileInformationByHandle: {}\n", err);
     LocalFree((void*)err);
     errno = b_errno_win32;
 
@@ -1586,7 +1586,7 @@ int fstat(intptr_t fd, struct stat* sb)
   sb->st_ino <<= 32;
   sb->st_ino |= info.nFileIndexLow;
   sb->st_nlink = (short)info.nNumberOfLinks;
-  if (sb->st_nlink > 1) { Dmsg1(debuglevel, "st_nlink=%d\n", sb->st_nlink); }
+  if (sb->st_nlink > 1) { Dmsg1(debuglevel, "st_nlink={}\n", sb->st_nlink); }
 
   sb->st_mode = 0777;
   sb->st_mode |= S_IFREG;
@@ -1594,7 +1594,7 @@ int fstat(intptr_t fd, struct stat* sb)
   // We store the full windows file attributes into st_rdev.
   sb->st_rdev = info.dwFileAttributes;
 
-  Dmsg3(debuglevel, "st_rdev=%d sizino=%d ino=%lld\n", sb->st_rdev,
+  Dmsg3(debuglevel, "st_rdev={} sizino={} ino={}\n", sb->st_rdev,
         sizeof(sb->st_ino), (long long)sb->st_ino);
 
   sb->st_size = info.nFileSizeHigh;
@@ -1679,7 +1679,7 @@ static int stat2(const char* filename, struct stat* sb)
   if (attr == (DWORD)-1) {
     const char* err = errorString();
 
-    Dmsg2(2099, "GetFileAttributes(%s): %s\n", filename, err);
+    Dmsg2(2099, "GetFileAttributes({}): {}\n", filename, err);
 
     LocalFree((void*)err);
     if (h != INVALID_HANDLE_VALUE) { CloseHandle(h); }
@@ -1692,7 +1692,7 @@ static int stat2(const char* filename, struct stat* sb)
   if (h == INVALID_HANDLE_VALUE) {
     const char* err = errorString();
 
-    Dmsg2(2099, "Cannot open file for stat (%s):%s\n", filename, err);
+    Dmsg2(2099, "Cannot open file for stat ({}):{}\n", filename, err);
     LocalFree((void*)err);
     errno = b_errno_win32;
 
@@ -1804,7 +1804,7 @@ int stat(const char* filename, struct stat* sb)
           sb->st_ino |= info.nFileIndexLow;
           sb->st_nlink = (short)info.nNumberOfLinks;
           if (sb->st_nlink > 1) {
-            Dmsg1(debuglevel, "st_nlink=%d\n", sb->st_nlink);
+            Dmsg1(debuglevel, "st_nlink={}\n", sb->st_nlink);
           }
           use_fallback_data = false;
         }
@@ -1823,7 +1823,7 @@ int stat(const char* filename, struct stat* sb)
   }
   rval = 0;
 
-  Dmsg3(debuglevel, "sizino=%d ino=%lld filename=%s\n", sizeof(sb->st_ino),
+  Dmsg3(debuglevel, "sizino={} ino={} filename={}\n", sizeof(sb->st_ino),
         (long long)sb->st_ino, filename);
 
   return rval;
@@ -1925,7 +1925,7 @@ ssize_t readlink(const char* path, char* buf, size_t bufsiz)
 {
   POOLMEM* slt = GetPoolMemory(PM_NAME);
 
-  Dmsg1(debuglevel, "readlink called for path %s\n", path);
+  Dmsg1(debuglevel, "readlink called for path {}\n", path);
   if (GetSymlinkData(path, slt) < 0) { return -1; }
 
   strncpy(buf, slt, bufsiz - 1);
@@ -1958,7 +1958,7 @@ int win32_symlink(const char* name1, const char* name2, _dev_t st_rdev)
     Dmsg0(130, "We have a File Symbolic Link \n");
   }
 
-  Dmsg2(debuglevel, "symlink called name1=%s, name2=%s\n", name1, name2);
+  Dmsg2(debuglevel, "symlink called name1={}, name2={}\n", name1, name2);
   if (p_CreateSymbolicLinkW) {
     std::wstring target = FromUtf8(name1);
     if (target.size() == 0) { goto bail_out; }
@@ -1967,7 +1967,7 @@ int win32_symlink(const char* name1, const char* name2, _dev_t st_rdev)
     BOOL b = p_CreateSymbolicLinkW(symlink.c_str(), target.c_str(), dwFlags);
 
     if (!b) {
-      Dmsg1(debuglevel, "CreateSymbolicLinkW failed:%s\n", errorString());
+      Dmsg1(debuglevel, "CreateSymbolicLinkW failed:{}\n", errorString());
       goto bail_out;
     }
   } else if (p_CreateSymbolicLinkA) {
@@ -1982,7 +1982,7 @@ int win32_symlink(const char* name1, const char* name2, _dev_t st_rdev)
     FreePoolMemory(win32_name2);
 
     if (!b) {
-      Dmsg1(debuglevel, "CreateSymbolicLinkA failed:%s\n", errorString());
+      Dmsg1(debuglevel, "CreateSymbolicLinkA failed:{}\n", errorString());
       goto bail_out;
     }
   } else {
@@ -2135,13 +2135,13 @@ DIR* opendir(const char* path)
   if (!IsPathSeparator(dir_path.back())) { dir_path.push_back('/'); }
   dir_path.push_back('*');
 
-  Dmsg1(debuglevel, "Opendir path=%s\n", dir_path.c_str());
+  Dmsg1(debuglevel, "Opendir path={}\n", dir_path.c_str());
   _dir* rval = (_dir*)malloc(sizeof(_dir));
   memset(rval, 0, sizeof(_dir));
 
   POOLMEM* win32_path = GetPoolMemory(PM_FNAME);
   unix_name_to_win32(win32_path, dir_path.c_str());
-  Dmsg1(debuglevel, "win32 path=%s\n", win32_path);
+  Dmsg1(debuglevel, "win32 path={}\n", win32_path);
 
   rval->spec = win32_path;
 
@@ -2157,18 +2157,18 @@ DIR* opendir(const char* path)
     goto bail_out;
   }
 
-  Dmsg3(debuglevel, "opendir(%s)\n\tspec=%s,\n\tFindFirstFile returns %d\n",
+  Dmsg3(debuglevel, "opendir({})\n\tspec={},\n\tFindFirstFile returns {}\n",
         path, rval->spec, rval->dirh);
 
   rval->offset = 0;
   if (rval->dirh == INVALID_HANDLE_VALUE) { goto bail_out; }
 
   if (rval->valid_w) {
-    Dmsg1(debuglevel, "\tFirstFile=%s\n", rval->data_w.cFileName);
+    Dmsg1(debuglevel, "\tFirstFile={}\n", rval->data_w.cFileName);
   }
 
   if (rval->valid_a) {
-    Dmsg1(debuglevel, "\tFirstFile=%s\n", rval->data_a.cFileName);
+    Dmsg1(debuglevel, "\tFirstFile={}\n", rval->data_a.cFileName);
   }
 
   return (DIR*)rval;
@@ -2227,7 +2227,7 @@ int Readdir_r(DIR* dirp, struct dirent* entry, struct dirent** result)
     }
 
     *result = entry; /* return entry address */
-    Dmsg4(debuglevel, "Readdir_r(%p, { d_name=\"%s\", d_reclen=%d, d_off=%d\n",
+    Dmsg4(debuglevel, "Readdir_r({:p}, { d_name=\"{}\", d_reclen={}, d_off={}\n",
           dirp, entry->d_name, entry->d_reclen, entry->d_off);
   } else {
     errno = b_errno_win32;
@@ -2318,7 +2318,7 @@ static DWORD fill_attribute(DWORD attr, mode_t mode, _dev_t rdev)
 {
   bool compatible = false;
 
-  Dmsg1(debuglevel, "  before attr=%lld\n", (uint64_t)attr);
+  Dmsg1(debuglevel, "  before attr={}\n", (uint64_t)attr);
 
   // First see if there are any old encoded attributes in the mode.
 
@@ -2396,7 +2396,7 @@ static DWORD fill_attribute(DWORD attr, mode_t mode, _dev_t rdev)
     }
   }
 
-  Dmsg1(debuglevel, "  after attr=%lld\n", (uint64_t)attr);
+  Dmsg1(debuglevel, "  after attr={}\n", (uint64_t)attr);
 
   return attr;
 }
@@ -2406,7 +2406,7 @@ int win32_chmod(const char* path, mode_t mode, _dev_t rdev)
   bool ret = false;
   DWORD attr;
 
-  Dmsg3(debuglevel, "win32_chmod(path=%s mode=%lld, rdev=%lld)\n", path,
+  Dmsg3(debuglevel, "win32_chmod(path={} mode={}, rdev={})\n", path,
         (uint64_t)mode, (uint64_t)rdev);
 
   if (p_GetFileAttributesW) {
@@ -2432,7 +2432,7 @@ int win32_chmod(const char* path, mode_t mode, _dev_t rdev)
   if (!ret) {
     const char* err = errorString();
 
-    Dmsg2(debuglevel, "Get/SetFileAttributes(%s): %s\n", path, err);
+    Dmsg2(debuglevel, "Get/SetFileAttributes({}): {}\n", path, err);
     LocalFree((void*)err);
     errno = b_errno_win32;
 
@@ -2464,7 +2464,7 @@ int win32_chdir(const char* dir)
 
 int win32_mkdir(const char* dir)
 {
-  Dmsg1(debuglevel, "enter win32_mkdir. dir=%s\n", dir);
+  Dmsg1(debuglevel, "enter win32_mkdir. dir={}\n", dir);
   if (p_wmkdir) {
     std::wstring utf16 = make_win32_path_UTF8_2_wchar(dir);
     int n = p_wmkdir(utf16.c_str());
@@ -2678,7 +2678,7 @@ bool win32_restore_file_attributes(POOLMEM* ofname,
 {
   bool retval = false;
 
-  Dmsg1(100, "SetFileAtts %s\n", ofname);
+  Dmsg1(100, "SetFileAtts {}\n", ofname);
 
   if (p_SetFileAttributesW) {
     std::wstring utf16 = make_win32_path_UTF8_2_wchar(ofname);
@@ -2696,13 +2696,13 @@ bool win32_restore_file_attributes(POOLMEM* ofname,
 
   if (handle != INVALID_HANDLE_VALUE) {
     if (atts->dwFileAttributes & FILE_ATTRIBUTES_DEDUPED_ITEM) {
-      Dmsg1(100, "File %s is a FILE_ATTRIBUTES_DEDUPED_ITEM\n", ofname);
+      Dmsg1(100, "File {} is a FILE_ATTRIBUTES_DEDUPED_ITEM\n", ofname);
     }
     // Restore the sparse file attribute on the restored file.
     if (atts->dwFileAttributes & FILE_ATTRIBUTE_SPARSE_FILE) {
       DWORD bytesreturned;
 
-      Dmsg1(100, "Restore FILE_ATTRIBUTE_SPARSE_FILE on %s\n", ofname);
+      Dmsg1(100, "Restore FILE_ATTRIBUTE_SPARSE_FILE on {}\n", ofname);
       if (!DeviceIoControl(handle, FSCTL_SET_SPARSE, NULL, 0, NULL, 0,
                            &bytesreturned, NULL)) {
         goto bail_out;
@@ -2714,7 +2714,7 @@ bool win32_restore_file_attributes(POOLMEM* ofname,
       USHORT format = COMPRESSION_FORMAT_DEFAULT;
       DWORD bytesreturned;
 
-      Dmsg1(100, "Restore FILE_ATTRIBUTE_COMPRESSED on %s\n", ofname);
+      Dmsg1(100, "Restore FILE_ATTRIBUTE_COMPRESSED on {}\n", ofname);
       if (!DeviceIoControl(handle, FSCTL_SET_COMPRESSION, &format,
                            sizeof(format), NULL, 0, &bytesreturned, NULL)) {
         goto bail_out;
@@ -2722,7 +2722,7 @@ bool win32_restore_file_attributes(POOLMEM* ofname,
     }
 
     // Restore file times on the restored file.
-    Dmsg1(100, "SetFileTime %s\n", ofname);
+    Dmsg1(100, "SetFileTime {}\n", ofname);
     if (!SetFileTime(handle, &atts->ftCreationTime, &atts->ftLastAccessTime,
                      &atts->ftLastWriteTime)) {
       goto bail_out;

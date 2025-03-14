@@ -63,7 +63,7 @@ bool AuthenticateDirector(JobControlRecord* jcr)
 
   // Sanity check.
   if (dir->message_length < 25 || dir->message_length > 500) {
-    Dmsg2(debuglevel, "Bad Hello command from Director at %s. Len=%d.\n",
+    Dmsg2(debuglevel, "Bad Hello command from Director at {}. Len={}.\n",
           dir->who(), dir->message_length);
     Jmsg2(jcr, M_FATAL, 0,
           T_("Bad Hello command from Director at %s. Len=%d.\n"), dir->who(),
@@ -75,7 +75,7 @@ bool AuthenticateDirector(JobControlRecord* jcr)
 
   if (sscanf(dir->msg, "Hello Director %127s calling", dirname) != 1) {
     dir->msg[100] = 0;
-    Dmsg2(debuglevel, "Bad Hello command from Director at %s: %s\n", dir->who(),
+    Dmsg2(debuglevel, "Bad Hello command from Director at {}: {}\n", dir->who(),
           dir->msg);
     Jmsg2(jcr, M_FATAL, 0, T_("Bad Hello command from Director at %s: %s\n"),
           dir->who(), dir->msg);
@@ -88,7 +88,7 @@ bool AuthenticateDirector(JobControlRecord* jcr)
   jcr->sd_impl->director = director;
 
   if (!director) {
-    Dmsg2(debuglevel, "Connection from unknown Director %s at %s rejected.\n",
+    Dmsg2(debuglevel, "Connection from unknown Director {} at {} rejected.\n",
           dirname, dir->who());
     Jmsg(jcr, M_FATAL, 0,
          T_("Connection from unknown Director %s at %s rejected.\n"), dirname,
@@ -101,7 +101,7 @@ bool AuthenticateDirector(JobControlRecord* jcr)
                                           director->resource_name_,
                                           director->password_, director)) {
     dir->fsend("%s", Dir_sorry);
-    Dmsg2(debuglevel, "Unable to authenticate Director \"%s\" at %s.\n",
+    Dmsg2(debuglevel, "Unable to authenticate Director \"{}\" at {}.\n",
           director->resource_name_, dir->who());
     Jmsg1(jcr, M_ERROR, 0, T_("Unable to authenticate Director at %s.\n"),
           dir->who());
@@ -128,7 +128,7 @@ bool AuthenticateStoragedaemon(JobControlRecord* jcr)
   password.value = jcr->sd_auth_key;
   const char* identity = "* replicate *";
 
-  Dmsg2(debuglevel, "AuthenticateStoragedaemon %s %s\n", identity,
+  Dmsg2(debuglevel, "AuthenticateStoragedaemon {} {}\n", identity,
         (unsigned char*)password.value);
   if (!sd->AuthenticateInboundConnection(jcr, my_config, identity, password,
                                          me)) {

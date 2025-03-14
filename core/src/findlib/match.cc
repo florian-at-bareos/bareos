@@ -69,7 +69,7 @@ bool MatchFiles(JobControlRecord* jcr,
   while (!jcr->IsJobCanceled() && (inc = get_next_included_file(ff, inc))) {
     /* Copy options for this file */
     bstrncat(ff->VerifyOpts, inc->VerifyOpts, sizeof(ff->VerifyOpts));
-    Dmsg1(100, "FindFiles: file=%s\n", inc->fname);
+    Dmsg1(100, "FindFiles: file={}\n", inc->fname);
     if (!FileIsExcluded(ff, inc->fname)) {
       if (FindOneFile(jcr, ff, FileSave, inc->fname, (dev_t)-1, 1) == 0) {
         return false; /* error return */
@@ -342,7 +342,7 @@ void AddFnameToIncludeList(FindFilesPacket* ff, int prefixed, const char* fname)
               inc->level = 1; /* Not used with libfzlib */
             }
           }
-          Dmsg2(200, "Compression alg=%d level=%d\n", inc->algo, inc->level);
+          Dmsg2(200, "Compression alg={} level={}\n", inc->algo, inc->level);
           break;
         case 'z': /* Min, Max or Approx size or Size range */
           rp++;   /* Skip z */
@@ -405,7 +405,7 @@ void AddFnameToIncludeList(FindFilesPacket* ff, int prefixed, const char* fname)
     for (next = ff->included_files_list; next->next; next = next->next) {}
     next->next = inc;
   }
-  Dmsg4(100, "add_fname_to_include prefix=%d compres=%d alg= %d fname=%s\n",
+  Dmsg4(100, "add_fname_to_include prefix={} compres={} alg= {} fname={}\n",
         prefixed, BitIsSet(FO_COMPRESS, inc->options), inc->algo, inc->fname);
 }
 
@@ -418,7 +418,7 @@ void AddFnameToExcludeList(FindFilesPacket* ff, const char* fname)
   int len;
   struct s_excluded_file *exc, **list;
 
-  Dmsg1(20, "Add name to exclude: %s\n", fname);
+  Dmsg1(20, "Add name to exclude: {}\n", fname);
 
   if (first_path_separator(fname) != NULL) {
     list = &ff->excluded_paths_list;
@@ -482,7 +482,7 @@ bool FileIsIncluded(FindFilesPacket* ff, const char* file)
     }
     /* No wild cards. We accept a match to the
      *  end of any component. */
-    Dmsg2(900, "pat=%s file=%s\n", inc->fname, file);
+    Dmsg2(900, "pat={} file={}\n", inc->fname, file);
     len = strlen(file);
     if (inc->len == len && bstrcmp(inc->fname, file)) { return true; }
     if (inc->len < len && IsPathSeparator(file[inc->len])
@@ -503,10 +503,10 @@ static bool FileInExcludedList(struct s_excluded_file* exc, const char* file)
   if (exc == NULL) { Dmsg0(900, "exc is NULL\n"); }
   for (; exc; exc = exc->next) {
     if (fnmatch(exc->fname, file, fnmode | FNM_PATHNAME) == 0) {
-      Dmsg2(900, "Match exc pat=%s: file=%s:\n", exc->fname, file);
+      Dmsg2(900, "Match exc pat={}: file={}:\n", exc->fname, file);
       return true;
     }
-    Dmsg2(900, "No match exc pat=%s: file=%s:\n", exc->fname, file);
+    Dmsg2(900, "No match exc pat={}: file={}:\n", exc->fname, file);
   }
   return false;
 }

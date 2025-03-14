@@ -42,7 +42,7 @@ static const int debuglevel = 500;
 
 static VOID ErrorExit(LPCSTR);
 
-static void ErrorExit(LPCSTR lpszMessage) { Dmsg1(0, "%s", lpszMessage); }
+static void ErrorExit(LPCSTR lpszMessage) { Dmsg1(0, "{}", lpszMessage); }
 
 /**
  * Extracts the executable or script name from the first string in cmdline.
@@ -221,7 +221,7 @@ static BOOL CreateChildProcessW(const char* comspec,
   std::wstring cspec = FromUtf8(comspec);
 
   // Create the child process.
-  Dmsg2(debuglevel, "Calling CreateProcess(%s, %s, ...)\n", comspec, cmdLine);
+  Dmsg2(debuglevel, "Calling CreateProcess({}, {}, ...)\n", comspec, cmdLine);
 
   // Try to execute program
   BOOL res = CreateProcessW(
@@ -240,7 +240,7 @@ static BOOL CreateChildProcessW(const char* comspec,
   //       was actually spawend.  It just means that the creation successfully
   //       started.  Its possible that the creation actually fails because e.g.
   //       a required dll is missing.
-  Dmsg2(debuglevel, "  -> %s\n", (res != 0) ? "OK" : "ERROR");
+  Dmsg2(debuglevel, "  -> {}\n", (res != 0) ? "OK" : "ERROR");
 
   return res;
 }
@@ -294,7 +294,7 @@ static HANDLE CreateChildProcess(const char* cmdline,
     ErrorExit("CreateProcess failed\n");
     const char* err_str = errorString();
 
-    Dmsg3(debuglevel, "CreateProcess(%s, %s, ...)=%s\n", comspec,
+    Dmsg3(debuglevel, "CreateProcess({}, {}, ...)={}\n", comspec,
           cmdLine.c_str(), err_str);
     LocalFree((void*)err_str);
 
@@ -550,7 +550,7 @@ int CloseBpipe(Bpipe* bpipe)
       const char* err = errorString();
 
       rval = b_errno_win32;
-      Dmsg1(debuglevel, "GetExitCode error %s\n", err);
+      Dmsg1(debuglevel, "GetExitCode error {}\n", err);
       LocalFree((void*)err);
       break;
     }

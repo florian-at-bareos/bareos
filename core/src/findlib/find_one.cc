@@ -109,15 +109,15 @@ static bool AcceptFstype(FindFilesPacket* ff, void*)
   if (ff->fstypes.size()) {
     accept = false;
     if (!fstype(ff->fname, fs, sizeof(fs))) {
-      Dmsg1(50, "Cannot determine file system type for \"%s\"\n", ff->fname);
+      Dmsg1(50, "Cannot determine file system type for \"{}\"\n", ff->fname);
     } else {
       for (i = 0; i < ff->fstypes.size(); ++i) {
         if (bstrcmp(fs, (char*)ff->fstypes.get(i))) {
-          Dmsg2(100, "Accepting fstype %s for \"%s\"\n", fs, ff->fname);
+          Dmsg2(100, "Accepting fstype {} for \"{}\"\n", fs, ff->fname);
           accept = true;
           break;
         }
-        Dmsg3(200, "fstype %s for \"%s\" does not match %s\n", fs, ff->fname,
+        Dmsg3(200, "fstype {} for \"{}\" does not match {}\n", fs, ff->fname,
               ff->fstypes.get(i));
       }
     }
@@ -141,15 +141,15 @@ static inline bool AcceptDrivetype(FindFilesPacket* ff, void*)
   if (ff->drivetypes.size()) {
     accept = false;
     if (!Drivetype(ff->fname, dt, sizeof(dt))) {
-      Dmsg1(50, "Cannot determine drive type for \"%s\"\n", ff->fname);
+      Dmsg1(50, "Cannot determine drive type for \"{}\"\n", ff->fname);
     } else {
       for (i = 0; i < ff->drivetypes.size(); ++i) {
         if (bstrcmp(dt, (char*)ff->drivetypes.get(i))) {
-          Dmsg2(100, "Accepting drive type %s for \"%s\"\n", dt, ff->fname);
+          Dmsg2(100, "Accepting drive type {} for \"{}\"\n", dt, ff->fname);
           accept = true;
           break;
         }
-        Dmsg3(200, "drive type %s for \"%s\" does not match %s\n", dt,
+        Dmsg3(200, "drive type {} for \"{}\" does not match {}\n", dt,
               ff->fname, ff->drivetypes.get(i));
       }
     }
@@ -262,7 +262,7 @@ static inline bool CheckSizeMatching(JobControlRecord*, FindFilesPacket* ff_pkt)
 bool HasFileChanged(JobControlRecord* jcr, FindFilesPacket* ff_pkt)
 {
   struct stat statp;
-  Dmsg1(500, "HasFileChanged fname=%s\n", ff_pkt->fname);
+  Dmsg1(500, "HasFileChanged fname={}\n", ff_pkt->fname);
 
   if (ff_pkt->type != FT_REG) { /* not a regular file */
     return false;
@@ -278,7 +278,7 @@ bool HasFileChanged(JobControlRecord* jcr, FindFilesPacket* ff_pkt)
   if (statp.st_mtime != ff_pkt->statp.st_mtime) {
     Jmsg(jcr, M_ERROR, 0, T_("%s: mtime changed during backup.\n"),
          ff_pkt->fname);
-    Dmsg3(50, "%s mtime (%lld) changed during backup (%lld).\n", ff_pkt->fname,
+    Dmsg3(50, "{} mtime ({}) changed during backup ({}).\n", ff_pkt->fname,
           (int64_t)ff_pkt->statp.st_mtime, (int64_t)statp.st_mtime);
     return true;
   }
@@ -286,7 +286,7 @@ bool HasFileChanged(JobControlRecord* jcr, FindFilesPacket* ff_pkt)
   if (statp.st_ctime != ff_pkt->statp.st_ctime) {
     Jmsg(jcr, M_ERROR, 0, T_("%s: ctime changed during backup.\n"),
          ff_pkt->fname);
-    Dmsg3(50, "%s ctime (%lld) changed during backup (%lld).\n", ff_pkt->fname,
+    Dmsg3(50, "{} ctime ({}) changed during backup ({}).\n", ff_pkt->fname,
           (int64_t)ff_pkt->statp.st_ctime, (int64_t)statp.st_ctime);
     return true;
   }
@@ -295,7 +295,7 @@ bool HasFileChanged(JobControlRecord* jcr, FindFilesPacket* ff_pkt)
     /* TODO: add size change */
     Jmsg(jcr, M_ERROR, 0, T_("%s: size changed during backup.\n"),
          ff_pkt->fname);
-    Dmsg3(50, "%s size (%lld) changed during backup (%lld).\n", ff_pkt->fname,
+    Dmsg3(50, "{} size ({}) changed during backup ({}).\n", ff_pkt->fname,
           (int64_t)ff_pkt->statp.st_size, (int64_t)statp.st_size);
     return true;
   }
@@ -304,7 +304,7 @@ bool HasFileChanged(JobControlRecord* jcr, FindFilesPacket* ff_pkt)
       || (statp.st_blocks != ff_pkt->statp.st_blocks)) {
     Jmsg(jcr, M_ERROR, 0, T_("%s: size changed during backup.\n"),
          ff_pkt->fname);
-    Dmsg3(50, "%s size (%lld) changed during backup (%lld).\n", ff_pkt->fname,
+    Dmsg3(50, "{} size ({}) changed during backup ({}).\n", ff_pkt->fname,
           (int64_t)ff_pkt->statp.st_blocks, (int64_t)statp.st_blocks);
     return true;
   }
@@ -350,7 +350,7 @@ static inline bool HaveIgnoredir(FindFilesPacket* ff_pkt)
       }
       Mmsg(ff_pkt->ignoredir_fname, "%s/%s", ff_pkt->fname, ignoredir);
       if (stat(ff_pkt->ignoredir_fname, &sb) == 0) {
-        Dmsg2(100, "Directory '%s' ignored (found %s)\n", ff_pkt->fname,
+        Dmsg2(100, "Directory '{}' ignored (found {})\n", ff_pkt->fname,
               ignoredir);
         return true; /* Just ignore this directory */
       }
@@ -443,7 +443,7 @@ static inline int process_hardlink(JobControlRecord* jcr,
     *done = false;
   } else if (bstrcmp(hl.name.c_str(), fname)) {
     // If we have already backed up the hard linked file don't do it again
-    Dmsg2(400, "== Name identical skip FI=%d file=%s\n", hl.FileIndex, fname);
+    Dmsg2(400, "== Name identical skip FI={} file={}\n", hl.FileIndex, fname);
     *done = true;
     rtn_stat = 1; /* ignore */
   } else {
@@ -457,7 +457,7 @@ static inline int process_hardlink(JobControlRecord* jcr,
     ff_pkt->digest_len = hl.digest.size();
 
     rtn_stat = HandleFile(jcr, ff_pkt, top_level);
-    Dmsg3(400, "FT_LNKSAVED FI=%d LinkFI=%d file=%s\n", ff_pkt->FileIndex,
+    Dmsg3(400, "FT_LNKSAVED FI={} LinkFI={} file={}\n", ff_pkt->FileIndex,
           hl.FileIndex, hl.name.c_str());
     *done = true;
   }
@@ -490,7 +490,7 @@ static inline int process_regular_file(JobControlRecord* jcr,
   rtn_stat = HandleFile(jcr, ff_pkt, top_level);
   if (ff_pkt->linked) { ff_pkt->linked->FileIndex = ff_pkt->FileIndex; }
 
-  Dmsg3(400, "FT_REG FI=%d linked=%d file=%s\n", ff_pkt->FileIndex,
+  Dmsg3(400, "FT_REG FI={} linked={} file={}\n", ff_pkt->FileIndex,
         ff_pkt->linked ? 1 : 0, fname);
 
   if (BitIsSet(FO_KEEPATIME, ff_pkt->flags)) {
@@ -616,7 +616,7 @@ static inline int process_directory(JobControlRecord* jcr,
    * directory after all files have been processed, and
    * during the restore, the directory permissions will
    * be reset after all the files have been restored. */
-  Dmsg1(300, "Create temp ff packet for dir: %s\n", ff_pkt->fname);
+  Dmsg1(300, "Create temp ff packet for dir: {}\n", ff_pkt->fname);
   FindFilesPacket* dir_ff_pkt = new_dir_ff_pkt(ff_pkt);
 
   /* Do not descend into subdirectories (recurse) if the
@@ -908,7 +908,7 @@ int FindOneFile(JobControlRecord* jcr,
     return HandleFile(jcr, ff_pkt, top_level);
   }
 
-  Dmsg1(300, "File ----: %s\n", fname);
+  Dmsg1(300, "File ----: {}\n", fname);
 
   /* We check for allowed fstypes and drivetypes at top_level and fstype change
    * (below). */
@@ -918,7 +918,7 @@ int FindOneFile(JobControlRecord* jcr,
 
   // Ignore this entry if no_dump() returns true
   if (no_dump(jcr, ff_pkt)) {
-    Dmsg1(100, "'%s' ignored (NODUMP flag set)\n", ff_pkt->fname);
+    Dmsg1(100, "'{}' ignored (NODUMP flag set)\n", ff_pkt->fname);
     return 1;
   }
 
@@ -927,7 +927,7 @@ int FindOneFile(JobControlRecord* jcr,
       break;
     case S_IFREG:
       if (!CheckSizeMatching(jcr, ff_pkt)) {
-        Dmsg1(100, "'%s' ignored (Size doesn't match\n", ff_pkt->fname);
+        Dmsg1(100, "'{}' ignored (Size doesn't match\n", ff_pkt->fname);
         return 1;
       }
       [[fallthrough]];
@@ -936,7 +936,7 @@ int FindOneFile(JobControlRecord* jcr,
        * since our last "save_time", presumably the last Full save
        * or Incremental. */
       if (!CheckChanges(jcr, ff_pkt)) {
-        Dmsg1(500, "Non-directory incremental: %s\n", ff_pkt->fname);
+        Dmsg1(500, "Non-directory incremental: {}\n", ff_pkt->fname);
         ff_pkt->type = FT_NOCHG;
         return HandleFile(jcr, ff_pkt, top_level);
       }

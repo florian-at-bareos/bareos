@@ -320,12 +320,12 @@ static inline int NdmpWaitForJobTermination(JobControlRecord* jcr)
 
   /* Force cancel in SD if failing, but not for Incomplete jobs
    * so that we let the SD despool. */
-  Dmsg4(100, "cancel=%d FDJS=%d JS=%d SDJS=%d\n", jcr->IsJobCanceled(),
+  Dmsg4(100, "cancel={} FDJS={} JS={} SDJS={}\n", jcr->IsJobCanceled(),
         jcr->dir_impl->FDJobStatus.load(), jcr->getJobStatus(),
         jcr->dir_impl->SDJobStatus.load());
   if (jcr->IsJobCanceled()
       || (!jcr->dir_impl->res.job->RescheduleIncompleteJobs)) {
-    Dmsg3(100, "FDJS=%d JS=%d SDJS=%d\n", jcr->dir_impl->FDJobStatus.load(),
+    Dmsg3(100, "FDJS={} JS={} SDJS={}\n", jcr->dir_impl->FDJobStatus.load(),
           jcr->getJobStatus(), jcr->dir_impl->SDJobStatus.load());
     CancelStorageDaemonJob(jcr);
   }
@@ -482,7 +482,7 @@ static inline bool DoNdmpRestoreBootstrap(JobControlRecord* jcr)
             last_fi = fileindex->findex2;
           }
         }
-        Dmsg4(20, "sessionid:sesstime : first_fi/last_fi : %d:%d %d/%d \n",
+        Dmsg4(20, "sessionid:sesstime : first_fi/last_fi : {}:{} {}/{} \n",
               current_session.id, current_session.time, first_fi, last_fi);
       }
 
@@ -661,7 +661,7 @@ bool DoNdmpRestore(JobControlRecord* jcr)
   }
   Dmsg0(20, "Updated job start record\n");
 
-  Dmsg1(20, "RestoreJobId=%d\n", jcr->dir_impl->res.job->RestoreJobId);
+  Dmsg1(20, "RestoreJobId={}\n", jcr->dir_impl->res.job->RestoreJobId);
 
   // Validate the Job to have a NDMP client.
   if (!NdmpValidateClient(jcr)) { return false; }

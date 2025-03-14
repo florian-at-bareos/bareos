@@ -290,7 +290,7 @@ static DeviceResource* find_device_res(char* archive_device_string,
 
   Dmsg0(900, "Enter find_device_res\n");
   foreach_res (device_resource, R_DEVICE) {
-    Dmsg2(900, "Compare %s and %s\n", device_resource->archive_device_string,
+    Dmsg2(900, "Compare {} and {}\n", device_resource->archive_device_string,
           archive_device_string);
     if (bstrcmp(device_resource->archive_device_string,
                 archive_device_string)) {
@@ -308,7 +308,7 @@ static DeviceResource* find_device_res(char* archive_device_string,
       if (len > 0) { archive_device_string[len - 1] = 0; /* zap trailing " */ }
     }
     foreach_res (device_resource, R_DEVICE) {
-      Dmsg2(900, "Compare %s and %s\n", device_resource->resource_name_,
+      Dmsg2(900, "Compare {} and {}\n", device_resource->resource_name_,
             archive_device_string);
       if (bstrcmp(device_resource->resource_name_, archive_device_string)) {
         found = true;

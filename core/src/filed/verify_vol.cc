@@ -102,7 +102,7 @@ void DoVerifyVolume(JobControlRecord* jcr)
       Jmsg1(jcr, M_FATAL, 0, T_("Record header scan error: %s\n"), sd->msg);
       goto bail_out;
     }
-    Dmsg2(30, "Got hdr: FilInx=%d Stream=%d.\n", file_index, stream);
+    Dmsg2(30, "Got hdr: FilInx={} Stream={}.\n", file_index, stream);
 
     // Now we expect the Stream Data
     if (BgetMsg(sd) < 0) {
@@ -115,7 +115,7 @@ void DoVerifyVolume(JobControlRecord* jcr)
             sd->message_length, size);
       goto bail_out;
     }
-    Dmsg1(30, "Got stream data, len=%d\n", sd->message_length);
+    Dmsg1(30, "Got stream data, len={}\n", sd->message_length);
 
     /* File Attributes stream */
     switch (stream) {
@@ -148,7 +148,7 @@ void DoVerifyVolume(JobControlRecord* jcr)
           Dmsg0(0, "\nError scanning header\n");
           goto bail_out;
         }
-        Dmsg2(30, "Got Attr: FilInx=%d type=%d\n", record_file_index, type);
+        Dmsg2(30, "Got Attr: FilInx={} type={}\n", record_file_index, type);
         ap = sd->msg;
         while (*ap++ != ' ') /* skip record file index */
           ;
@@ -159,7 +159,7 @@ void DoVerifyVolume(JobControlRecord* jcr)
         while (*ap != 0) { *fp++ = *ap++; /* copy filename to fname */ }
         *fp = *ap++; /* Terminate filename & point to attribs */
 
-        Dmsg1(200, "Attr=%s\n", ap);
+        Dmsg1(200, "Attr={}\n", ap);
         /* Skip to Link name */
         if (type == FT_LNK || type == FT_LNKSAVED) {
           lp = ap;
@@ -186,7 +186,7 @@ void DoVerifyVolume(JobControlRecord* jcr)
          * For a directory, link is the same as fname, but with trailing
          * slash. For a linked file, link is the link. */
         /* Send file attributes to Director */
-        Dmsg2(200, "send Attributes inx=%d fname=%s\n", jcr->JobFiles, fname);
+        Dmsg2(200, "send Attributes inx={} fname={}\n", jcr->JobFiles, fname);
         if (type == FT_LNK || type == FT_LNKSAVED) {
           status = dir->fsend("%d %d %s %s%c%s%c%s%c", jcr->JobFiles,
                               STREAM_UNIX_ATTRIBUTES, "pinsug5", fname, 0, ap,
@@ -200,7 +200,7 @@ void DoVerifyVolume(JobControlRecord* jcr)
                               STREAM_UNIX_ATTRIBUTES, "pinsug5", fname, 0, ap,
                               0, 0);
         }
-        Dmsg2(200, "filed>dir: attribs len=%d: msg=%s\n", dir->message_length,
+        Dmsg2(200, "filed>dir: attribs len={}: msg={}\n", dir->message_length,
               dir->msg);
         if (!status) {
           Jmsg(jcr, M_FATAL, 0,
@@ -213,50 +213,50 @@ void DoVerifyVolume(JobControlRecord* jcr)
       case STREAM_MD5_DIGEST:
         BinToBase64(digest, sizeof(digest), (char*)sd->msg,
                     CRYPTO_DIGEST_MD5_SIZE, true);
-        Dmsg2(400, "send inx=%d MD5=%s\n", jcr->JobFiles, digest);
+        Dmsg2(400, "send inx={} MD5={}\n", jcr->JobFiles, digest);
         dir->fsend("%d %d %s *MD5-%d*", jcr->JobFiles, STREAM_MD5_DIGEST,
                    digest, jcr->JobFiles);
-        Dmsg2(20, "filed>dir: MD5 len=%d: msg=%s\n", dir->message_length,
+        Dmsg2(20, "filed>dir: MD5 len={}: msg={}\n", dir->message_length,
               dir->msg);
         break;
 
       case STREAM_SHA1_DIGEST:
         BinToBase64(digest, sizeof(digest), (char*)sd->msg,
                     CRYPTO_DIGEST_SHA1_SIZE, true);
-        Dmsg2(400, "send inx=%d SHA1=%s\n", jcr->JobFiles, digest);
+        Dmsg2(400, "send inx={} SHA1={}\n", jcr->JobFiles, digest);
         dir->fsend("%d %d %s *SHA1-%d*", jcr->JobFiles, STREAM_SHA1_DIGEST,
                    digest, jcr->JobFiles);
-        Dmsg2(20, "filed>dir: SHA1 len=%d: msg=%s\n", dir->message_length,
+        Dmsg2(20, "filed>dir: SHA1 len={}: msg={}\n", dir->message_length,
               dir->msg);
         break;
 
       case STREAM_SHA256_DIGEST:
         BinToBase64(digest, sizeof(digest), (char*)sd->msg,
                     CRYPTO_DIGEST_SHA256_SIZE, true);
-        Dmsg2(400, "send inx=%d SHA256=%s\n", jcr->JobFiles, digest);
+        Dmsg2(400, "send inx={} SHA256={}\n", jcr->JobFiles, digest);
         dir->fsend("%d %d %s *SHA256-%d*", jcr->JobFiles, STREAM_SHA256_DIGEST,
                    digest, jcr->JobFiles);
-        Dmsg2(20, "filed>dir: SHA256 len=%d: msg=%s\n", dir->message_length,
+        Dmsg2(20, "filed>dir: SHA256 len={}: msg={}\n", dir->message_length,
               dir->msg);
         break;
 
       case STREAM_SHA512_DIGEST:
         BinToBase64(digest, sizeof(digest), (char*)sd->msg,
                     CRYPTO_DIGEST_SHA512_SIZE, true);
-        Dmsg2(400, "send inx=%d SHA512=%s\n", jcr->JobFiles, digest);
+        Dmsg2(400, "send inx={} SHA512={}\n", jcr->JobFiles, digest);
         dir->fsend("%d %d %s *SHA512-%d*", jcr->JobFiles, STREAM_SHA512_DIGEST,
                    digest, jcr->JobFiles);
-        Dmsg2(20, "filed>dir: SHA512 len=%d: msg=%s\n", dir->message_length,
+        Dmsg2(20, "filed>dir: SHA512 len={}: msg={}\n", dir->message_length,
               dir->msg);
         break;
 
       case STREAM_XXH128_DIGEST:
         BinToBase64(digest, sizeof(digest), (char*)sd->msg,
                     CRYPTO_DIGEST_XXH128_SIZE, true);
-        Dmsg2(400, "send inx=%d XXH128=%s\n", jcr->JobFiles, digest);
+        Dmsg2(400, "send inx={} XXH128={}\n", jcr->JobFiles, digest);
         dir->fsend("%d %d %s *XXH128-%d*", jcr->JobFiles, STREAM_XXH128_DIGEST,
                    digest, jcr->JobFiles);
-        Dmsg2(20, "filed>dir: XXH128 len=%d: msg=%s\n", dir->message_length,
+        Dmsg2(20, "filed>dir: XXH128 len={}: msg={}\n", dir->message_length,
               dir->msg);
         break;
 
@@ -266,7 +266,7 @@ void DoVerifyVolume(JobControlRecord* jcr)
         jcr->fd_impl->num_files_examined++;
       }
 
-        Dmsg2(400, "send inx=%d STREAM_RESTORE_OBJECT-%d\n", jcr->JobFiles,
+        Dmsg2(400, "send inx={} STREAM_RESTORE_OBJECT-{}\n", jcr->JobFiles,
               STREAM_RESTORE_OBJECT);
         dir->fsend("%d %d %s %s%c%c%c", jcr->JobFiles, STREAM_RESTORE_OBJECT,
                    "ReStOrEObJeCt", fname, 0, 0, 0);
@@ -289,7 +289,7 @@ ok_out:
 
   FreePoolMemory(fname);
   FreePoolMemory(lname);
-  Dmsg2(050, "End Verify-Vol. Files=%d Bytes=%lld\n", jcr->JobFiles,
+  Dmsg2(050, "End Verify-Vol. Files={} Bytes={}\n", jcr->JobFiles,
         jcr->JobBytes);
 }
 } /* namespace filedaemon */

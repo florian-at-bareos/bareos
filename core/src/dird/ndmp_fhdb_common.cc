@@ -52,7 +52,7 @@ extern "C" int BndmpFhdbAddFile(struct ndmlog* ixlog,
 
     /* Every file entry is relative from the filesystem currently being backed
      * up. */
-    Dmsg2(100, "BndmpFhdbAddFile: New filename ==> %s%s\n", nis->filesystem,
+    Dmsg2(100, "BndmpFhdbAddFile: New filename ==> {}{}\n", nis->filesystem,
           raw_name);
 
     // if (nis->jcr->ar) {

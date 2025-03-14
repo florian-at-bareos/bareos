@@ -86,7 +86,7 @@ static inline bool LookupDevice(JobControlRecord* jcr,
     goto bail_out;
   }
 
-  Dmsg3(200, "Deviceid of \"%s\" on StorageId %d is %d\n", dr.Name,
+  Dmsg3(200, "Deviceid of \"{}\" on StorageId {} is {}\n", dr.Name,
         dr.StorageId, dr.DeviceId);
 
   bstrncpy(cached_device.device_name, device_name,
@@ -140,7 +140,7 @@ extern "C" void* statistics_thread(void*)
   while (!quit) {
     now = (utime_t)time(NULL);
 
-    Dmsg1(200, "statistics_thread: Doing work at %ld\n", now);
+    Dmsg1(200, "statistics_thread: Doing work at {}\n", now);
 
     if (JobCount() == 0) {
       if (!need_flush) {
@@ -196,7 +196,7 @@ extern "C" void* statistics_thread(void*)
       // Do our work retrieving the statistics from the remote SD.
       if (sd->fsend("stats")) {
         while (BnetRecv(sd) >= 0) {
-          Dmsg1(200, "<stored: %s", sd->msg);
+          Dmsg1(200, "<stored: {}", sd->msg);
           if (bstrncmp(sd->msg, "Devicestats", 10)) {
             PoolMem DevName(PM_NAME);
             DeviceStatisticsDbRecord dsr;
@@ -208,18 +208,18 @@ extern "C" void* statistics_thread(void*)
                        &dsr.VolCatFiles, &dsr.VolCatBlocks)
                 == 13) {
               Dmsg5(200,
-                    "New Devstats [%lld]: Device=%s Read=%llu, Write=%llu, "
-                    "SpoolSize=%llu,\n",
+                    "New Devstats [{}]: Device={} Read={}, Write={}, "
+                    "SpoolSize={},\n",
                     dsr.SampleTime, DevName.c_str(), dsr.ReadBytes,
                     dsr.WriteBytes, dsr.SpoolSize);
               Dmsg4(200,
-                    "NumWaiting=%lu, NumWriters=%lu, ReadTime=%lld, "
-                    "WriteTime=%lld,\n",
+                    "NumWaiting={}, NumWriters={}, ReadTime={}, "
+                    "WriteTime={},\n",
                     dsr.NumWaiting, dsr.NumWriters, dsr.ReadTime,
                     dsr.WriteTime);
               Dmsg4(
                   200,
-                  "MediaId=%ld, VolBytes=%llu, VolFiles=%llu, VolBlocks=%llu\n",
+                  "MediaId={}, VolBytes={}, VolFiles={}, VolBlocks={}\n",
                   dsr.MediaId, dsr.VolCatBytes, dsr.VolCatFiles,
                   dsr.VolCatBlocks);
 
@@ -241,7 +241,7 @@ extern "C" void* statistics_thread(void*)
                 == 3) {
               UnbashSpaces(DevName);
 
-              Dmsg3(200, "New stats [%lld]: Device %s TapeAlert %llu\n",
+              Dmsg3(200, "New stats [{}]: Device {} TapeAlert {}\n",
                     tsr.SampleTime, DevName.c_str(), tsr.AlertFlags);
 
               if (!LookupDevice(jcr, DevName.c_str(), StorageId,
@@ -263,8 +263,8 @@ extern "C" void* statistics_thread(void*)
               UnbashSpaces(DevName);
 
               Dmsg5(200,
-                    "New Jobstats [%lld]: JobId %ld, JobFiles %lu, JobBytes "
-                    "%llu, DevName %s\n",
+                    "New Jobstats [{}]: JobId {}, JobFiles {}, JobBytes "
+                    "{}, DevName {}\n",
                     jsr.SampleTime, jsr.JobId, jsr.JobFiles, jsr.JobBytes,
                     DevName.c_str());
 

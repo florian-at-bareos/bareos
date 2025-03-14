@@ -158,7 +158,7 @@ bool OpenDb(UaContext* ua, bool use_private)
     ua->SendMsg(T_("Using Catalog \"%s\"\n"), ua->catalog->resource_name_);
   }
 
-  Dmsg1(150, "DB %s opened\n", ua->catalog->db_name);
+  Dmsg1(150, "DB {} opened\n", ua->catalog->db_name);
   return true;
 }
 

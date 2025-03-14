@@ -33,13 +33,13 @@ class PskCredentials {
   PskCredentials(const std::string& identity, const std::string& psk)
       : identity_(identity), psk_(psk)
   {
-    Dmsg1(1000, "Construct PskCredentials: id=%s\n", identity_.c_str());
+    Dmsg1(1000, "Construct PskCredentials: id={}\n", identity_.c_str());
   }
 
   PskCredentials(const char* identity, const char* psk)
       : identity_(std::string(identity)), psk_(std::string(psk))
   {
-    Dmsg1(1000, "Construct PskCredentials: id=%s\n", identity_.c_str());
+    Dmsg1(1000, "Construct PskCredentials: id={}\n", identity_.c_str());
   }
 
   PskCredentials& operator=(const PskCredentials& rhs)
@@ -59,7 +59,7 @@ class PskCredentials {
 
   ~PskCredentials()
   {
-    Dmsg1(1000, "Destruct PskCredentials: id=%s\n", identity_.c_str());
+    Dmsg1(1000, "Destruct PskCredentials: id={}\n", identity_.c_str());
   }
 
  private:

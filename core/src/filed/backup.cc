@@ -118,7 +118,7 @@ bool BlastDataToStorageDaemon(JobControlRecord* jcr, crypto_cipher_t cipher)
   Jmsg(jcr, M_INFO, 0, T_("Version: %s (%s) %s\n"), kBareosVersionStrings.Full,
        kBareosVersionStrings.Date, kBareosVersionStrings.GetOsInfo());
 
-  Dmsg1(300, "filed: opened data connection %d to stored\n", sd->fd_);
+  Dmsg1(300, "filed: opened data connection {} to stored\n", sd->fd_);
   ClientResource* client = nullptr;
   {
     ResLocker _{my_config};
@@ -195,7 +195,7 @@ bool BlastDataToStorageDaemon(JobControlRecord* jcr, crypto_cipher_t cipher)
   CleanupCompression(jcr);
   CryptoSessionEnd(jcr);
 
-  Dmsg1(100, "end blast_data ok=%d\n", ok);
+  Dmsg1(100, "end blast_data ok={}\n", ok);
   return ok;
 }
 
@@ -243,9 +243,9 @@ static inline bool SaveRsrcAndFinder(b_save_ctx& bsctx)
     }
   }
 
-  Dmsg1(300, "Saving Finder Info for \"%s\"\n", bsctx.ff_pkt->fname);
+  Dmsg1(300, "Saving Finder Info for \"{}\"\n", bsctx.ff_pkt->fname);
   sd->fsend("%ld %d 0", bsctx.jcr->JobFiles, STREAM_HFSPLUS_ATTRIBUTES);
-  Dmsg1(300, "filed>stored:header %s", sd->msg);
+  Dmsg1(300, "filed>stored:header {}", sd->msg);
   PmMemcpy(sd->msg, bsctx.ff_pkt->hfsinfo.fndrinfo, 32);
   sd->message_length = 32;
   if (bsctx.digest) {
@@ -371,7 +371,7 @@ static inline bool TerminateSigningDigest(b_save_ctx& bsctx)
 
   // Send our header
   sd->fsend("%ld %ld 0", bsctx.jcr->JobFiles, STREAM_SIGNED_DIGEST);
-  Dmsg1(300, "filed>stored:header %s", sd->msg);
+  Dmsg1(300, "filed>stored:header {}", sd->msg);
 
   // Encode signature data
   if (!CryptoSignEncode(signature, (uint8_t*)sd->msg, &size)) {
@@ -398,7 +398,7 @@ static inline bool TerminateDigest(b_save_ctx& bsctx)
   BareosSocket* sd = bsctx.jcr->store_bsock;
 
   sd->fsend("%ld %d 0", bsctx.jcr->JobFiles, bsctx.digest_stream);
-  Dmsg1(300, "filed>stored:header %s", sd->msg);
+  Dmsg1(300, "filed>stored:header {}", sd->msg);
 
   size = CRYPTO_DIGEST_MAX_SIZE;
 
@@ -517,25 +517,25 @@ int SaveFile(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
 
   switch (ff_pkt->type) {
     case FT_LNKSAVED: /* Hard linked, file already saved */
-      Dmsg2(130, "FT_LNKSAVED hard link: %s => %s\n", ff_pkt->fname,
+      Dmsg2(130, "FT_LNKSAVED hard link: {} => {}\n", ff_pkt->fname,
             ff_pkt->link);
       break;
     case FT_REGE:
-      Dmsg1(130, "FT_REGE saving: %s\n", ff_pkt->fname);
+      Dmsg1(130, "FT_REGE saving: {}\n", ff_pkt->fname);
       has_file_data = true;
       break;
     case FT_REG:
-      Dmsg1(130, "FT_REG saving: %s\n", ff_pkt->fname);
+      Dmsg1(130, "FT_REG saving: {}\n", ff_pkt->fname);
       has_file_data = true;
       break;
     case FT_LNK:
-      Dmsg2(130, "FT_LNK saving: %s -> %s\n", ff_pkt->fname, ff_pkt->link);
+      Dmsg2(130, "FT_LNK saving: {} -> {}\n", ff_pkt->fname, ff_pkt->link);
       break;
     case FT_RESTORE_FIRST:
-      Dmsg1(100, "FT_RESTORE_FIRST saving: %s\n", ff_pkt->fname);
+      Dmsg1(100, "FT_RESTORE_FIRST saving: {}\n", ff_pkt->fname);
       break;
     case FT_PLUGIN_CONFIG:
-      Dmsg1(100, "FT_PLUGIN_CONFIG saving: %s\n", ff_pkt->fname);
+      Dmsg1(100, "FT_PLUGIN_CONFIG saving: {}\n", ff_pkt->fname);
       break;
     case FT_DIRBEGIN:
       jcr->fd_impl->num_files_examined--; /* correct file count */
@@ -570,10 +570,10 @@ int SaveFile(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
     case FT_REPARSE:
     case FT_JUNCTION:
     case FT_DIREND:
-      Dmsg1(130, "FT_DIREND: %s\n", ff_pkt->link);
+      Dmsg1(130, "FT_DIREND: {}\n", ff_pkt->link);
       break;
     case FT_SPEC:
-      Dmsg1(130, "FT_SPEC saving: %s\n", ff_pkt->fname);
+      Dmsg1(130, "FT_SPEC saving: {}\n", ff_pkt->fname);
       if (S_ISSOCK(ff_pkt->statp.st_mode)) {
         Jmsg(jcr, M_SKIPPED, 1, T_("     Socket file skipped: %s\n"),
              ff_pkt->fname);
@@ -581,11 +581,11 @@ int SaveFile(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
       }
       break;
     case FT_RAW:
-      Dmsg1(130, "FT_RAW saving: %s\n", ff_pkt->fname);
+      Dmsg1(130, "FT_RAW saving: {}\n", ff_pkt->fname);
       has_file_data = true;
       break;
     case FT_FIFO:
-      Dmsg1(130, "FT_FIFO saving: %s\n", ff_pkt->fname);
+      Dmsg1(130, "FT_FIFO saving: {}\n", ff_pkt->fname);
       break;
     case FT_NOACCESS: {
       BErrNo be;
@@ -627,7 +627,7 @@ int SaveFile(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
       return 1;
     }
     case FT_DELETED:
-      Dmsg1(130, "FT_DELETED: %s\n", ff_pkt->fname);
+      Dmsg1(130, "FT_DELETED: {}\n", ff_pkt->fname);
       break;
     default:
       Jmsg(jcr, M_NOTSAVED, 0, T_("     Unknown file type %d; not saved: %s\n"),
@@ -636,7 +636,7 @@ int SaveFile(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
       return 1;
   }
 
-  Dmsg1(130, "filed: sending %s to stored\n", ff_pkt->fname);
+  Dmsg1(130, "filed: sending {} to stored\n", ff_pkt->fname);
 
   // Setup backup signing context.
   memset(&bsctx, 0, sizeof(b_save_ctx));
@@ -662,7 +662,7 @@ int SaveFile(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
     // Ask the option plugin what to do with this file
     switch (PluginOptionHandleFile(jcr, ff_pkt, &sp)) {
       case bRC_OK:
-        Dmsg2(10, "Option plugin %s will be used to backup %s\n",
+        Dmsg2(10, "Option plugin {} will be used to backup {}\n",
               ff_pkt->plugin, ff_pkt->fname);
         jcr->opt_plugin = true;
         jcr->fd_impl->plugin_sp = &sp;
@@ -670,11 +670,11 @@ int SaveFile(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
         do_plugin_set = true;
         break;
       case bRC_Skip:
-        Dmsg2(10, "Option plugin %s decided to skip %s\n", ff_pkt->plugin,
+        Dmsg2(10, "Option plugin {} decided to skip {}\n", ff_pkt->plugin,
               ff_pkt->fname);
         goto good_rtn;
       case bRC_Core:
-        Dmsg2(10, "Option plugin %s decided to let bareos handle %s\n",
+        Dmsg2(10, "Option plugin {} decided to let bareos handle {}\n",
               ff_pkt->plugin, ff_pkt->fname);
         break;
       default:
@@ -727,7 +727,7 @@ int SaveFile(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
     }
   }
 
-  Dmsg2(150, "type=%d do_read=%d\n", ff_pkt->type, do_read);
+  Dmsg2(150, "type={} do_read={}\n", ff_pkt->type, do_read);
   if (do_read) {
     btimer_t* tid;
     int noatime;
@@ -807,7 +807,7 @@ int SaveFile(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
 
   // Check if original file has a digest, and send it
   if (ff_pkt->type == FT_LNKSAVED && ff_pkt->digest) {
-    Dmsg2(300, "Link %s digest %d\n", ff_pkt->fname, ff_pkt->digest_len);
+    Dmsg2(300, "Link {} digest {}\n", ff_pkt->fname, ff_pkt->digest_len);
     sd->fsend("%ld %d 0", jcr->JobFiles, ff_pkt->digest_stream);
 
     sd->msg = CheckPoolMemorySize(sd->msg, ff_pkt->digest_len);
@@ -942,7 +942,7 @@ static inline bool SendDataToSd(b_ctx* bctx)
     return false;
   }
 
-  Dmsg1(130, "Send data to SD len=%d\n", sd->message_length);
+  Dmsg1(130, "Send data to SD len={}\n", sd->message_length);
   bctx->jcr->JobBytes += sd->message_length; /* count bytes saved possibly
                                                 compressed/encrypted */
   sd->msg = bctx->msgsave;                   /* restore read buffer */
@@ -1041,7 +1041,7 @@ static result<std::size_t> SendData(BareosSocket* sd,
     return error;
   }
 
-  Dmsg1(130, "Send data to SD len=%d\n", sd->message_length);
+  Dmsg1(130, "Send data to SD len={}\n", sd->message_length);
   return size;
 }
 
@@ -1449,7 +1449,7 @@ static int send_data(JobControlRecord* jcr,
   bctx.digest = digest;                    /* encryption digest */
   bctx.signing_digest = signing_digest;    /* signing digest */
 
-  Dmsg1(300, "Saving data, type=%d\n", ff_pkt->type);
+  Dmsg1(300, "Saving data, type={}\n", ff_pkt->type);
 
   if (!SetupCompressionContext(bctx)) { goto bail_out; }
 
@@ -1464,7 +1464,7 @@ static int send_data(JobControlRecord* jcr,
     }
     goto bail_out;
   }
-  Dmsg1(300, ">stored: datahdr %s", sd->msg);
+  Dmsg1(300, ">stored: datahdr {}", sd->msg);
 
   /* Make space at beginning of buffer for fileAddr because this
    *   same buffer will be used for writing if compression is off. */
@@ -1520,7 +1520,7 @@ static int send_data(JobControlRecord* jcr,
         }
         goto bail_out;
       }
-      Dmsg1(130, "Send data to SD len=%d\n", sd->message_length);
+      Dmsg1(130, "Send data to SD len={}\n", sd->message_length);
       jcr->JobBytes += sd->message_length; /* count bytes saved possibly
                                               compressed/encrypted */
       sd->msg = bctx.msgsave;              /* restore bnet buffer */
@@ -1576,7 +1576,7 @@ bool EncodeAndSendAttributes(JobControlRecord* jcr,
   return true;
 #endif
 
-  Dmsg1(300, "encode_and_send_attrs fname=%s\n", ff_pkt->fname);
+  Dmsg1(300, "encode_and_send_attrs fname={}\n", ff_pkt->fname);
   /** Find what data stream we will use, then encode the attributes */
   if ((data_stream = SelectDataStream(ff_pkt)) == STREAM_NONE) {
     /* This should not happen */
@@ -1595,7 +1595,7 @@ bool EncodeAndSendAttributes(JobControlRecord* jcr,
     attr_stream = encode_attribsEx(jcr, attribsEx, ff_pkt);
   }
 
-  Dmsg3(300, "File %s\nattribs=%s\nattribsEx=%s\n", ff_pkt->fname,
+  Dmsg3(300, "File {}\nattribs={}\nattribsEx={}\n", ff_pkt->fname,
         attribs.c_str(), attribsEx);
 
   if (std::optional findex = get_next_findex(jcr)) {
@@ -1626,7 +1626,7 @@ bool EncodeAndSendAttributes(JobControlRecord* jcr,
     }
     return false;
   }
-  Dmsg1(300, ">stored: attrhdr %s", sd->msg);
+  Dmsg1(300, ">stored: attrhdr {}", sd->msg);
 
   /* Send file attributes to Storage daemon
    *   File_index
@@ -1658,7 +1658,7 @@ bool EncodeAndSendAttributes(JobControlRecord* jcr,
     case FT_JUNCTION:
     case FT_LNK:
     case FT_LNKSAVED:
-      Dmsg3(300, "Link %d %s to %s\n", jcr->JobFiles, ff_pkt->fname,
+      Dmsg3(300, "Link {} {} to {}\n", jcr->JobFiles, ff_pkt->fname,
             ff_pkt->link);
       status = sd->fsend("%ld %d %s%c%s%c%s%c%s%c%u%c", jcr->JobFiles,
                          ff_pkt->type, ff_pkt->fname, 0, attribs.c_str(), 0,
@@ -1689,7 +1689,7 @@ bool EncodeAndSendAttributes(JobControlRecord* jcr,
           // Uncompressed object smaller, use it
           comp_len = ff_pkt->object_len;
         }
-        Dmsg2(100, "Object compressed from %d to %d bytes\n",
+        Dmsg2(100, "Object compressed from {} to {} bytes\n",
               ff_pkt->object_len, comp_len);
       }
 
@@ -1723,7 +1723,7 @@ bool EncodeAndSendAttributes(JobControlRecord* jcr,
     UnstripPath(ff_pkt);
   }
 
-  Dmsg2(300, ">stored: attr len=%d: %s\n", sd->message_length, sd->msg);
+  Dmsg2(300, ">stored: attr len={}: {}\n", sd->message_length, sd->msg);
   if (!status && !jcr->IsJobCanceled()) {
     Jmsg1(jcr, M_FATAL, 0, T_("Network send error to SD. ERR=%s\n"),
           sd->bstrerror());
@@ -1765,7 +1765,7 @@ static bool do_strip(int count, char* in)
     *out++ = *in++;
   }
   *out = 0;
-  Dmsg4(500, "stripped=%d count=%d numsep=%d sep>count=%d\n", stripped, count,
+  Dmsg4(500, "stripped={} count={} numsep={} sep>count={}\n", stripped, count,
         numsep, numsep > count);
   return stripped == count && numsep > count;
 }
@@ -1780,7 +1780,7 @@ static bool do_strip(int count, char* in)
 void StripPath(FindFilesPacket* ff_pkt)
 {
   if (!BitIsSet(FO_STRIPPATH, ff_pkt->flags) || ff_pkt->StripPath <= 0) {
-    Dmsg1(200, "No strip for %s\n", ff_pkt->fname);
+    Dmsg1(200, "No strip for {}\n", ff_pkt->fname);
     return;
   }
 
@@ -1792,7 +1792,7 @@ void StripPath(FindFilesPacket* ff_pkt)
   PmStrcpy(ff_pkt->fname_save, ff_pkt->fname);
   if (ff_pkt->type != FT_LNK && ff_pkt->fname != ff_pkt->link) {
     PmStrcpy(ff_pkt->link_save, ff_pkt->link);
-    Dmsg2(500, "strcpy link_save=%d link=%d\n", strlen(ff_pkt->link_save),
+    Dmsg2(500, "strcpy link_save={} link={}\n", strlen(ff_pkt->link_save),
           strlen(ff_pkt->link));
   }
 
@@ -1814,7 +1814,7 @@ void StripPath(FindFilesPacket* ff_pkt)
   }
 
 rtn:
-  Dmsg3(100, "fname=%s stripped=%s link=%s\n", ff_pkt->fname_save,
+  Dmsg3(100, "fname={} stripped={} link={}\n", ff_pkt->fname_save,
         ff_pkt->fname, ff_pkt->link);
 }
 
@@ -1826,10 +1826,10 @@ void UnstripPath(FindFilesPacket* ff_pkt)
 
   strcpy(ff_pkt->fname, ff_pkt->fname_save);
   if (ff_pkt->type != FT_LNK && ff_pkt->fname != ff_pkt->link) {
-    Dmsg2(500, "strcpy link=%s link_save=%s\n", ff_pkt->link,
+    Dmsg2(500, "strcpy link={} link_save={}\n", ff_pkt->link,
           ff_pkt->link_save);
     strcpy(ff_pkt->link, ff_pkt->link_save);
-    Dmsg2(500, "strcpy link=%d link_save=%d\n", strlen(ff_pkt->link),
+    Dmsg2(500, "strcpy link={} link_save={}\n", strlen(ff_pkt->link),
           strlen(ff_pkt->link_save));
   }
 }

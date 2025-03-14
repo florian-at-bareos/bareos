@@ -498,7 +498,7 @@ static bool open_the_device()
 
   block = new_block(g_dev);
   g_dev->rLock();
-  Dmsg1(200, "Opening device %s\n", g_dcr->VolumeName);
+  Dmsg1(200, "Opening device {}\n", g_dcr->VolumeName);
   if (!g_dev->open(g_dcr, DeviceMode::OPEN_READ_WRITE)) {
     Emsg1(M_FATAL, 0, T_("dev open failed: %s\n"), g_dev->errmsg);
     ok = false;
@@ -1096,7 +1096,7 @@ static bool write_two_files()
   } else {
     dev->max_file_size = 2LL * num_recs * (uint64_t)DEFAULT_BLOCK_SIZE;
   }
-  Dmsg1(100, "max_file_size was set to %lld\n", dev->max_file_size);
+  Dmsg1(100, "max_file_size was set to {}\n", dev->max_file_size);
 
   Pmsg2(-1,
         T_("\n=== Write, rewind, and re-read test ===\n\n"
@@ -1429,7 +1429,7 @@ static int autochanger_test()
   int timeout = g_dcr->device_resource->max_changer_wait;
   int sleep_time = 0;
 
-  Dmsg1(100, "Max changer wait = %d sec\n", timeout);
+  Dmsg1(100, "Max changer wait = {} sec\n", timeout);
   if (!g_dev->HasCap(CAP_ATTACHED_TO_AUTOCHANGER)) { return 1; }
   if (!(g_dcr->device_resource && g_dcr->device_resource->changer_name
         && g_dcr->device_resource->changer_command)) {
@@ -1460,7 +1460,7 @@ try_again:
   changer = edit_device_codes(
       g_dcr, changer, g_dcr->device_resource->changer_command, "loaded");
   status = RunProgram(changer, timeout, results);
-  Dmsg3(100, "run_prog: %s stat=%d result=\"%s\"\n", changer, status, results);
+  Dmsg3(100, "run_prog: {} stat={} result=\"{}\"\n", changer, status, results);
   if (status == 0) {
     loaded = atoi(results);
   } else {
@@ -1475,7 +1475,7 @@ try_again:
   } else {
     Pmsg0(-1, T_("Nothing loaded in the drive. OK.\n"));
   }
-  Dmsg1(100, "Results from loaded query=%s\n", results);
+  Dmsg1(100, "Results from loaded query={}\n", results);
   if (loaded) {
     g_dcr->VolCatInfo.Slot = loaded;
     /* We are going to load a new tape, so close the device */
@@ -1503,7 +1503,7 @@ try_again:
         g_dev->drive);
   changer = edit_device_codes(g_dcr, changer,
                               g_dcr->device_resource->changer_command, "load");
-  Dmsg1(100, "Changer=%s\n", changer);
+  Dmsg1(100, "Changer={}\n", changer);
   g_dev->close(g_dcr);
   status = RunProgram(changer, timeout, results);
   if (status == 0) {
@@ -1918,7 +1918,7 @@ static void scancmd()
       }
       return;
     }
-    Dmsg1(200, "read status = %d\n", status);
+    Dmsg1(200, "read status = {}\n", status);
     /*    sleep(1); */
     if (status != block_size) {
       g_dev->UpdatePos(g_dcr);
@@ -2014,7 +2014,7 @@ static void scan_blocks()
         printf(T_("End of File mark.\n"));
         continue;
       default:
-        Dmsg1(100, "!read_block(): ERR=%s\n", g_dev->bstrerror());
+        Dmsg1(100, "!read_block(): ERR={}\n", g_dev->bstrerror());
         if (BitIsSet(ST_SHORT, g_dev->state)) {
           if (blocks > 0) {
             if (blocks == 1) {
@@ -2049,7 +2049,7 @@ static void scan_blocks()
     tot_blocks++;
     bytes += block->block_len;
     Dmsg7(100,
-          "Blk_blk=%u file,blk=%u,%u blen=%u bVer=%d SessId=%u SessTim=%u\n",
+          "Blk_blk={} file,blk={},{} blen={} bVer={} SessId={} SessTim={}\n",
           block->BlockNumber, g_dev->file, g_dev->block_num, block->block_len,
           block->BlockVer, block->VolSessionId, block->VolSessionTime);
     if (g_verbose == 1) {
@@ -2151,8 +2151,8 @@ static void fillcmd()
     return;
   }
 
-  Dmsg1(20, "Begin append device=%s\n", g_dev->print_name());
-  Dmsg1(20, "MaxVolSize=%s\n", edit_uint64(g_dev->max_volume_size, ec1));
+  Dmsg1(20, "Begin append device={}\n", g_dev->print_name());
+  Dmsg1(20, "MaxVolSize={}\n", edit_uint64(g_dev->max_volume_size, ec1));
 
   /* Use fixed block size to simplify read back */
   min_block_size = g_dev->min_block_size;
@@ -2213,13 +2213,13 @@ static void fillcmd()
     /* Mix up the data just a bit */
     MixBuffer(FILL_RANDOM, rec.data, rec.data_len);
 
-    Dmsg4(250, "before write_rec FI=%d SessId=%d Strm=%s len=%d\n",
+    Dmsg4(250, "before write_rec FI={} SessId={} Strm={} len={}\n",
           rec.FileIndex, rec.VolSessionId,
           stream_to_ascii(buf1, rec.Stream, rec.FileIndex), rec.data_len);
 
     while (!WriteRecordToBlock(g_dcr, &rec)) {
       // When we get here we have just filled a block
-      Dmsg2(150, "!WriteRecordToBlock data_len=%d rem=%d\n", rec.data_len,
+      Dmsg2(150, "!WriteRecordToBlock data_len={} rem={}\n", rec.data_len,
             rec.remainder);
 
       /* Write block to tape */
@@ -2262,7 +2262,7 @@ static void fillcmd()
       break;
     }
     g_jcr->JobBytes += rec.data_len; /* increment bytes of this job */
-    Dmsg4(190, "WriteRecord FI=%s SessId=%d Strm=%s len=%d\n",
+    Dmsg4(190, "WriteRecord FI={} SessId={} Strm={} len={}\n",
           FI_to_ascii(buf1, rec.FileIndex), rec.VolSessionId,
           stream_to_ascii(buf2, rec.Stream, rec.FileIndex), rec.data_len);
 
@@ -2943,7 +2943,7 @@ bool BTAPE_DCR::DirCreateJobmediaRecord(bool)
 
 bool BTAPE_DCR::DirFindNextAppendableVolume()
 {
-  Dmsg1(20, "Enter DirFindNextAppendableVolume. stop=%d\n", stop);
+  Dmsg1(20, "Enter DirFindNextAppendableVolume. stop={}\n", stop);
   return VolumeName[0] != 0;
 }
 

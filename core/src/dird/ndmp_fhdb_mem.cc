@@ -150,7 +150,7 @@ static inline N_TREE_ROOT* ndmp_fhdb_new_tree()
   size = count * (BALIGN(sizeof(N_TREE_ROOT)) + 40);
   if (size > (MAX_BUF_SIZE / 2)) { size = MAX_BUF_SIZE; }
 
-  Dmsg2(400, "count=%d size=%d\n", count, size);
+  Dmsg2(400, "count={} size={}\n", count, size);
 
   MallocBuf(root, size);
 
@@ -219,7 +219,7 @@ static inline void NdmpFhdbFreeTree(N_TREE_ROOT* root)
     freed_blocks++;
   }
 
-  Dmsg3(100, "Total size=%u blocks=%u freed_blocks=%u\n", root->total_size,
+  Dmsg3(100, "Total size={} blocks={} freed_blocks={}\n", root->total_size,
         root->blocks, freed_blocks);
 
   free(root);
@@ -428,7 +428,7 @@ static inline void add_out_of_order_metadata(NIS* nis,
 
   Dmsg2(100,
         "bndmp_fhdb_mem_add_dir: Added out of order metadata entry for node "
-        "%llu with parent %llu\n",
+        "{} with parent {}\n",
         node, dir_node);
 }
 
@@ -446,7 +446,7 @@ extern "C" int bndmp_fhdb_mem_add_dir(struct ndmlog* ixlog,
   if (nis->save_filehist) {
     N_TREE_ROOT* fhdb_root;
 
-    Dmsg3(100, "bndmp_fhdb_mem_add_dir: New filename ==> %s [%llu] - [%llu]\n",
+    Dmsg3(100, "bndmp_fhdb_mem_add_dir: New filename ==> {} [{}] - [{}]\n",
           raw_name, dir_node, node);
 
     fhdb_root = ((struct fhdb_state_mem*)nis->fhdb_state)->fhdb_root;
@@ -486,7 +486,7 @@ static N_TREE_NODE* insert_metadata_parent_node(MetadataTable* meta_data,
   OOO_MD* md_entry;
 
   Dmsg1(100,
-        "bndmp_fhdb_mem_add_dir: Inserting node for parent %llu into tree\n",
+        "bndmp_fhdb_mem_add_dir: Inserting node for parent {} into tree\n",
         dir_node);
 
   // lookup the dir_node
@@ -536,7 +536,7 @@ static inline bool ProcessOutOfOrderMetadata(MetadataTable* meta_data,
     // Alread visited ?
     if (!md_entry->nt_node) { continue; }
 
-    Dmsg1(100, "bndmp_fhdb_mem_add_dir: Inserting node for %llu into tree\n",
+    Dmsg1(100, "bndmp_fhdb_mem_add_dir: Inserting node for {} into tree\n",
           md_entry->nt_node->inode);
 
     // See if this entry is in the cached parent.
@@ -590,7 +590,7 @@ extern "C" int bndmp_fhdb_mem_add_node(struct ndmlog* ixlog,
     MetadataTable* meta_data
         = ((struct fhdb_state_mem*)nis->fhdb_state)->out_of_order_metadata;
 
-    Dmsg1(100, "bndmp_fhdb_mem_add_node: New node [%llu]\n", node);
+    Dmsg1(100, "bndmp_fhdb_mem_add_node: New node [{}]\n", node);
 
     fhdb_root = ((struct fhdb_state_mem*)nis->fhdb_state)->fhdb_root;
     if (!fhdb_root) {
@@ -651,7 +651,7 @@ extern "C" int bndmp_fhdb_mem_add_dirnode_root(struct ndmlog* ixlog,
     N_TREE_ROOT* fhdb_root;
     struct fhdb_state_mem* fhdb_state;
 
-    Dmsg1(100, "bndmp_fhdb_mem_add_dirnode_root: New root node [%llu]\n",
+    Dmsg1(100, "bndmp_fhdb_mem_add_dirnode_root: New root node [{}]\n",
           root_node);
 
     fhdb_state = ((struct fhdb_state_mem*)nis->fhdb_state);
@@ -728,7 +728,7 @@ void NdmpFhdbMemProcessDb(struct ndmlog* ixlog)
       PoolMem fname, tmp;
 
       // Store the toplevel entry of the tree.
-      Dmsg2(100, "==> %s [%s]\n", fhdb_root->fname, fhdb_root->attr);
+      Dmsg2(100, "==> {} [{}]\n", fhdb_root->fname, fhdb_root->attr);
       NdmpStoreAttributeRecord(
           nis->jcr, fhdb_root->fname, nis->virtual_filename, fhdb_root->attr,
           fhdb_root->FileType, fhdb_root->inode, fhdb_root->Offset);
@@ -754,12 +754,12 @@ void NdmpFhdbMemProcessDb(struct ndmlog* ixlog)
          * Only for files being backed up, we also get NDMP4_FH_ADD_NODE
          * So we skip entries that do not have any attribute */
         if (node->attr) {
-          Dmsg2(100, "==> %s [%s]\n", fname.c_str(), node->attr);
+          Dmsg2(100, "==> {} [{}]\n", fname.c_str(), node->attr);
           NdmpStoreAttributeRecord(nis->jcr, fname.c_str(),
                                    nis->virtual_filename, node->attr,
                                    node->FileType, node->inode, node->Offset);
         } else {
-          Dmsg1(100, "Skipping %s because it has no attributes\n",
+          Dmsg1(100, "Skipping {} because it has no attributes\n",
                 fname.c_str());
         }
       }

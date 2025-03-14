@@ -100,7 +100,7 @@ bool newVolume(JobControlRecord* jcr, MediaDbRecord* mr, StorageResource* store)
         && jcr->db->UpdatePoolRecord(jcr, &pr)) {
       Jmsg(jcr, M_INFO, 0, T_("Created new Volume \"%s\" in catalog.\n"),
            mr->VolumeName);
-      Dmsg1(90, "Created new Volume=%s\n", mr->VolumeName);
+      Dmsg1(90, "Created new Volume={}\n", mr->VolumeName);
       return true;
     } else {
       Jmsg(jcr, M_ERROR, 0, "%s", jcr->db->strerror());

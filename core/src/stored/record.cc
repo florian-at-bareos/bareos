@@ -114,12 +114,12 @@ static const char* record_compression_to_str(PoolMem& resultbuffer,
 
     buf += sizeof(uint64_t);
 
-    Dmsg1(400, "Sparse data stream found: start address=%llu\n", faddr);
+    Dmsg1(400, "Sparse data stream found: start address={}\n", faddr);
     tmp.bsprintf("Sparse: StartAddress=%llu. ", faddr);
     resultbuffer.strcat(tmp);
   }
 
-  Dmsg1(400, "Stream found in DecompressData(): %d\n", maskedStream);
+  Dmsg1(400, "Stream found in DecompressData(): {}\n", maskedStream);
   switch (maskedStream) {
     case STREAM_COMPRESSED_DATA:
     case STREAM_SPARSE_COMPRESSED_DATA:
@@ -138,8 +138,8 @@ static const char* record_compression_to_str(PoolMem& resultbuffer,
       UnserEnd(buf, sizeof(comp_stream_header));
 
       Dmsg4(400,
-            "Compressed data stream found: magic=0x%x, len=%d, level=%d, "
-            "ver=0x%x\n",
+            "Compressed data stream found: magic=0x{:x}, len={}, level={}, "
+            "ver=0x{:x}\n",
             comp_magic, comp_len, comp_level, comp_version);
 
       switch (comp_magic) {
@@ -495,31 +495,31 @@ void DumpRecord(const char* tag, const DeviceRecord* rec)
   char stream[128];
   char findex[128];
 
-  Dmsg2(100, "%s: rec %p\n", tag, rec);
+  Dmsg2(100, "{}: rec {:p}\n", tag, rec);
 
-  Dmsg3(100, "%-14s next %p prev %p\n", "link", rec->link.next, rec->link.prev);
-  Dmsg2(100, "%-14s %u\n", "File", rec->File);
-  Dmsg2(100, "%-14s %u\n", "Block", rec->Block);
-  Dmsg2(100, "%-14s %u\n", "VolSessionId", rec->VolSessionId);
-  Dmsg2(100, "%-14s %u\n", "VolSessionTime", rec->VolSessionTime);
-  Dmsg2(100, "%-14s %s\n", "FileIndex",
+  Dmsg3(100, "{:<14} next {:p} prev {:p}\n", "link", rec->link.next, rec->link.prev);
+  Dmsg2(100, "{:<14} {}\n", "File", rec->File);
+  Dmsg2(100, "{:<14} {}\n", "Block", rec->Block);
+  Dmsg2(100, "{:<14} {}\n", "VolSessionId", rec->VolSessionId);
+  Dmsg2(100, "{:<14} {}\n", "VolSessionTime", rec->VolSessionTime);
+  Dmsg2(100, "{:<14} {}\n", "FileIndex",
         findex_to_str(rec->FileIndex, findex, sizeof(findex)));
-  Dmsg2(100, "%-14s %s\n", "Stream",
+  Dmsg2(100, "{:<14} {}\n", "Stream",
         stream_to_ascii(stream, rec->Stream, rec->FileIndex));
-  Dmsg2(100, "%-14s %d\n", "maskedStream", rec->maskedStream);
-  Dmsg2(100, "%-14s %u\n", "data_len", rec->data_len);
-  Dmsg2(100, "%-14s %u\n", "remainder", rec->remainder);
+  Dmsg2(100, "{:<14} {}\n", "maskedStream", rec->maskedStream);
+  Dmsg2(100, "{:<14} {}\n", "data_len", rec->data_len);
+  Dmsg2(100, "{:<14} {}\n", "remainder", rec->remainder);
   for (unsigned int i = 0;
        i < (sizeof(rec->state_bits) / sizeof(rec->state_bits[0])); i++) {
-    Dmsg3(100, "%-11s[%d]        %2.2x\n", "state_bits", i,
+    Dmsg3(100, "{:<11}[{}]        {:2.2x}\n", "state_bits", i,
           (uint8_t)rec->state_bits[i]);
   }
-  Dmsg3(100, "%-14s %u (%s)\n", "state", rec->state,
+  Dmsg3(100, "{:<14} {} ({})\n", "state", rec->state,
         record_state_to_ascii(rec->state));
-  Dmsg2(100, "%-14s %p\n", "bsr", rec->bsr);
-  Dmsg2(100, "%-14s %p\n", "data", rec->data);
-  Dmsg2(100, "%-14s %d\n", "match_stat", rec->match_stat);
-  Dmsg2(100, "%-14s %s\n", "own_mempool", rec->own_mempool ? "true" : "false");
+  Dmsg2(100, "{:<14} {:p}\n", "bsr", rec->bsr);
+  Dmsg2(100, "{:<14} {:p}\n", "data", rec->data);
+  Dmsg2(100, "{:<14} {}\n", "match_stat", rec->match_stat);
+  Dmsg2(100, "{:<14} {}\n", "own_mempool", rec->own_mempool ? "true" : "false");
 }
 
 // Return a new record entity
@@ -662,10 +662,10 @@ bool DeviceControlRecord::WriteRecord()
   }
 
   while (!WriteRecordToBlock(this, after_rec)) {
-    Dmsg2(850, "!WriteRecordToBlock data_len=%d rem=%d\n", after_rec->data_len,
+    Dmsg2(850, "!WriteRecordToBlock data_len={} rem={}\n", after_rec->data_len,
           after_rec->remainder);
     if (!WriteBlockToDevice()) {
-      Dmsg2(90, "Got WriteBlockToDev error on device %s. %s\n",
+      Dmsg2(90, "Got WriteBlockToDev error on device {}. {}\n",
             dev->print_name(), dev->bstrerror());
       goto bail_out;
     }
@@ -678,7 +678,7 @@ bool DeviceControlRecord::WriteRecord()
     goto bail_out;
   }
 
-  Dmsg4(850, "WriteRecord FI=%s SessId=%d Strm=%s len=%d\n",
+  Dmsg4(850, "WriteRecord FI={} SessId={} Strm={} len={}\n",
         FI_to_ascii(buf1, after_rec->FileIndex), after_rec->VolSessionId,
         stream_to_ascii(buf2, after_rec->Stream, after_rec->FileIndex),
         after_rec->data_len);
@@ -723,8 +723,8 @@ bool WriteRecordToBlock(DeviceControlRecord* dcr, DeviceRecord* rec)
     ASSERT(block->buf_len >= block->binbuf);
 
     Dmsg9(890,
-          "%s() state=%d (%s) FI=%s SessId=%d Strm=%s len=%d "
-          "block_navail=%d remainder=%d\n",
+          "{}() state={} ({}) FI={} SessId={} Strm={} len={} "
+          "block_navail={} remainder={}\n",
           __PRETTY_FUNCTION__, rec->state, record_state_to_ascii(rec->state),
           FI_to_ascii(buf1, rec->FileIndex), rec->VolSessionId,
           stream_to_ascii(buf2, rec->Stream, rec->FileIndex), rec->data_len,
@@ -869,7 +869,7 @@ bool ReadRecordFromBlock(DeviceControlRecord* dcr, DeviceRecord* rec)
 
   /* Get the header. There is always a full header, otherwise we find it in the
    * next block. */
-  Dmsg3(450, "Block=%d Ver=%d size=%u\n", dcr->block->BlockNumber,
+  Dmsg3(450, "Block={} Ver={} size={}\n", dcr->block->BlockNumber,
         dcr->block->BlockVer, dcr->block->block_len);
   if (dcr->block->BlockVer == 1) {
     rhl = RECHDR1_LENGTH;
@@ -878,7 +878,7 @@ bool ReadRecordFromBlock(DeviceControlRecord* dcr, DeviceRecord* rec)
   }
   if (remlen >= rhl) {
     Dmsg4(450,
-          "Enter read_record_block: remlen=%d data_len=%d rem=%d blkver=%d\n",
+          "Enter read_record_block: remlen={} data_len={} rem={} blkver={}\n",
           remlen, rec->data_len, rec->remainder, dcr->block->BlockVer);
 
     UnserBegin(dcr->block->bufp, WRITE_RECHDR_LENGTH);
@@ -910,7 +910,7 @@ bool ReadRecordFromBlock(DeviceControlRecord* dcr, DeviceRecord* rec)
     /* If Stream is negative, it means that this is a continuation
      * of a previous partially written record. */
     if (Stream < 0) { /* continuation record? */
-      Dmsg1(500, "Got negative Stream => continuation. remainder=%d\n",
+      Dmsg1(500, "Got negative Stream => continuation. remainder={}\n",
             rec->remainder);
       SetBit(REC_CONTINUATION, rec->state_bits);
       if (!rec->remainder) { /* if we didn't read previously */
@@ -935,8 +935,8 @@ bool ReadRecordFromBlock(DeviceControlRecord* dcr, DeviceRecord* rec)
     }
 
     Dmsg6(450,
-          "rd_rec_blk() got FI=%s SessId=%d Strm=%s len=%u\n"
-          "remlen=%d data_len=%d\n",
+          "rd_rec_blk() got FI={} SessId={} Strm={} len={}\n"
+          "remlen={} data_len={}\n",
           FI_to_ascii(buf1, rec->FileIndex), rec->VolSessionId,
           stream_to_ascii(buf2, rec->Stream, rec->FileIndex), data_bytes,
           remlen, rec->data_len);
@@ -988,14 +988,14 @@ bool ReadRecordFromBlock(DeviceControlRecord* dcr, DeviceRecord* rec)
     dcr->block->binbuf -= remlen;
     rec->data_len += remlen;
     rec->remainder = 1; /* partial record transferred */
-    Dmsg1(450, "read_record_block: partial xfered=%d\n", rec->data_len);
+    Dmsg1(450, "read_record_block: partial xfered={}\n", rec->data_len);
     SetBit(REC_PARTIAL_RECORD, rec->state_bits);
     SetBit(REC_BLOCK_EMPTY, rec->state_bits);
     return true;
   }
   rec->remainder = 0;
 
-  Dmsg4(450, "Rtn full rd_rec_blk FI=%s SessId=%d Strm=%s len=%d\n",
+  Dmsg4(450, "Rtn full rd_rec_blk FI={} SessId={} Strm={} len={}\n",
         FI_to_ascii(buf1, rec->FileIndex), rec->VolSessionId,
         stream_to_ascii(buf2, rec->Stream, rec->FileIndex), rec->data_len);
 

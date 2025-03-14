@@ -237,18 +237,18 @@ int CloseBpipe(Bpipe* bpipe)
 
   // Wait for worker child to exit
   for (;;) {
-    Dmsg2(800, "Wait for %d opt=%d\n", bpipe->worker_pid, wait_option);
+    Dmsg2(800, "Wait for {} opt={}\n", bpipe->worker_pid, wait_option);
     do {
       wpid = waitpid(bpipe->worker_pid, &chldstatus, wait_option);
     } while (wpid == -1 && (errno == EINTR || errno == EAGAIN));
     if (wpid == bpipe->worker_pid || wpid == -1) {
       BErrNo be;
       status = errno;
-      Dmsg3(800, "Got break wpid=%d status=%d ERR=%s\n", wpid, chldstatus,
+      Dmsg3(800, "Got break wpid={} status={} ERR={}\n", wpid, chldstatus,
             wpid == -1 ? be.bstrerror() : "none");
       break;
     }
-    Dmsg3(800, "Got wpid=%d status=%d ERR=%s\n", wpid, chldstatus,
+    Dmsg3(800, "Got wpid={} status={} ERR={}\n", wpid, chldstatus,
           wpid == -1 ? strerror(errno) : "none");
     if (remaining_wait > 0) {
       Bmicrosleep(1, 0); /* wait one second */
@@ -264,13 +264,13 @@ int CloseBpipe(Bpipe* bpipe)
     if (WIFEXITED(chldstatus)) { /* process exit()ed */
       status = WEXITSTATUS(chldstatus);
       if (status != 0) {
-        Dmsg1(800, "Non-zero status %d returned from child.\n", status);
+        Dmsg1(800, "Non-zero status {} returned from child.\n", status);
         status |= b_errno_exit; /* exit status returned */
       }
-      Dmsg1(800, "child status=%d\n", status & ~b_errno_exit);
+      Dmsg1(800, "child status={}\n", status & ~b_errno_exit);
     } else if (WIFSIGNALED(chldstatus)) { /* process died */
       status = WTERMSIG(chldstatus);
-      Dmsg1(800, "Child died from signal %d\n", status);
+      Dmsg1(800, "Child died from signal {}\n", status);
       status |= b_errno_signal; /* exit signal returned */
     }
   }
@@ -278,7 +278,7 @@ int CloseBpipe(Bpipe* bpipe)
   if (bpipe->timer_id) { StopChildTimer(bpipe->timer_id); }
 
   free(bpipe);
-  Dmsg2(800, "returning status=%d,%d\n",
+  Dmsg2(800, "returning status={},{}\n",
         status & ~(b_errno_exit | b_errno_signal), status);
 
   return status;

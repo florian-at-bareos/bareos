@@ -43,7 +43,7 @@ void* handle_stored_connection(BareosSocket* sd)
 
   // Do a sanity check on the message received
   if (sd->message_length < 25 || sd->message_length > 256) {
-    Dmsg1(000, "<filed: %s", sd->msg);
+    Dmsg1(000, "<filed: {}", sd->msg);
     Emsg2(M_ERROR, 0, T_("Invalid connection from %s. Len=%d\n"), sd->who(),
           sd->message_length);
     Bmicrosleep(5, 0); /* make user wait 5 seconds */
@@ -57,7 +57,7 @@ void* handle_stored_connection(BareosSocket* sd)
     char* who = BnetGetPeer(sd, addr, sizeof(addr)) ? sd->who() : addr;
 
     sd->msg[100] = 0;
-    Dmsg2(debuglevel, "Bad Hello command from Director at %s: %s\n", sd->who(),
+    Dmsg2(debuglevel, "Bad Hello command from Director at {}: {}\n", sd->who(),
           sd->msg);
     Jmsg2(NULL, M_FATAL, 0, T_("Bad Hello command from Director at %s: %s\n"),
           who, sd->msg);
@@ -69,24 +69,24 @@ void* handle_stored_connection(BareosSocket* sd)
   if (!(jcr = get_jcr_by_full_name(job_name))) {
     Jmsg1(NULL, M_FATAL, 0, T_("SD connect failed: Job name not found: %s\n"),
           job_name);
-    Dmsg1(3, "**** Job \"%s\" not found.\n", job_name);
+    Dmsg1(3, "**** Job \"{}\" not found.\n", job_name);
     sd->close();
     delete sd;
     return NULL;
   }
 
-  Dmsg1(50, "Found Job %s\n", job_name);
+  Dmsg1(50, "Found Job {}\n", job_name);
 
   jcr->store_bsock = sd;
   jcr->store_bsock->SetJcr(jcr);
 
   // Authenticate the Storage Daemon.
   if (!AuthenticateStoragedaemon(jcr)) {
-    Dmsg1(50, "Authentication failed Job %s\n", jcr->Job);
+    Dmsg1(50, "Authentication failed Job {}\n", jcr->Job);
     Jmsg(jcr, M_FATAL, 0, T_("Unable to authenticate Storage daemon\n"));
     jcr->setJobStatusWithPriorityCheck(JS_ErrorTerminated);
   } else {
-    Dmsg2(50, "OK Authentication jid=%u Job %s\n", (uint32_t)jcr->JobId,
+    Dmsg2(50, "OK Authentication jid={} Job {}\n", (uint32_t)jcr->JobId,
           jcr->Job);
   }
 

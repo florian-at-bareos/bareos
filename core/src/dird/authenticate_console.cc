@@ -92,7 +92,7 @@ OptionResult ConsoleAuthenticator::DoDefaultAuthentication()
 void ConsoleAuthenticator::DoNamedAuthentication()
 {
   if (!optional_console_resource_) {
-    Dmsg1(200, "Could not find resource for console %s\n",
+    Dmsg1(200, "Could not find resource for console {}\n",
           console_name_.c_str());
     auth_success_ = false;
     return;
@@ -105,7 +105,7 @@ void ConsoleAuthenticator::DoNamedAuthentication()
     ua_->user_acl = &optional_console_resource_->user_acl;
   } else {
     ua_->user_acl = nullptr;
-    Dmsg1(200, "Could not authenticate console %s\n", console_name_.c_str());
+    Dmsg1(200, "Could not authenticate console {}\n", console_name_.c_str());
   }
 }
 
@@ -156,7 +156,7 @@ OptionResult ConsoleAuthenticatorBefore_18_2::AuthenticateDefaultConsole()
     SendNotAuthorizedMessageWithSpaceSeparators();
   }
   if (!auth_success_) {
-    Dmsg1(200, "Could not authenticate outdated console %s\n",
+    Dmsg1(200, "Could not authenticate outdated console {}\n",
           console_name_.c_str());
   }
   return OptionResult::Completed;
@@ -177,7 +177,7 @@ OptionResult ConsoleAuthenticatorBefore_18_2::AuthenticatePamUser()
 {
   if (!optional_console_resource_) { return OptionResult::Skipped; }
   if (optional_console_resource_->use_pam_authentication_) {
-    Dmsg1(200, "PAM authentication using outdated Bareos console denied: %s\n",
+    Dmsg1(200, "PAM authentication using outdated Bareos console denied: {}\n",
           console_name_.c_str());
     auth_success_
         = false; /* console before 18_2 cannot do pam authentication */
@@ -242,7 +242,7 @@ OptionResult ConsoleAuthenticatorFrom_18_2::AuthenticateDefaultConsole()
   }
 
   if (!auth_success_) {
-    Dmsg1(200, "Could not authenticate console %s\n", console_name_.c_str());
+    Dmsg1(200, "Could not authenticate console {}\n", console_name_.c_str());
   }
   return OptionResult::Completed;
 }
@@ -263,7 +263,7 @@ void ConsoleAuthenticatorFrom_18_2::AuthenticateNamedConsole()
   }
 
   if (!SendResponseMessage(response_id, send_version)) {
-    Dmsg1(200, "Send of response message failed %s\n", console_name_.c_str());
+    Dmsg1(200, "Send of response message failed {}\n", console_name_.c_str());
     auth_success_ = false;
   }
 }
@@ -297,7 +297,7 @@ OptionResult ConsoleAuthenticatorFrom_18_2::AuthenticatePamUser()
 
     if (!ua_->UA_sock->ReceiveAndEvaluateResponseMessage(response_id,
                                                          message_arguments)) {
-      Dmsg2(100, "Could not evaluate response_id: %d - %d\n", response_id,
+      Dmsg2(100, "Could not evaluate response_id: {} - {}\n", response_id,
             message_arguments.JoinReadable().c_str());
       auth_success_ = false;
       return OptionResult::Completed;
@@ -320,7 +320,7 @@ OptionResult ConsoleAuthenticatorFrom_18_2::AuthenticatePamUser()
       Dmsg0(200, "Console chooses PAM interactive\n");
     }
 
-    Dmsg1(200, "Try to authenticate user using PAM:%s\n", pam_username.c_str());
+    Dmsg1(200, "Try to authenticate user using PAM:{}\n", pam_username.c_str());
 
     std::string authenticated_username;
     if (!PamAuthenticateUser(ua_->UA_sock, pam_username, pam_password,
@@ -331,7 +331,7 @@ OptionResult ConsoleAuthenticatorFrom_18_2::AuthenticatePamUser()
       UserResource* user = (UserResource*)my_config->GetResWithName(
           R_USER, authenticated_username.c_str());
       if (!user) {
-        Dmsg1(200, "No user config found for user %s\n",
+        Dmsg1(200, "No user config found for user {}\n",
               authenticated_username.c_str());
         ua_->user_acl = nullptr;
         auth_success_ = false;

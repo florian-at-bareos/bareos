@@ -66,13 +66,13 @@ static inline bool CompareAclListValueWithItem(
 {
   // gives full access
   if (Bstrcasecmp("*all*", acl_list_compare_value)) {
-    Dmsg2(1400, "Global ACL found in %d %s\n", acl, acl_list_value);
+    Dmsg2(1400, "Global ACL found in {} {}\n", acl, acl_list_value);
     return true;
   }
 
   if (Bstrcasecmp(item, acl_list_compare_value)) {
     // Explicit match.
-    Dmsg3(1400, "ACL found %s in %d %s\n", item, acl, acl_list_value);
+    Dmsg3(1400, "ACL found {} in {} {}\n", item, acl, acl_list_value);
     return true;
   }
 
@@ -83,7 +83,7 @@ static inline bool CompareAclListValueWithItem(
     int rc = regcomp(&preg, acl_list_compare_value, REG_EXTENDED | REG_ICASE);
     if (rc != 0) {
       // Not a valid regular expression so skip it.
-      Dmsg1(1400, "Not a valid regex %s, ignoring for regex compare\n",
+      Dmsg1(1400, "Not a valid regex {}, ignoring for regex compare\n",
             acl_list_value);
       return false;
     }
@@ -92,10 +92,10 @@ static inline bool CompareAclListValueWithItem(
     regmatch_t pmatch[1]{};
     if (regexec(&preg, item, nmatch, pmatch, 0) == 0) {
       // Make sure its not a partial match but a full match.
-      Dmsg2(1400, "Found match start offset %d end offset %d\n",
+      Dmsg2(1400, "Found match start offset {} end offset {}\n",
             pmatch[0].rm_so, pmatch[0].rm_eo);
       if ((pmatch[0].rm_eo - pmatch[0].rm_so) >= item_length) {
-        Dmsg3(1400, "ACL found %s in %d using regex %s\n", item, acl,
+        Dmsg3(1400, "ACL found {} in {} using regex {}\n", item, acl,
               acl_list_value);
         regfree(&preg);
         return true;
@@ -149,7 +149,7 @@ bool UaContext::AclAccessOk(int acl,
       break;
     default:
       if (!IsNameValid(item)) {
-        Dmsg1(1400, "Access denied for item=%s\n", item);
+        Dmsg1(1400, "Access denied for item={}\n", item);
         goto bail_out;
       }
       break;

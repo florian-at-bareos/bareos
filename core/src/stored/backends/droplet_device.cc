@@ -97,7 +97,7 @@ static void DropletDeviceLogfunc(dpl_ctx_t*,
 {
   switch (level) {
     case DPL_DEBUG:
-      Dmsg1(100, "%s\n", message);
+      Dmsg1(100, "{}\n", message);
       break;
     case DPL_INFO:
       Emsg1(M_INFO, 0, "%s\n", message);
@@ -234,7 +234,7 @@ bool DropletDevice::ForEachChunkInDirectoryRunCallback(
 
     switch (status) {
       case DPL_SUCCESS:
-        Dmsg1(100, "chunk %s exists. Calling callback.\n", path.c_str());
+        Dmsg1(100, "chunk {} exists. Calling callback.\n", path.c_str());
         callback_status = callback(sysmd, ctx_, path.c_str(), data);
         if (callback_status == DPL_SUCCESS) {
           i++;
@@ -248,21 +248,21 @@ bool DropletDevice::ForEachChunkInDirectoryRunCallback(
         break;
       case DPL_ENOENT:
         if (ignore_gaps) {
-          Dmsg1(1000, "chunk %s does not exist. Skipped.\n", path.c_str());
+          Dmsg1(1000, "chunk {} does not exist. Skipped.\n", path.c_str());
           i++;
         } else {
-          Dmsg1(100, "chunk %s does not exist. Exiting.\n", path.c_str());
+          Dmsg1(100, "chunk {} does not exist. Exiting.\n", path.c_str());
           found = false;
         }
         break;
       default:
         ++tries;
         if (tries < NUMBER_OF_RETRIES) {
-          Dmsg2(100, "chunk %s failure: %s. Try again (%d).\n", path.c_str(),
+          Dmsg2(100, "chunk {} failure: {}. Try again ({}).\n", path.c_str(),
                 dpl_status_str(callback_status), tries);
           Bmicrosleep(INFLIGT_RETRY_TIME, 0);
         } else {
-          Dmsg2(100, "chunk %s failure: %s. Exiting after %d tries.\n",
+          Dmsg2(100, "chunk {} failure: {}. Exiting after {} tries.\n",
                 path.c_str(), dpl_status_str(callback_status), tries);
           found = false;
         }
@@ -347,7 +347,7 @@ dpl_status_t DropletDevice::check_path(const char* path)
                          path,   /* locator */
                          NULL,   /* metadata */
                          sysmd); /* sysmd */
-    Dmsg4(100, "%scheck_path: path=<%s> (device=%s, bucket=%s): Result %s\n",
+    Dmsg4(100, "{}check_path: path=<{}> (device={}, bucket={}): Result {}\n",
           retry, path, prt_name, ctx_->cur_bucket, dpl_status_str(status));
     dpl_sysmd_free(sysmd);
 
@@ -385,10 +385,10 @@ bool DropletDevice::CheckRemoteConnection()
   switch (status) {
     case DPL_SUCCESS:
     case DPL_ENOENT:
-      Dmsg1(100, "Host is accessible: %s\n", hostaddr.c_str());
+      Dmsg1(100, "Host is accessible: {}\n", hostaddr.c_str());
       return true;
     default:
-      Dmsg2(100, "Cannot reach host: %s (%s)\n ", hostaddr.c_str(),
+      Dmsg2(100, "Cannot reach host: {} ({})\n ", hostaddr.c_str(),
             dpl_status_str(status));
       return false;
   }
@@ -417,7 +417,7 @@ bool DropletDevice::FlushRemoteChunk(chunk_io_request* request)
   bool success = false;
 
   do {
-    Dmsg1(100, "Flushing chunk %s\n", chunk_name.c_str());
+    Dmsg1(100, "Flushing chunk {}\n", chunk_name.c_str());
 
     /* Check on the remote backing store if the chunk already exists.
      * We only upload this chunk if it is bigger then the chunk that exists
@@ -516,7 +516,7 @@ bool DropletDevice::FlushRemoteChunk(chunk_io_request* request)
     }
 
   again1:
-    Dmsg1(100, "Flushing start over again (%d)\n", status);
+    Dmsg1(100, "Flushing start over again ({})\n", status);
 
   } while (!success && tries < NUMBER_OF_RETRIES);
 
@@ -544,7 +544,7 @@ bool DropletDevice::ReadRemoteChunk(chunk_io_request* request)
   PoolMem chunk_name(PM_FNAME);
 
   Mmsg(chunk_name, "/%s/%04d", request->volname, request->chunk);
-  Dmsg1(100, "Reading chunk %s\n", chunk_name.c_str());
+  Dmsg1(100, "Reading chunk {}\n", chunk_name.c_str());
 
   // See if chunk exists.
   int tries = 0;
@@ -565,7 +565,7 @@ bool DropletDevice::ReadRemoteChunk(chunk_io_request* request)
                 T_("Failed to read %s (%ld) to big to fit in chunksize of %ld "
                    "bytes\n"),
                 chunk_name.c_str(), sysmd->size, request->wbuflen);
-          Dmsg1(100, "%s", errmsg);
+          Dmsg1(100, "{}", errmsg);
           dev_errno = EINVAL;
           goto bail_out;
         } else {
@@ -577,13 +577,13 @@ bool DropletDevice::ReadRemoteChunk(chunk_io_request* request)
       case DPL_EINVAL:
         Mmsg1(errmsg, T_("Failed to open %s doesn't exist\n"),
               chunk_name.c_str());
-        Dmsg1(100, "%s", errmsg);
+        Dmsg1(100, "{}", errmsg);
         dev_errno = EIO;
         goto bail_out;
       default:
         Mmsg2(errmsg, T_("Failed to open %s (Droplet error: %d)\n"),
               chunk_name.c_str(), status);
-        Dmsg1(100, "%s", errmsg);
+        Dmsg1(100, "{}", errmsg);
         dev_errno = EIO;
         Bmicrosleep(INFLIGT_RETRY_TIME, 0);
         tries++;
@@ -631,7 +631,7 @@ bool DropletDevice::ReadRemoteChunk(chunk_io_request* request)
       case DPL_ENOENT:
         Mmsg1(errmsg, T_("Failed to open %s doesn't exist\n"),
               chunk_name.c_str());
-        Dmsg1(100, "%s", errmsg);
+        Dmsg1(100, "{}", errmsg);
         dev_errno = EIO;
         Bmicrosleep(INFLIGT_RETRY_TIME, 0);
         ++tries;
@@ -639,7 +639,7 @@ bool DropletDevice::ReadRemoteChunk(chunk_io_request* request)
       default:
         Mmsg2(errmsg, T_("Failed to read %s using dpl_fget(): ERR=%s.\n"),
               chunk_name.c_str(), dpl_status_str(status));
-        Dmsg1(100, "%s", errmsg);
+        Dmsg1(100, "{}", errmsg);
         dev_errno = DropletErrnoToSystemErrno(status);
         Bmicrosleep(INFLIGT_RETRY_TIME, 0);
         ++tries;
@@ -664,7 +664,7 @@ bool DropletDevice::TruncateRemoteVolume(DeviceControlRecord*)
 {
   PoolMem chunk_dir(PM_FNAME);
 
-  Dmsg1(100, "truncate_remote_chunked_volume(%s) start.\n", getVolCatName());
+  Dmsg1(100, "truncate_remote_chunked_volume({}) start.\n", getVolCatName());
   Mmsg(chunk_dir, "/%s", getVolCatName());
   bool ignore_gaps = true;
   if (!ForEachChunkInDirectoryRunCallback(chunk_dir.c_str(),
@@ -673,7 +673,7 @@ bool DropletDevice::TruncateRemoteVolume(DeviceControlRecord*)
     /* errno already set in ForEachChunkInDirectoryRunCallback. */
     return false;
   }
-  Dmsg1(100, "truncate_remote_chunked_volume(%s) finished.\n", getVolCatName());
+  Dmsg1(100, "truncate_remote_chunked_volume({}) finished.\n", getVolCatName());
 
   return true;
 }
@@ -867,7 +867,7 @@ bool DropletDevice::initialize()
     if (!ctx_) {
       Mmsg1(errmsg, T_("Failed to create a new context using config %s\n"),
             dev_options);
-      Dmsg1(100, "%s", errmsg);
+      Dmsg1(100, "{}", errmsg);
       goto bail_out;
     }
 
@@ -884,7 +884,7 @@ bool DropletDevice::initialize()
         Mmsg2(errmsg,
               T_("Failed to login for volume %s using dpl_login(): ERR=%s.\n"),
               getVolCatName(), dpl_status_str(status));
-        Dmsg1(100, "%s", errmsg);
+        Dmsg1(100, "{}", errmsg);
         goto bail_out;
     }
 
@@ -943,7 +943,7 @@ ssize_t DropletDevice::RemoteVolumeSize()
    * dpl_chdir() anyway that will fail if the directory doesn't exist for now we
    * should be mostly fine. */
 
-  Dmsg1(100, "get RemoteVolumeSize(%s)\n", getVolCatName());
+  Dmsg1(100, "get RemoteVolumeSize({})\n", getVolCatName());
   if (!ForEachChunkInDirectoryRunCallback(
           chunk_dir.c_str(), chunked_volume_size_callback, &volumesize)) {
     /* errno is already set in ForEachChunkInDirectoryRunCallback */
@@ -954,7 +954,7 @@ ssize_t DropletDevice::RemoteVolumeSize()
 bail_out:
   if (sysmd) { dpl_sysmd_free(sysmd); }
 
-  Dmsg2(100, "Size of volume %s: %lld\n", chunk_dir.c_str(), volumesize);
+  Dmsg2(100, "Size of volume {}: {}\n", chunk_dir.c_str(), volumesize);
 
   return volumesize;
 }
@@ -975,7 +975,7 @@ boffset_t DropletDevice::d_lseek(DeviceControlRecord*,
 
       volumesize = ChunkedVolumeSize();
 
-      Dmsg1(100, "Current volumesize: %lld\n", volumesize);
+      Dmsg1(100, "Current volumesize: {}\n", volumesize);
 
       if (volumesize >= 0) {
         offset_ = volumesize + offset;

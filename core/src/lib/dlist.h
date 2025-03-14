@@ -178,9 +178,9 @@ template <typename T> class dlist {
         cur_item = prev(cur_item);
         cur--;
       }
-      // Dmsg1(000, "Compare item to %d\n", cur);
+      // Dmsg1(000, "Compare item to {}\n", cur);
       comp = compare(item, cur_item);
-      // Dmsg2(000, "Compare item to %d = %d\n", cur, comp);
+      // Dmsg2(000, "Compare item to {} = {}\n", cur, comp);
       if (comp < 0) {
         high = cur;
         // Dmsg2(000, "set high; low=%d high=%d\n", low, high);
@@ -188,16 +188,16 @@ template <typename T> class dlist {
         low = cur + 1;
         // Dmsg2(000, "set low; low=%d high=%d\n", low, high);
       } else {
-        // Dmsg1(000, "Same as item %d\n", cur);
+        // Dmsg1(000, "Same as item {}\n", cur);
         return cur_item;
       }
     }
     if (high == cur) {
       InsertBefore(item, cur_item);
-      // Dmsg1(000, "Insert before item %d\n", cur);
+      // Dmsg1(000, "Insert before item {}\n", cur);
     } else {
       InsertAfter(item, cur_item);
-      // Dmsg1(000, "Insert after item %d\n", cur);
+      // Dmsg1(000, "Insert after item {}\n", cur);
     }
     return item;
   }
@@ -235,7 +235,7 @@ template <typename T> class dlist {
         cur--;
       }
       comp = compare(item, cur_item);
-      // Dmsg2(000, "Compare item to %d = %d\n", cur, comp);
+      // Dmsg2(000, "Compare item to {} = {}\n", cur, comp);
       if (comp < 0) {
         high = cur;
         // Dmsg2(000, "set high; low=%d high=%d\n", low, high);

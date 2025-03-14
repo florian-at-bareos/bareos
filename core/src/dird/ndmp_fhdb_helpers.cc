@@ -71,7 +71,7 @@ void NdmpStoreAttributeRecord(JobControlRecord* jcr,
 
   ar = jcr->ar;
   if (jcr->cached_attribute) {
-    Dmsg2(400, "Cached attr. Stream=%d fname=%s\n", ar->Stream, ar->fname);
+    Dmsg2(400, "Cached attr. Stream={} fname={}\n", ar->Stream, ar->fname);
     if (DbLocker _{jcr->db}; !jcr->db->CreateAttributesRecord(jcr, ar)) {
       Jmsg1(jcr, M_FATAL, 0, T_("Attribute create error: ERR=%s"),
             jcr->db->strerror());
@@ -122,8 +122,8 @@ void NdmpConvertFstat(ndmp9_file_stat* fstat,
   memset(&statp, 0, sizeof(statp));
 
   Dmsg11(100,
-         "ftype:%d mtime:%lu atime:%lu ctime:%lu uid:%lu gid:%lu mode:%lu "
-         "size:%llu links:%lu node:%llu fh_info:%llu \n",
+         "ftype:{} mtime:{} atime:{} ctime:{} uid:{} gid:{} mode:{} "
+         "size:{} links:{} node:{} fh_info:{} \n",
          fstat->ftype, fstat->mtime.value, fstat->atime.value,
          fstat->ctime.value, fstat->uid.value, fstat->gid.value,
          fstat->mode.value, fstat->size.value, fstat->links.value,

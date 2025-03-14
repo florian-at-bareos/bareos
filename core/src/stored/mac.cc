@@ -88,7 +88,7 @@ static bool response(JobControlRecord* jcr,
 {
   if (sd->errors) { return false; }
   if (BgetMsg(sd) > 0) {
-    Dmsg1(110, "<stored: %s", sd->msg);
+    Dmsg1(110, "<stored: {}", sd->msg);
     if (bstrcmp(sd->msg, resp)) { return true; }
   }
   if (jcr->IsJobCanceled()) {
@@ -151,7 +151,7 @@ static bool CloneRecordInternally(DeviceControlRecord* dcr,
         }
         jcr->setJobType(sos_label.JobType);
         jcr->setJobLevel(sos_label.JobLevel);
-        Dmsg1(200, "joblevel from SOS_LABEL is now %c\n", sos_label.JobLevel);
+        Dmsg1(200, "joblevel from SOS_LABEL is now {:c}\n", sos_label.JobLevel);
 
         // make sure this volume wasn't written by bacula 1.26 or earlier
         ASSERT(sos_label.VerNum >= 11);
@@ -200,7 +200,7 @@ static bool CloneRecordInternally(DeviceControlRecord* dcr,
   rec->VolSessionId = jcr->VolSessionId;
   rec->VolSessionTime = jcr->VolSessionTime;
 
-  Dmsg5(200, "before write JobId=%d FI=%s SessId=%d Strm=%s len=%d\n",
+  Dmsg5(200, "before write JobId={} FI={} SessId={} Strm={} len={}\n",
         jcr->JobId, FI_to_ascii(buf1, rec->FileIndex), rec->VolSessionId,
         stream_to_ascii(buf2, rec->Stream, rec->FileIndex), rec->data_len);
 
@@ -224,17 +224,17 @@ static bool CloneRecordInternally(DeviceControlRecord* dcr,
   }
 
   while (!WriteRecordToBlock(jcr->sd_impl->dcr, jcr->sd_impl->dcr->after_rec)) {
-    Dmsg4(200, "!WriteRecordToBlock blkpos=%u:%u len=%d rem=%d\n", dev->file,
+    Dmsg4(200, "!WriteRecordToBlock blkpos={}:{} len={} rem={}\n", dev->file,
           dev->block_num, jcr->sd_impl->dcr->after_rec->data_len,
           jcr->sd_impl->dcr->after_rec->remainder);
     if (!jcr->sd_impl->dcr->WriteBlockToDevice()) {
-      Dmsg2(90, "Got WriteBlockToDev error on device %s. %s\n",
+      Dmsg2(90, "Got WriteBlockToDev error on device {}. {}\n",
             dev->print_name(), dev->bstrerror());
       Jmsg2(jcr, M_FATAL, 0, T_("Fatal append error on device %s: ERR=%s\n"),
             dev->print_name(), dev->bstrerror());
       goto bail_out;
     }
-    Dmsg2(200, "===== Wrote block new pos %u:%u\n", dev->file, dev->block_num);
+    Dmsg2(200, "===== Wrote block new pos {}:{}\n", dev->file, dev->block_num);
   }
 
   if (rec->FileIndex < 0) {
@@ -245,7 +245,7 @@ static bool CloneRecordInternally(DeviceControlRecord* dcr,
   jcr->JobBytes += jcr->sd_impl->dcr->after_rec
                        ->data_len; /* increment bytes of this job */
 
-  Dmsg5(500, "wrote_record JobId=%d FI=%s SessId=%d Strm=%s len=%d\n",
+  Dmsg5(500, "wrote_record JobId={} FI={} SessId={} Strm={} len={}\n",
         jcr->JobId, FI_to_ascii(buf1, jcr->sd_impl->dcr->after_rec->FileIndex),
         jcr->sd_impl->dcr->after_rec->VolSessionId,
         stream_to_ascii(buf2, jcr->sd_impl->dcr->after_rec->Stream,
@@ -376,7 +376,7 @@ static bool CloneRecordToRemoteSd(DeviceControlRecord* dcr,
   jcr->JobBytes += sd->message_length;
   sd->msg = msgsave;
 
-  Dmsg5(200, "wrote_record JobId=%d FI=%s SessId=%d Strm=%s len=%d\n",
+  Dmsg5(200, "wrote_record JobId={} FI={} SessId={} Strm={} len={}\n",
         jcr->JobId, FI_to_ascii(buf1, rec->FileIndex), rec->VolSessionId,
         stream_to_ascii(buf2, rec->Stream, rec->FileIndex), rec->data_len);
 
@@ -486,8 +486,8 @@ bool DoMacRun(JobControlRecord* jcr)
       goto bail_out;
     }
 
-    Dmsg1(100, "read_dcr=%p\n", jcr->sd_impl->read_dcr);
-    Dmsg3(200, "Found %d volumes names for %s. First=%s\n",
+    Dmsg1(100, "read_dcr={:p}\n", jcr->sd_impl->read_dcr);
+    Dmsg3(200, "Found {} volumes names for {}. First={}\n",
           jcr->sd_impl->NumReadVolumes, Type,
           jcr->sd_impl->VolList->VolumeName);
 
@@ -498,7 +498,7 @@ bool DoMacRun(JobControlRecord* jcr)
       goto bail_out;
     }
 
-    Dmsg2(200, "===== After acquire pos %u:%u\n",
+    Dmsg2(200, "===== After acquire pos {}:{}\n",
           jcr->sd_impl->read_dcr->dev->file,
           jcr->sd_impl->read_dcr->dev->block_num);
 
@@ -524,17 +524,17 @@ bool DoMacRun(JobControlRecord* jcr)
 
     // Let the remote SD know we are about to start the replication.
     sd->fsend(start_replicate);
-    Dmsg1(110, ">stored: %s", sd->msg);
+    Dmsg1(110, ">stored: {}", sd->msg);
 
     // Expect to receive back the Ticket number.
     if (BgetMsg(sd) >= 0) {
-      Dmsg1(110, "<stored: %s", sd->msg);
+      Dmsg1(110, "<stored: {}", sd->msg);
       if (sscanf(sd->msg, OK_start_replicate, &jcr->sd_impl->Ticket) != 1) {
         Jmsg(jcr, M_FATAL, 0, T_("Bad response to start replicate: %s\n"),
              sd->msg);
         goto bail_out;
       }
-      Dmsg1(110, "Got Ticket=%d\n", jcr->sd_impl->Ticket);
+      Dmsg1(110, "Got Ticket={}\n", jcr->sd_impl->Ticket);
     } else {
       Jmsg(jcr, M_FATAL, 0,
            T_("Bad response from stored to start replicate command\n"));
@@ -543,7 +543,7 @@ bool DoMacRun(JobControlRecord* jcr)
 
     // Let the remote SD know we are now really going to send the data.
     sd->fsend(ReplicateData, jcr->sd_impl->Ticket);
-    Dmsg1(110, ">stored: %s", sd->msg);
+    Dmsg1(110, ">stored: {}", sd->msg);
 
     // Expect to get response to the replicate data cmd from Storage daemon
     if (!response(jcr, sd, OK_data, "replicate data")) {
@@ -578,7 +578,7 @@ bool DoMacRun(JobControlRecord* jcr)
 
     // End replicate session.
     sd->fsend(end_replicate);
-    Dmsg1(110, ">stored: %s", sd->msg);
+    Dmsg1(110, ">stored: {}", sd->msg);
 
     // Expect to get response to the end replicate cmd from Storage daemon
     if (!response(jcr, sd, OK_end_replicate, "end replicate")) {
@@ -594,9 +594,9 @@ bool DoMacRun(JobControlRecord* jcr)
       goto bail_out;
     }
 
-    Dmsg2(100, "read_dcr=%p write_dcr=%p\n", jcr->sd_impl->read_dcr,
+    Dmsg2(100, "read_dcr={:p} write_dcr={:p}\n", jcr->sd_impl->read_dcr,
           jcr->sd_impl->dcr);
-    Dmsg3(200, "Found %d volumes names for %s. First=%s\n",
+    Dmsg3(200, "Found {} volumes names for {}. First={}\n",
           jcr->sd_impl->NumReadVolumes, Type,
           jcr->sd_impl->VolList->VolumeName);
 
@@ -608,7 +608,7 @@ bool DoMacRun(JobControlRecord* jcr)
       goto bail_out;
     }
 
-    Dmsg2(200, "===== After acquire pos %u:%u\n", jcr->sd_impl->dcr->dev->file,
+    Dmsg2(200, "===== After acquire pos {}:{}\n", jcr->sd_impl->dcr->dev->file,
           jcr->sd_impl->dcr->dev->block_num);
 
     // Let SD plugins setup the record translation on read dcr
@@ -666,7 +666,7 @@ bail_out:
      *   and the subsequent Jmsg() editing will break */
     int32_t job_elapsed;
 
-    Dmsg1(100, "ok=%d\n", ok);
+    Dmsg1(100, "ok={}\n", ok);
 
     if (ok || dev->CanWrite()) {
       /*
@@ -699,7 +699,7 @@ bail_out:
         Dmsg0(100, T_("Set ok=FALSE after WriteBlockToDevice.\n"));
         ok = false;
       }
-      Dmsg2(200, "Flush block to device pos %u:%u\n", dev->file,
+      Dmsg2(200, "Flush block to device pos {}:{}\n", dev->file,
             dev->block_num);
     }
 

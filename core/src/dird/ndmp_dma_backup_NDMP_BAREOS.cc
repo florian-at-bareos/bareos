@@ -180,7 +180,7 @@ bool DoNdmpBackup(JobControlRecord* jcr)
        edit_uint64(jcr->JobId, ed1), jcr->Job);
 
   jcr->setJobStatusWithPriorityCheck(JS_Running);
-  Dmsg2(100, "JobId=%d JobLevel=%c\n", jcr->dir_impl->jr.JobId,
+  Dmsg2(100, "JobId={} JobLevel={:c}\n", jcr->dir_impl->jr.JobId,
         jcr->dir_impl->jr.JobLevel);
   if (DbLocker _{jcr->db};
       !jcr->db->UpdateJobStartRecord(jcr, &jcr->dir_impl->jr)) {

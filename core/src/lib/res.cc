@@ -187,7 +187,7 @@ bool ConfigurationParser::GetTlsPskByFullyQualifiedResourceName(
       psk = tls->password_.value;
       return true;
     } else {
-      Dmsg1(100, "Could not get tls resource for %d.\n", r_type);
+      Dmsg1(100, "Could not get tls resource for {}.\n", r_type);
     }
   }
   return false;
@@ -261,7 +261,7 @@ void ConfigurationParser::StoreMsgs(LEX* lc,
   POOLMEM* dest;
   int dest_len;
 
-  Dmsg2(900, "StoreMsgs pass=%d code=%d\n", pass, item->code);
+  Dmsg2(900, "StoreMsgs pass={} code={}\n", pass, item->code);
 
   MessagesResource* message_resource
       = dynamic_cast<MessagesResource*>(*item->allocated_resource);
@@ -354,7 +354,7 @@ void ConfigurationParser::StoreMsgs(LEX* lc,
           }
           PmStrcat(dest, lc->str);
           dest_len += lc->str_len;
-          Dmsg2(900, "StoreMsgs newdest=%s: dest=%s:\n", lc->str, NPRT(dest));
+          Dmsg2(900, "StoreMsgs newdest={}: dest={}:\n", lc->str, NPRT(dest));
           token = LexGetToken(lc, BCT_SKIP_EOL);
           if (token == BCT_COMMA) { continue; /* Get another destination */ }
           if (token != BCT_EQUALS) {
@@ -363,7 +363,7 @@ void ConfigurationParser::StoreMsgs(LEX* lc,
           }
           break;
         }
-        Dmsg1(900, "mail_cmd=%s\n", NPRT(cmd));
+        Dmsg1(900, "mail_cmd={}\n", NPRT(cmd));
         ScanTypes(lc, message_resource,
                   static_cast<MessageDestinationCode>(item->code), dest, cmd,
                   message_resource->timestamp_format_);
@@ -377,7 +377,7 @@ void ConfigurationParser::StoreMsgs(LEX* lc,
         std::string dest_file_path(lc->str);
         dest_len = lc->str_len;
         token = LexGetToken(lc, BCT_SKIP_EOL);
-        Dmsg1(900, "StoreMsgs dest=%s:\n", dest_file_path.c_str());
+        Dmsg1(900, "StoreMsgs dest={}:\n", dest_file_path.c_str());
         if (token != BCT_EQUALS) {
           scan_err1(lc, T_("expected an =, got: %s"), lc->str);
           return;
@@ -695,7 +695,7 @@ void ConfigurationParser::StoreAlistRes(LEX* lc,
                   item->name, lc->line_no, lc->line);
         return;
       }
-      Dmsg5(900, "Append %p (%s) to alist %p size=%d %s\n", res,
+      Dmsg5(900, "Append {:p} ({}) to alist {:p} size={} {}\n", res,
             res->resource_name_, list, list->size(), item->name);
       list->append(res);
     }
@@ -719,7 +719,7 @@ void ConfigurationParser::StoreStdVectorStr(LEX* lc,
   while (token == BCT_COMMA) {
     LexGetToken(lc, BCT_STRING); /* scan next item */
     if (pass == 2) {
-      Dmsg4(900, "Append %s to vector %p size=%d %s\n", lc->str, list,
+      Dmsg4(900, "Append {} to vector {:p} size={} {}\n", lc->str, list,
             list->size(), item->name);
 
       /* See if we need to drop the default value.
@@ -759,7 +759,7 @@ void ConfigurationParser::StoreAlistStr(LEX* lc,
     LexGetToken(lc, BCT_STRING); /* scan next item */
 
     if (pass == 2) {
-      Dmsg4(900, "Append %s to alist %p size=%d %s\n", lc->str, list,
+      Dmsg4(900, "Append {} to alist {:p} size={} {}\n", lc->str, list,
             list->size(), item->name);
 
       /* See if we need to drop the default value from the alist.
@@ -803,7 +803,7 @@ void ConfigurationParser::StoreAlistDir(LEX* lc,
     alist<const char*>* list = *alistvalue;
 
     LexGetToken(lc, BCT_STRING); /* scan next item */
-    Dmsg4(900, "Append %s to alist %p size=%d %s\n", lc->str, list,
+    Dmsg4(900, "Append {} to alist {:p} size={} {}\n", lc->str, list,
           list->size(), item->name);
 
     if (lc->str[0] != '|') {
@@ -894,7 +894,7 @@ void ConfigurationParser::StoreDefs(LEX* lc, ResourceItem* item, int, int pass)
 
   LexGetToken(lc, BCT_NAME);
   if (pass == 2) {
-    Dmsg2(900, "Code=%d name=%s\n", item->code, lc->str);
+    Dmsg2(900, "Code={} name={}\n", item->code, lc->str);
     res = GetResWithName(item->code, lc->str);
     if (res == NULL) {
       scan_err3(
@@ -1821,7 +1821,7 @@ void BareosResource::PrintResourceItem(ResourceItem& item,
   PoolMem temp;
   bool print_item = false;
 
-  Dmsg3(200, "%s (inherited: %d, verbose: %d):\n", item.name, inherited,
+  Dmsg3(200, "{} (inherited: {}, verbose: {}):\n", item.name, inherited,
         verbose);
 
   if (inherited && (!verbose)) {
@@ -1835,7 +1835,7 @@ void BareosResource::PrintResourceItem(ResourceItem& item,
   }
 
   if (HasDefaultValue(item)) {
-    Dmsg1(200, "%s: default value\n", item.name);
+    Dmsg1(200, "{}: default value\n", item.name);
 
     if ((verbose) && (!(item.flags & CFG_ITEM_DEPRECATED))) {
       /* If value has a expliciet default value and verbose mode is on,
@@ -1848,7 +1848,7 @@ void BareosResource::PrintResourceItem(ResourceItem& item,
   }
 
   if (!print_item) {
-    Dmsg1(200, "%s: not shown\n", item.name);
+    Dmsg1(200, "{}: not shown\n", item.name);
     return;
   }
 
@@ -1889,11 +1889,11 @@ void BareosResource::PrintResourceItem(ResourceItem& item,
         } else {
           switch (password->encoding) {
             case p_encoding_clear:
-              Dmsg2(200, "%s = \"%s\"\n", item.name, password->value);
+              Dmsg2(200, "{} = \"{}\"\n", item.name, password->value);
               Mmsg(value, "%s", password->value);
               break;
             case p_encoding_md5:
-              Dmsg2(200, "%s = \"[md5]%s\"\n", item.name, password->value);
+              Dmsg2(200, "{} = \"[md5]{}\"\n", item.name, password->value);
               Mmsg(value, "[md5]%s", password->value);
               break;
             default:
