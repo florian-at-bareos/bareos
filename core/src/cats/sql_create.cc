@@ -162,7 +162,7 @@ bool BareosDb::CreatePoolRecord(JobControlRecord* jcr, PoolDbRecord* pr)
   EscapeString(jcr, esc_poolname, pr->Name, strlen(pr->Name));
   EscapeString(jcr, esc_lf, pr->LabelFormat, strlen(pr->LabelFormat));
   Mmsg(cmd, "SELECT PoolId,Name FROM Pool WHERE Name='%s'", esc_poolname);
-  Dmsg1(200, "selectpool: %s\n", cmd);
+  Dmsg1(200, "selectpool: {}\n", cmd);
 
   if (QueryDb(jcr, cmd)) {
     num_rows = SqlNumRows();
@@ -199,7 +199,7 @@ bool BareosDb::CreatePoolRecord(JobControlRecord* jcr, PoolDbRecord* pr)
        pr->MaxBlocksize);
   /* clang-format on */
 
-  Dmsg1(200, "Create Pool: %s\n", cmd);
+  Dmsg1(200, "Create Pool: {}\n", cmd);
   pr->PoolId = SqlInsertAutokeyRecord(cmd, NT_("Pool"));
   if (pr->PoolId == 0) {
     Mmsg2(errmsg, T_("Create db Pool record %s failed: ERR=%s\n"), cmd,
@@ -230,7 +230,7 @@ bool BareosDb::CreateDeviceRecord(JobControlRecord* jcr, DeviceDbRecord* dr)
   Mmsg(cmd,
        "SELECT DeviceId,Name FROM Device WHERE Name='%s' AND StorageId = %s",
        esc, edit_int64(dr->StorageId, ed1));
-  Dmsg1(200, "selectdevice: %s\n", cmd);
+  Dmsg1(200, "selectdevice: {}\n", cmd);
 
   if (QueryDb(jcr, cmd)) {
     num_rows = SqlNumRows();
@@ -261,7 +261,7 @@ bool BareosDb::CreateDeviceRecord(JobControlRecord* jcr, DeviceDbRecord* dr)
   Mmsg(cmd,
        "INSERT INTO Device (Name,MediaTypeId,StorageId) VALUES ('%s',%s,%s)",
        esc, edit_uint64(dr->MediaTypeId, ed1), edit_int64(dr->StorageId, ed2));
-  Dmsg1(200, "Create Device: %s\n", cmd);
+  Dmsg1(200, "Create Device: {}\n", cmd);
   dr->DeviceId = SqlInsertAutokeyRecord(cmd, NT_("Device"));
   if (dr->DeviceId == 0) {
     Mmsg2(errmsg, T_("Create db Device record %s failed: ERR=%s\n"), cmd,
@@ -346,7 +346,7 @@ bool BareosDb::CreateMediatypeRecord(JobControlRecord* jcr,
   EscapeString(jcr, esc, mr->MediaType, strlen(mr->MediaType));
   Mmsg(cmd, "SELECT MediaTypeId,MediaType FROM MediaType WHERE MediaType='%s'",
        esc);
-  Dmsg1(200, "selectmediatype: %s\n", cmd);
+  Dmsg1(200, "selectmediatype: {}\n", cmd);
 
   if (QueryDb(jcr, cmd)) {
     num_rows = SqlNumRows();
@@ -366,7 +366,7 @@ bool BareosDb::CreateMediatypeRecord(JobControlRecord* jcr,
        mr->ReadOnly);
   /* clang-format on */
 
-  Dmsg1(200, "Create mediatype: %s\n", cmd);
+  Dmsg1(200, "Create mediatype: {}\n", cmd);
   mr->MediaTypeId = SqlInsertAutokeyRecord(cmd, NT_("MediaType"));
   if (mr->MediaTypeId == 0) {
     Mmsg2(errmsg, T_("Create db mediatype record %s failed: ERR=%s\n"), cmd,
@@ -398,7 +398,7 @@ bool BareosDb::CreateMediaRecord(JobControlRecord* jcr, MediaDbRecord* mr)
   EscapeString(jcr, esc_status, mr->VolStatus, strlen(mr->VolStatus));
 
   Mmsg(cmd, "SELECT MediaId FROM Media WHERE VolumeName='%s'", esc_medianame);
-  Dmsg1(500, "selectpool: %s\n", cmd);
+  Dmsg1(500, "selectpool: {}\n", cmd);
 
   if (QueryDb(jcr, cmd)) {
     num_rows = SqlNumRows();
@@ -446,7 +446,7 @@ bool BareosDb::CreateMediaRecord(JobControlRecord* jcr, MediaDbRecord* mr)
        mr->MaxBlocksize, mr->VolFiles);
   /* clang-format on */
 
-  Dmsg1(500, "Create Volume: %s\n", cmd);
+  Dmsg1(500, "Create Volume: {}\n", cmd);
   mr->MediaId = SqlInsertAutokeyRecord(cmd, NT_("Media"));
   if (mr->MediaId == 0) {
     Mmsg2(errmsg, T_("Create DB Media record %s failed. ERR=%s\n"), cmd,
@@ -779,7 +779,7 @@ bool BareosDb::WriteBatchFileRecords(JobControlRecord* jcr)
 
   DbLocker _{jcr->db_batch};
 
-  Dmsg1(50, "db_create_file_record changes=%u\n", changes);
+  Dmsg1(50, "db_create_file_record changes={}\n", changes);
 
   jcr->setJobStatus(JS_AttrInserting);
 
@@ -854,7 +854,7 @@ bool BareosDb::CreateBatchFileAttributesRecord(JobControlRecord* jcr,
 {
   ASSERT(ar->FileType != FT_BASE);
 
-  Dmsg1(dbglevel, "Fname=%s\n", ar->fname);
+  Dmsg1(dbglevel, "Fname={}\n", ar->fname);
   Dmsg0(dbglevel, "put_file_into_catalog\n");
 
   if (jcr->batch_started && jcr->db_batch->changes > BATCH_FLUSH) {
@@ -895,18 +895,18 @@ bool BareosDb::CreateFileAttributesRecord(JobControlRecord* jcr,
                                           AttributesDbRecord* ar)
 {
   DbLocker _{this};
-  Dmsg1(dbglevel, "Fname=%s\n", ar->fname);
+  Dmsg1(dbglevel, "Fname={}\n", ar->fname);
   Dmsg0(dbglevel, "put_file_into_catalog\n");
   SplitPathAndFile(jcr, ar->fname);
 
   if (!CreatePathRecord(jcr, ar)) { return false; }
-  Dmsg1(dbglevel, "CreatePathRecord: %s\n", esc_name);
+  Dmsg1(dbglevel, "CreatePathRecord: {}\n", esc_name);
 
   /* Now create master File record */
   if (!CreateFileRecord(jcr, ar)) { return false; }
   Dmsg0(dbglevel, "CreateFileRecord OK\n");
 
-  Dmsg2(dbglevel, "CreateAttributes Path=%s File=%s\n", path, fname);
+  Dmsg2(dbglevel, "CreateAttributes Path={} File={}\n", path, fname);
 
   return true;
 }
@@ -1009,7 +1009,7 @@ bool BareosDb::CreateAttributesRecord(JobControlRecord* jcr,
 bool BareosDb::CreateBaseFileAttributesRecord(JobControlRecord* jcr,
                                               AttributesDbRecord* ar)
 {
-  Dmsg1(dbglevel, "create_base_file Fname=%s\n", ar->fname);
+  Dmsg1(dbglevel, "create_base_file Fname={}\n", ar->fname);
   Dmsg0(dbglevel, "put_base_file_into_catalog\n");
 
   DbLocker _{this};
@@ -1113,7 +1113,7 @@ bool BareosDb::CreateRestoreObjectRecord(JobControlRecord* jcr,
 
   DbLocker _{this};
 
-  Dmsg1(dbglevel, "Oname=%s\n", ro->object_name);
+  Dmsg1(dbglevel, "Oname={}\n", ro->object_name);
   Dmsg0(dbglevel, "put_object_into_catalog\n");
 
   fnl = strlen(ro->object_name);
@@ -1297,7 +1297,7 @@ bool BareosDb::CreateJobStatistics(JobControlRecord* jcr,
        " VALUES ('%s', %s, %s, %s, %s)",
        dt, edit_int64(jsr->JobId, ed1), edit_uint64(jsr->JobFiles, ed2),
        edit_uint64(jsr->JobBytes, ed3), edit_int64(jsr->DeviceId, ed4));
-  Dmsg1(200, "Create job stats: %s\n", cmd);
+  Dmsg1(200, "Create job stats: {}\n", cmd);
 
   if (InsertDb(jcr, cmd) != 1) {
     Mmsg2(errmsg, T_("Create DB JobStats record %s failed. ERR=%s\n"), cmd,
@@ -1350,7 +1350,7 @@ bool BareosDb::CreateDeviceStatistics(JobControlRecord* jcr,
        edit_uint64(dsr->VolCatBlocks, ed12));
   /* clang-format on */
 
-  Dmsg1(200, "Create device stats: %s\n", cmd);
+  Dmsg1(200, "Create device stats: {}\n", cmd);
 
   if (InsertDb(jcr, cmd) != 1) {
     Mmsg2(errmsg, T_("Create DB DeviceStats record %s failed. ERR=%s\n"), cmd,
@@ -1391,7 +1391,7 @@ bool BareosDb::CreateTapealertStatistics(JobControlRecord* jcr,
        edit_uint64(tsr->AlertFlags, ed2));
   /* clang-format on */
 
-  Dmsg1(200, "Create tapealert: %s\n", cmd);
+  Dmsg1(200, "Create tapealert: {}\n", cmd);
 
   if (InsertDb(jcr, cmd) != 1) {
     Mmsg2(errmsg, T_("Create DB TapeAlerts record %s failed. ERR=%s\n"), cmd,

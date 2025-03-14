@@ -116,7 +116,7 @@ bool QueryCmd(UaContext* ua, const char*)
     line[len - 1] = 0; /* zap ; */
     if (query[0] != 0) {
       query = substitute_prompts(ua, query, prompt, nprompt);
-      Dmsg1(100, "Query2=%s\n", query);
+      Dmsg1(100, "Query2={}\n", query);
       if (query[0] == '!') {
         ua->db->ListSqlQuery(ua->jcr, query + 1, ua->send, VERT_LIST, false);
       } else if (!ua->db->ListSqlQuery(ua->jcr, query, ua->send, HORZ_LIST,
@@ -129,7 +129,7 @@ bool QueryCmd(UaContext* ua, const char*)
 
   if (query[0] != 0) {
     query = substitute_prompts(ua, query, prompt, nprompt);
-    Dmsg1(100, "Query2=%s\n", query);
+    Dmsg1(100, "Query2={}\n", query);
     if (query[0] == '!') {
       ua->db->ListSqlQuery(ua->jcr, query + 1, ua->send, VERT_LIST, false);
     } else if (!ua->db->ListSqlQuery(ua->jcr, query, ua->send, HORZ_LIST,
@@ -241,7 +241,7 @@ bool SqlqueryCmd(UaContext* ua, const char*)
   msg = T_("Enter SQL query: ");
   while (GetCmd(ua, msg)) {
     len = strlen(ua->cmd);
-    Dmsg2(400, "len=%d cmd=%s:\n", len, ua->cmd);
+    Dmsg2(400, "len={} cmd={}:\n", len, ua->cmd);
     if (len == 0) { break; }
     if (*query.c_str() != 0) { PmStrcat(query, " "); }
     PmStrcat(query, ua->cmd);

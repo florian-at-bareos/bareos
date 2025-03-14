@@ -41,7 +41,7 @@
                                         __VA_ARGS__);                         \
   } else {                                                                    \
     fprintf(stderr,                                                           \
-            "Dmsg: bareos_core_functions(%p) and context(%p) need to be set " \
+            "Dmsg: bareos_core_functions({:p}) and context({:p}) need to be set " \
             "before Dmsg call\n",                                             \
             bareos_core_functions, context);                                  \
   }

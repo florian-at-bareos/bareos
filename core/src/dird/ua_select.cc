@@ -1323,7 +1323,7 @@ StorageResource* get_storage_resource(UaContext* ua,
   char* StoreName = NULL;
   StorageResource* store = NULL;
 
-  Dmsg1(100, "get_storage_resource: autochangers_only is %d\n",
+  Dmsg1(100, "get_storage_resource: autochangers_only is {}\n",
         autochangers_only);
 
   for (i = 1; i < ua->argc; i++) {
@@ -1894,14 +1894,14 @@ bool GetUserSlotList(UaContext* ua,
   if (debug_level >= 100) {
     Dmsg0(100, "Slots turned on:\n");
     for (i = 1; i <= num_slots; i++) {
-      if (BitIsSet(i - 1, slot_list)) { Dmsg1(100, "%d\n", i); }
+      if (BitIsSet(i - 1, slot_list)) { Dmsg1(100, "{}\n", i); }
     }
   }
 
   return true;
 
 bail_out:
-  Dmsg1(100, "Problem with user selection ERR=%s\n", msg);
+  Dmsg1(100, "Problem with user selection ERR={}\n", msg);
 
   return false;
 }

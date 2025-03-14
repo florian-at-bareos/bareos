@@ -553,8 +553,8 @@ inline const char* first_path_separator(const char* path)
 #  define __PRETTY_FUNCTION__ __func__
 #endif
 #ifdef ENTER_LEAVE
-#  define Enter(lvl) Dmsg1(lvl, "Enter: %s\n", __PRETTY_FUNCTION__)
-#  define Leave(lvl) Dmsg1(lvl, "Leave: %s\n", __PRETTY_FUNCTION__)
+#  define Enter(lvl) Dmsg1(lvl, "Enter: {}\n", __PRETTY_FUNCTION__)
+#  define Leave(lvl) Dmsg1(lvl, "Leave: {}\n", __PRETTY_FUNCTION__)
 #else
 #  define Enter(lvl)
 #  define Leave(lvl)

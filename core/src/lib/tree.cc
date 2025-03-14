@@ -63,7 +63,7 @@ static void MallocBuf(TREE_ROOT* root, int size)
   root->mem = mem;
   mem->mem = mem->first;
   mem->rem = (char*)mem + size - (char*)mem->mem;
-  Dmsg2(200, "malloc buf size=%d rem=%d\n", size, mem->rem);
+  Dmsg2(200, "malloc buf size={} rem={}\n", size, mem->rem);
 }
 
 /*
@@ -86,7 +86,7 @@ TREE_ROOT* new_tree(int count)
   // Assume filename + node  = 40 characters average length
   size = count * (BALIGN(sizeof(tree_node)) + 40);
   if (count > 1000000 || size > (MAX_BUF_SIZE / 2)) { size = MAX_BUF_SIZE; }
-  Dmsg2(400, "count=%d size=%d\n", count, size);
+  Dmsg2(400, "count={} size={}\n", count, size);
   MallocBuf(root, size);
   root->cached_path_len = -1;
   root->cached_path = GetPoolMemory(PM_FNAME);
@@ -198,7 +198,7 @@ tree_node* insert_tree_node(char* path,
   int path_len = strlen(path);
   tree_node* node;
 
-  Dmsg1(100, "insert_tree_node: %s\n", path);
+  Dmsg1(100, "insert_tree_node: {}\n", path);
 
   // If trailing slash on path, strip it
   if (path_len > 0) {
@@ -225,7 +225,7 @@ tree_node* insert_tree_node(char* path,
 
   if (*fname) {
     if (!parent) { /* if no parent, we need to make one */
-      Dmsg1(100, "make_tree_path for %s\n", path);
+      Dmsg1(100, "make_tree_path for {}\n", path);
       path_len = strlen(path); /* get new length */
       if (path_len == root->cached_path_len
           && bstrcmp(path, root->cached_path)) {
@@ -236,12 +236,12 @@ tree_node* insert_tree_node(char* path,
         parent = make_tree_path(path, root);
         root->cached_parent = parent;
       }
-      Dmsg1(100, "parent=%s\n", parent->fname);
+      Dmsg1(100, "parent={}\n", parent->fname);
     }
   } else {
     fname = path;
     if (!parent) { parent = root; }
-    Dmsg1(100, "No / found: %s\n", path);
+    Dmsg1(100, "No / found: {}\n", path);
   }
 
   node = search_and_insert_tree_node(fname, type, root, parent);
@@ -264,7 +264,7 @@ tree_node* make_tree_path(char* path, TREE_ROOT* root)
   char *fname, *p;
   auto type = tree_node_type::NewDir;
 
-  Dmsg1(100, "make_tree_path: %s\n", path);
+  Dmsg1(100, "make_tree_path: {}\n", path);
 
   if (*path == 0) {
     Dmsg0(100, "make_tree_path: parent=*root*\n");
@@ -431,10 +431,10 @@ tree_node* tree_relcwd(char* path, TREE_ROOT* root, tree_node* node)
     len = strlen(path);
   }
 
-  Dmsg2(100, "tree_relcwd: len=%d path=%s\n", len, path);
+  Dmsg2(100, "tree_relcwd: len={} path={}\n", len, path);
 
   foreach_child (cd, node) {
-    Dmsg1(100, "tree_relcwd: test cd=%s\n", cd->fname);
+    Dmsg1(100, "tree_relcwd: test cd={}\n", cd->fname);
     if (cd->fname[0] == path[0] && len == (int)strlen(cd->fname)
         && bstrncmp(cd->fname, path, len)) {
       break;
@@ -458,7 +458,7 @@ tree_node* tree_relcwd(char* path, TREE_ROOT* root, tree_node* node)
     return cd;
   }
 
-  Dmsg2(100, "recurse tree_relcwd with path=%s, cd=%s\n", p + 1, cd->fname);
+  Dmsg2(100, "recurse tree_relcwd with path={}, cd={}\n", p + 1, cd->fname);
 
   // Check the next segment if any
   return tree_relcwd(p + 1, root, cd);

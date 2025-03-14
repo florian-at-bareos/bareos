@@ -104,16 +104,16 @@ static int VerifyFile(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
 
   switch (ff_pkt->type) {
     case FT_LNKSAVED: /* Hard linked, file already saved */
-      Dmsg2(30, "FT_LNKSAVED saving: %s => %s\n", ff_pkt->fname, ff_pkt->link);
+      Dmsg2(30, "FT_LNKSAVED saving: {} => {}\n", ff_pkt->fname, ff_pkt->link);
       break;
     case FT_REGE:
-      Dmsg1(30, "FT_REGE saving: %s\n", ff_pkt->fname);
+      Dmsg1(30, "FT_REGE saving: {}\n", ff_pkt->fname);
       break;
     case FT_REG:
-      Dmsg1(30, "FT_REG saving: %s\n", ff_pkt->fname);
+      Dmsg1(30, "FT_REG saving: {}\n", ff_pkt->fname);
       break;
     case FT_LNK:
-      Dmsg2(30, "FT_LNK saving: %s -> %s\n", ff_pkt->fname, ff_pkt->link);
+      Dmsg2(30, "FT_LNK saving: {} -> {}\n", ff_pkt->fname, ff_pkt->link);
       break;
     case FT_DIRBEGIN:
       jcr->fd_impl->num_files_examined--; /* correct file count */
@@ -121,16 +121,16 @@ static int VerifyFile(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
     case FT_REPARSE:
     case FT_JUNCTION:
     case FT_DIREND:
-      Dmsg1(30, "FT_DIR saving: %s\n", ff_pkt->fname);
+      Dmsg1(30, "FT_DIR saving: {}\n", ff_pkt->fname);
       break;
     case FT_SPEC:
-      Dmsg1(30, "FT_SPEC saving: %s\n", ff_pkt->fname);
+      Dmsg1(30, "FT_SPEC saving: {}\n", ff_pkt->fname);
       break;
     case FT_RAW:
-      Dmsg1(30, "FT_RAW saving: %s\n", ff_pkt->fname);
+      Dmsg1(30, "FT_RAW saving: {}\n", ff_pkt->fname);
       break;
     case FT_FIFO:
-      Dmsg1(30, "FT_FIFO saving: %s\n", ff_pkt->fname);
+      Dmsg1(30, "FT_FIFO saving: {}\n", ff_pkt->fname);
       break;
     case FT_NOACCESS: {
       BErrNo be;
@@ -223,7 +223,7 @@ static int VerifyFile(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
    * For a directory, link is the same as fname, but with trailing
    * slash. For a linked file, link is the link. */
   // Send file attributes to Director (note different format than for Storage)
-  Dmsg2(400, "send Attributes inx=%d fname=%s\n", jcr->JobFiles, ff_pkt->fname);
+  Dmsg2(400, "send Attributes inx={} fname={}\n", jcr->JobFiles, ff_pkt->fname);
   if (ff_pkt->type == FT_LNK || ff_pkt->type == FT_LNKSAVED) {
     status = dir->fsend("%d %d %s %s%c%s%c%s%c", jcr->JobFiles,
                         STREAM_UNIX_ATTRIBUTES, ff_pkt->VerifyOpts,
@@ -239,7 +239,7 @@ static int VerifyFile(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
                         STREAM_UNIX_ATTRIBUTES, ff_pkt->VerifyOpts,
                         ff_pkt->fname, 0, attribs.c_str(), 0, 0);
   }
-  Dmsg2(20, "filed>dir: attribs len=%d: msg=%s\n", dir->message_length,
+  Dmsg2(20, "filed>dir: attribs len={}: msg={}\n", dir->message_length,
         dir->msg);
 
   if (!IS_FT_OBJECT(ff_pkt->type) && ff_pkt->type != FT_DELETED) {
@@ -269,11 +269,11 @@ static int VerifyFile(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
         Jmsg(jcr, M_WARNING, 0, T_("%s digest initialization failed\n"),
              stream_to_ascii(digest_stream));
       } else if (digest && digest_buf) {
-        Dmsg3(400, "send inx=%d %s=%s\n", jcr->JobFiles, digest_name,
+        Dmsg3(400, "send inx={} {}={}\n", jcr->JobFiles, digest_name,
               digest_buf);
         dir->fsend("%d %d %s *%s-%d*", jcr->JobFiles, digest_stream, digest_buf,
                    digest_name, jcr->JobFiles);
-        Dmsg3(20, "filed>dir: %s len=%d: msg=%s\n", digest_name,
+        Dmsg3(20, "filed>dir: {} len={}: msg={}\n", digest_name,
               dir->message_length, dir->msg);
       }
     }
@@ -305,7 +305,7 @@ int DigestFile(JobControlRecord* jcr, FindFilesPacket* ff_pkt, DIGEST* digest)
     ff_pkt->ff_errno = errno;
     BErrNo be;
     be.SetErrno(bfd.BErrNo);
-    Dmsg2(100, "Cannot open %s: ERR=%s\n", ff_pkt->fname, be.bstrerror());
+    Dmsg2(100, "Cannot open {}: ERR={}\n", ff_pkt->fname, be.bstrerror());
     Jmsg(jcr, M_ERROR, 1, T_("     Cannot open %s: ERR=%s.\n"), ff_pkt->fname,
          be.bstrerror());
     return 1;
@@ -378,7 +378,7 @@ static int ReadDigest(BareosFilePacket* bfd,
   if (n < 0) {
     BErrNo be;
     be.SetErrno(bfd->BErrNo);
-    Dmsg2(100, "Error reading file %s: ERR=%s\n", jcr->fd_impl->last_fname,
+    Dmsg2(100, "Error reading file {}: ERR={}\n", jcr->fd_impl->last_fname,
           be.bstrerror());
     Jmsg(jcr, M_ERROR, 1, T_("Error reading file %s: ERR=%s\n"),
          jcr->fd_impl->last_fname, be.bstrerror());
@@ -470,7 +470,7 @@ bool CalculateAndCompareFileChksum(JobControlRecord* jcr,
            stream_to_ascii(digest_stream));
     } else if (digest && digest_buf) {
       if (!bstrcmp(digest_buf, chksum)) {
-        Dmsg4(100, "%s      %s chksum  diff. Cat: %s File: %s\n", fname,
+        Dmsg4(100, "{}      {} chksum  diff. Cat: {} File: {}\n", fname,
               digest_name, chksum, digest_buf);
       } else {
         retval = true;

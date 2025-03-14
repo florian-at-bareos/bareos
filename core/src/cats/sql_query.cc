@@ -102,12 +102,12 @@ void BareosDb::FillQueryVaList(PoolMem& query,
   query_name = get_predefined_query_name(predefined_query);
   query_template = get_predefined_query(predefined_query);
 
-  Dmsg3(debuglevel, "called: %s with query name %s (%d)\n", __PRETTY_FUNCTION__,
+  Dmsg3(debuglevel, "called: {} with query name {} ({})\n", __PRETTY_FUNCTION__,
         query_name, predefined_query);
 
   if (query_template) { query.Bvsprintf(query_template, arg_ptr); }
 
-  Dmsg2(debuglevel, "called: %s query is now %s\n", __PRETTY_FUNCTION__,
+  Dmsg2(debuglevel, "called: {} query is now {}\n", __PRETTY_FUNCTION__,
         query.c_str());
 }
 
@@ -129,7 +129,7 @@ bool BareosDb::SqlQuery(const char* query, int flags)
 {
   bool retval;
 
-  Dmsg2(debuglevel, "called: %s with query %s\n", __PRETTY_FUNCTION__, query);
+  Dmsg2(debuglevel, "called: {} with query {}\n", __PRETTY_FUNCTION__, query);
 
   DbLocker _{this};
   retval = SqlQueryWithoutHandler(query, flags);
@@ -146,7 +146,7 @@ bool BareosDb::SqlQuery(const char* query,
 {
   bool retval;
 
-  Dmsg2(debuglevel, "called: %s with query %s\n", __PRETTY_FUNCTION__, query);
+  Dmsg2(debuglevel, "called: {} with query {}\n", __PRETTY_FUNCTION__, query);
 
   DbLocker _{this};
   retval = SqlQueryWithHandler(query, ResultHandler, ctx);

@@ -151,7 +151,7 @@ void AddFileToFileset(JobControlRecord* jcr,
       }
       break;
     case '<':
-      Dmsg1(100, "Doing < of '%s' include on client.\n", p + 1);
+      Dmsg1(100, "Doing < of '{}' include on client.\n", p + 1);
       p++; /* skip over < */
       if ((ffd = fopen(p, "rb")) == NULL) {
         BErrNo be;
@@ -394,7 +394,7 @@ static int SetOptionsAndFlags(findFOPTS* fo, const char* opts)
         strip[j] = 0;
         fo->StripPath = atoi(strip);
         SetBit(FO_STRIPPATH, fo->flags);
-        Dmsg2(100, "strip=%s StripPath=%d\n", strip, fo->StripPath);
+        Dmsg2(100, "strip={} StripPath={}\n", strip, fo->StripPath);
         break;
       case 'p': /* Use portable data format */
         SetBit(FO_PORTABLE, fo->flags);
@@ -526,7 +526,7 @@ void AddFileset(JobControlRecord* jcr, const char* item)
   findFOPTS* current_opts;
 
   // Get code, optional subcode, and position item past the dividing space
-  Dmsg1(100, "%s\n", item);
+  Dmsg1(100, "{}\n", item);
   code = item[0];
   if (code != '\0') { ++item; }
 

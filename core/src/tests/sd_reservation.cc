@@ -87,7 +87,7 @@ void ReservationTest::TearDown()
   {
     DeviceResource* d = nullptr;
     foreach_res (d, R_DEVICE) {
-      Dmsg1(10, "Term device %s\n", d->archive_device_string);
+      Dmsg1(10, "Term device {}\n", d->archive_device_string);
       if (d->dev) {
         d->dev->ClearVolhdr();
         delete d->dev;

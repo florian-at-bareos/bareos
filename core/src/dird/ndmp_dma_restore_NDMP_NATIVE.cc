@@ -418,7 +418,7 @@ bool DoNdmpRestoreNdmpNative(JobControlRecord* jcr)
   }
   Dmsg0(20, "Updated job start record\n");
 
-  Dmsg1(20, "RestoreJobId=%d\n", jcr->dir_impl->res.job->RestoreJobId);
+  Dmsg1(20, "RestoreJobId={}\n", jcr->dir_impl->res.job->RestoreJobId);
 
   // Validate the Job to have a NDMP client.
   if (!NdmpValidateClient(jcr)) { return false; }

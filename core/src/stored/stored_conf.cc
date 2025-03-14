@@ -966,7 +966,7 @@ static void FreeResource(BareosResource* res, int type)
       break;
     }
     default:
-      Dmsg1(0, T_("Unknown resource type %d\n"), type);
+      Dmsg1(0, T_("Unknown resource type {}\n"), type);
       break;
   }
   if (next_ressource) { my_config->FreeResourceCb_(next_ressource, type); }

@@ -81,7 +81,7 @@ int ReadAnsiIbmLabel(DeviceControlRecord* dcr)
     if (status < 0) {
       BErrNo be;
       dev->clrerror(-1);
-      Dmsg1(100, "Read device got: ERR=%s\n", be.bstrerror());
+      Dmsg1(100, "Read device got: ERR={}\n", be.bstrerror());
       Mmsg2(jcr->errmsg, T_("Read error on device %s in ANSI label. ERR=%s\n"),
             dev->archive_device_string, be.bstrerror());
       Jmsg(jcr, M_ERROR, 0, "%s", jcr->errmsg);
@@ -144,7 +144,7 @@ int ReadAnsiIbmLabel(DeviceControlRecord* dcr)
             //  why is this reserve_volume() needed???? KES
             reserve_volume(dcr, dev->VolHdr.VolumeName);
             dev = dcr->dev; /* may have changed in reserve_volume */
-            Dmsg2(100, "Wanted ANSI Vol %s got %6s\n", VolName,
+            Dmsg2(100, "Wanted ANSI Vol {} got {:6}\n", VolName,
                   dev->VolHdr.VolumeName);
             Mmsg2(jcr->errmsg, T_("Wanted ANSI Volume \"%s\" got \"%s\"\n"),
                   VolName, dev->VolHdr.VolumeName);
@@ -164,7 +164,7 @@ int ReadAnsiIbmLabel(DeviceControlRecord* dcr)
         }
 
         if (!bstrncmp("BAREOS.DATA", &label[4], 11)) {
-          Dmsg1(100, "HD1 not Bareos label. Wanted BAREOS.DATA got %11s\n",
+          Dmsg1(100, "HD1 not Bareos label. Wanted BAREOS.DATA got {:11}\n",
                 &label[4]);
           Mmsg1(jcr->errmsg,
                 T_("ANSI/IBM Volume \"%s\" does not belong to Bareos.\n"),
@@ -299,7 +299,7 @@ bool WriteAnsiIbmLabels(DeviceControlRecord* dcr, int type, const char* VolName)
     case B_ANSI_LABEL:
     case B_IBM_LABEL:
       ser_declare;
-      Dmsg1(100, "Write ANSI label type=%d\n", label_type);
+      Dmsg1(100, "Write ANSI label type={}\n", label_type);
       len = strlen(VolName);
       if (len > 6) {
         Jmsg1(jcr, M_FATAL, 0,

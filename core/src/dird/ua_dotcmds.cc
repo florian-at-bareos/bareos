@@ -187,7 +187,7 @@ static int BvfsResultHandler(void* ctx, int, char** row)
     fileid = zero;
   }
 
-  Dmsg1(100, "type=%s\n", row[0]);
+  Dmsg1(100, "type={}\n", row[0]);
   if (BvfsIsDir(row)) {
     char* path = bvfs_basename_dir(row[BVFS_Name]);
 
@@ -377,7 +377,7 @@ static bool BvfsValidateJobids(UaContext* ua,
       }
       cnt++;
     } else {
-      Dmsg1(200, "Removing jobid from list, %s\n", cur_id);
+      Dmsg1(200, "Removing jobid from list, {}\n", cur_id);
     }
 
     cur_id = bp;
@@ -1065,7 +1065,7 @@ bool DotSqlCmd(UaContext* ua, const char*)
   }
 
   if (!retval) {
-    Dmsg1(100, "Query failed: ERR=%s", ua->db->strerror());
+    Dmsg1(100, "Query failed: ERR={}", ua->db->strerror());
     ua->ErrorMsg(T_("Query failed: %s. ERR=%s"), ua->cmd, ua->db->strerror());
   }
 

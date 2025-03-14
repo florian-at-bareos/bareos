@@ -164,7 +164,7 @@ bool BareosDbPostgresql::CheckDatabaseEncoding(JobControlRecord* jcr)
            T_("Encoding error for database \"%s\". Wanted SQL_ASCII, got %s\n"),
            get_db_name(), row[0]);
       Jmsg(jcr, M_WARNING, 0, "%s", errmsg);
-      Dmsg1(50, "%s", errmsg);
+      Dmsg1(50, "{}", errmsg);
     }
   }
 
@@ -226,9 +226,9 @@ bool BareosDbPostgresql::OpenDatabase(JobControlRecord* jcr)
       Bmicrosleep(5, 0);
     }
 
-    Dmsg0(50, "pg_real_connect %s\n",
+    Dmsg0(50, "pg_real_connect {}\n",
           PQstatus(db_handle_) == CONNECTION_OK ? "ok" : "failed");
-    Dmsg3(50, "db_user=%s db_name=%s db_password=%s\n", db_user_, db_name_,
+    Dmsg3(50, "db_user={} db_name={} db_password={}\n", db_user_, db_name_,
           (db_password_ == NULL) ? "(NULL)" : db_password_);
 
     if (PQstatus(db_handle_) != CONNECTION_OK) {
@@ -394,7 +394,7 @@ void BareosDbPostgresql::UnescapeObject(JobControlRecord* jcr,
 
   PQfreemem(obj);
 
-  Dmsg1(010, "obj size: %d\n", *dest_len);
+  Dmsg1(010, "obj size: {}\n", *dest_len);
 }
 
 /**
@@ -441,7 +441,7 @@ void BareosDbPostgresql::EndTransaction(JobControlRecord* jcr)
   if (transaction_) {
     SqlQueryWithoutHandler("COMMIT"); /* end transaction */
     transaction_ = false;
-    Dmsg1(400, "End PostgreSQL transaction changes=%d\n", changes);
+    Dmsg1(400, "End PostgreSQL transaction changes={}\n", changes);
   }
   changes = 0;
 }
@@ -457,7 +457,7 @@ bool BareosDbPostgresql::BigSqlQuery(const char* query,
   SQL_ROW row;
   bool retval = false;
 
-  Dmsg1(500, "BigSqlQuery starts with '%s'\n", query);
+  Dmsg1(500, "BigSqlQuery starts with '{}'\n", query);
 
   /* This code handles only SELECT queries */
   if (!bstrncasecmp(query, "SELECT", 6)) {
@@ -488,7 +488,7 @@ bool BareosDbPostgresql::BigSqlQuery(const char* query,
       goto bail_out;
     }
     while ((row = SqlFetchRow()) != NULL) {
-      Dmsg1(500, "Fetching %d rows\n", num_rows_);
+      Dmsg1(500, "Fetching {} rows\n", num_rows_);
       if (ResultHandler(ctx, num_fields_, row)) break;
     }
     PQclear(result_);
@@ -520,7 +520,7 @@ bool BareosDbPostgresql::SqlQueryWithHandler(const char* query,
 {
   SQL_ROW row;
 
-  Dmsg1(500, "SqlQueryWithHandler starts with '%s'\n", query);
+  Dmsg1(500, "SqlQueryWithHandler starts with '{}'\n", query);
 
   DbLocker _{this};
   if (!SqlQueryWithoutHandler(query, QF_STORE_RESULT)) {
@@ -560,7 +560,7 @@ bool BareosDbPostgresql::SqlQueryWithoutHandler(const char* query, int)
   bool retval = false;
 
   AssertOwnership();
-  Dmsg1(500, "SqlQueryWithoutHandler starts with '%s'\n", query);
+  Dmsg1(500, "SqlQueryWithoutHandler starts with '{}'\n", query);
 
   // We are starting a new query. reset everything.
 retry_query:
@@ -587,17 +587,17 @@ retry_query:
       Dmsg0(500, "we have a result\n");
 
       num_fields_ = (int)PQnfields(result_);
-      Dmsg1(500, "we have %d fields\n", num_fields_);
+      Dmsg1(500, "we have {} fields\n", num_fields_);
 
       num_rows_ = PQntuples(result_);
-      Dmsg1(500, "we have %d rows\n", num_rows_);
+      Dmsg1(500, "we have {} rows\n", num_rows_);
 
       row_number_ = 0; /* we can start to fetch something */
       status_ = 0;     /* succeed */
       retval = true;
       break;
     case PGRES_FATAL_ERROR:
-      Dmsg1(50, "Result status fatal: %s, %s\n", query, sql_strerror());
+      Dmsg1(50, "Result status fatal: {}, {}\n", query, sql_strerror());
       if (exit_on_fatal_) {
         Emsg1(M_ERROR_TERM, 0, "Fatal database error: %s\n", sql_strerror());
       }
@@ -631,7 +631,7 @@ retry_query:
       }
       goto bail_out;
     default:
-      Dmsg1(50, "Result status failed: %s\n", query);
+      Dmsg1(50, "Result status failed: {}\n", query);
       goto bail_out;
   }
 
@@ -684,7 +684,7 @@ SQL_ROW BareosDbPostgresql::SqlFetchRow(void)
       Dmsg0(500, "SqlFetchRow freeing space\n");
       free(rows_);
     }
-    Dmsg1(500, "we need space for %d bytes\n", sizeof(char*) * num_fields_);
+    Dmsg1(500, "we need space for {} bytes\n", sizeof(char*) * num_fields_);
     rows_ = (SQL_ROW)malloc(sizeof(char*) * num_fields_);
     rows_size_ = num_fields_;
 
@@ -694,21 +694,21 @@ SQL_ROW BareosDbPostgresql::SqlFetchRow(void)
 
   // If still within the result set
   if (row_number_ >= 0 && row_number_ < num_rows_) {
-    Dmsg2(500, "SqlFetchRow row number '%d' is acceptable (0..%d)\n",
+    Dmsg2(500, "SqlFetchRow row number '{}' is acceptable (0..{})\n",
           row_number_, num_rows_);
     for (j = 0; j < num_fields_; j++) {
       rows_[j] = PQgetvalue(result_, row_number_, j);
-      Dmsg2(500, "SqlFetchRow field '%d' has value '%s'\n", j, rows_[j]);
+      Dmsg2(500, "SqlFetchRow field '{}' has value '{}'\n", j, rows_[j]);
     }
     // Increment the row number for the next call
     row_number_++;
     row = rows_;
   } else {
-    Dmsg2(500, "SqlFetchRow row number '%d' is NOT acceptable (0..%d)\n",
+    Dmsg2(500, "SqlFetchRow row number '{}' is NOT acceptable (0..{})\n",
           row_number_, num_rows_);
   }
 
-  Dmsg1(500, "SqlFetchRow finishes returning %p\n", row);
+  Dmsg1(500, "SqlFetchRow finishes returning {:p}\n", row);
 
   return row;
 }
@@ -775,14 +775,14 @@ uint64_t BareosDbPostgresql::SqlInsertAutokeyRecord(const char* query,
   Bsnprintf(getkeyval_query, sizeof(getkeyval_query), "SELECT currval('%s')",
             sequence);
 
-  Dmsg1(500, "SqlInsertAutokeyRecord executing query '%s'\n", getkeyval_query);
+  Dmsg1(500, "SqlInsertAutokeyRecord executing query '{}'\n", getkeyval_query);
   for (i = 0; i < 10; i++) {
     pg_result = PQexec(db_handle_, getkeyval_query);
     if (pg_result) { break; }
     Bmicrosleep(5, 0);
   }
   if (!pg_result) {
-    Dmsg1(50, "Query failed: %s\n", getkeyval_query);
+    Dmsg1(50, "Query failed: {}\n", getkeyval_query);
     goto bail_out;
   }
 
@@ -791,10 +791,10 @@ uint64_t BareosDbPostgresql::SqlInsertAutokeyRecord(const char* query,
   if (PQresultStatus(pg_result) == PGRES_TUPLES_OK) {
     Dmsg0(500, "getting value\n");
     id = str_to_uint64(PQgetvalue(pg_result, 0, 0));
-    Dmsg2(500, "got value '%s' which became %d\n", PQgetvalue(pg_result, 0, 0),
+    Dmsg2(500, "got value '{}' which became {}\n", PQgetvalue(pg_result, 0, 0),
           id);
   } else {
-    Dmsg1(50, "Result status failed: %s\n", getkeyval_query);
+    Dmsg1(50, "Result status failed: {}\n", getkeyval_query);
     Mmsg1(errmsg, T_("error fetching currval: %s\n"),
           PQerrorMessage(db_handle_));
   }
@@ -826,13 +826,13 @@ static void ComputeFields(int num_fields,
   }
 
   for (int fidx = 0; fidx < num_fields; ++fidx) {
-    Dmsg1(500, "filling field %d\n", fidx);
+    Dmsg1(500, "filling field {}\n", fidx);
     fields[fidx].name = PQfname(result, fidx);
     fields[fidx].type = PQftype(result, fidx);
     fields[fidx].flags = 0;
     Dmsg4(500,
-          "ComputeFields finds field '%s' has length='%d' type='%d' and "
-          "IsNull=%d\n",
+          "ComputeFields finds field '{}' has length='{}' type='{}' and "
+          "IsNull={}\n",
           fields[fidx].name, fields[fidx].max_length, fields[fidx].type,
           fields[fidx].flags);
   }
@@ -843,7 +843,7 @@ SQL_FIELD* BareosDbPostgresql::SqlFetchField(void)
   Dmsg0(500, "SqlFetchField starts\n");
 
   if (field_number_ >= num_fields_) {
-    Dmsg1(100, "requesting field number %d, but only %d fields given\n",
+    Dmsg1(100, "requesting field number {}, but only {} fields given\n",
           field_number_, num_fields_);
     return nullptr;
   }
@@ -855,7 +855,7 @@ SQL_FIELD* BareosDbPostgresql::SqlFetchField(void)
         free(fields_);
         fields_ = NULL;
       }
-      Dmsg1(500, "allocating space for %d fields\n", num_fields_);
+      Dmsg1(500, "allocating space for {} fields\n", num_fields_);
       fields_ = (SQL_FIELD*)malloc(sizeof(SQL_FIELD) * num_fields_);
       fields_size_ = num_fields_;
     }
@@ -929,7 +929,7 @@ BareosDb* db_init_database(JobControlRecord* jcr,
       if (mdb->IsPrivate()) { continue; }
 
       if (mdb->MatchDatabase(db_driver, db_name, db_address, db_port)) {
-        Dmsg1(100, "DB REopen %s\n", db_name);
+        Dmsg1(100, "DB REopen {}\n", db_name);
         mdb->IncrementRefcount();
         goto bail_out;
       }

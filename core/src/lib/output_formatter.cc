@@ -119,7 +119,7 @@ void OutputFormatter::ObjectStart(const char* name,
   PoolMem lname(name);
   if (!case_sensitiv_name) { lname.toLower(); }
 
-  Dmsg1(800, "obj start: %s\n", name);
+  Dmsg1(800, "obj start: {}\n", name);
   switch (api) {
 #if HAVE_JANSSON
     case API_MODE_JSON:
@@ -149,10 +149,10 @@ void OutputFormatter::ObjectStart(const char* name,
         json_object_existing
             = json_object_get(json_object_current, lname.c_str());
         if (json_object_existing) {
-          Dmsg1(800, "obj %s already exists. Reusing it.\n", lname.c_str());
+          Dmsg1(800, "obj {} already exists. Reusing it.\n", lname.c_str());
           result_stack_json->push(json_object_existing);
         } else {
-          Dmsg2(800, "create new json object %s (stack size: %d)\n",
+          Dmsg2(800, "create new json object {} (stack size: {})\n",
                 lname.c_str(), result_stack_json->size());
           json_object_new = json_object();
           json_object_set_new(json_object_current, lname.c_str(),
@@ -160,7 +160,7 @@ void OutputFormatter::ObjectStart(const char* name,
           result_stack_json->push(json_object_new);
         }
       }
-      Dmsg1(800, "result stack: %d\n", result_stack_json->size());
+      Dmsg1(800, "result stack: {}\n", result_stack_json->size());
       break;
 #endif
     default:
@@ -175,12 +175,12 @@ void OutputFormatter::ObjectStart(const char* name,
 void OutputFormatter::ObjectEnd(const char* name, const char* fmt)
 {
   PoolMem string;
-  Dmsg1(800, "obj end:   %s\n", name);
+  Dmsg1(800, "obj end:   {}\n", name);
   switch (api) {
 #if HAVE_JANSSON
     case API_MODE_JSON:
       result_stack_json->pop();
-      Dmsg1(800, "result stack: %d\n", result_stack_json->size());
+      Dmsg1(800, "result stack: {}\n", result_stack_json->size());
       break;
 #endif
     default:
@@ -205,7 +205,7 @@ void OutputFormatter::ArrayStart(const char* name, const char* fmt)
   PoolMem lname(name);
   lname.toLower();
 
-  Dmsg1(800, "array start:  %s\n", name);
+  Dmsg1(800, "array start:  {}\n", name);
   switch (api) {
 #if HAVE_JANSSON
     case API_MODE_JSON:
@@ -238,7 +238,7 @@ void OutputFormatter::ArrayStart(const char* name, const char* fmt)
         json_object_set_new(json_object_current, lname.c_str(), json_new);
         result_stack_json->push(json_new);
       }
-      Dmsg1(800, "result stack: %d\n", result_stack_json->size());
+      Dmsg1(800, "result stack: {}\n", result_stack_json->size());
       break;
 #endif
     default:
@@ -253,12 +253,12 @@ void OutputFormatter::ArrayStart(const char* name, const char* fmt)
 void OutputFormatter::ArrayEnd(const char* name, const char* fmt)
 {
   PoolMem string;
-  Dmsg1(800, "array end:    %s\n", name);
+  Dmsg1(800, "array end:    {}\n", name);
   switch (api) {
 #if HAVE_JANSSON
     case API_MODE_JSON:
       result_stack_json->pop();
-      Dmsg1(800, "result stack: %d\n", result_stack_json->size());
+      Dmsg1(800, "result stack: {}\n", result_stack_json->size());
       break;
 #endif
     default:
@@ -505,7 +505,7 @@ void OutputFormatter::ObjectKeyValue(const char* key,
         string.bsprintf(value_fmt, wvalue.c_str());
         result_message_plain->strcat(string);
       }
-      Dmsg2(800, "obj: %s:%s\n", key, wvalue.c_str());
+      Dmsg2(800, "obj: {}:{}\n", key, wvalue.c_str());
       break;
   }
 }
@@ -681,7 +681,7 @@ bool OutputFormatter::FilterData(void* data)
     for (of_filter_tuple* tuple : filters) {
       state = filter_func(filter_ctx, data, tuple);
 
-      Dmsg1(800, "filter_state %d\n", state);
+      Dmsg1(800, "filter_state {}\n", state);
       switch (state) {
         case OF_FILTER_STATE_SHOW:
           if (tuple->type == OF_FILTER_ACL) { acl_filter_show++; }
@@ -702,7 +702,7 @@ bool OutputFormatter::FilterData(void* data)
    * are not sure if we should show the item. */
   if (acl_filter_unknown > 0 && acl_filter_show == 0) {
     Dmsg2(200,
-          "tri-state filtering acl_filter_unknown %d, acl_filter_show %d\n",
+          "tri-state filtering acl_filter_unknown {}, acl_filter_show {}\n",
           acl_filter_unknown, acl_filter_show);
     num_rows_filtered++;
     return false;
@@ -1013,7 +1013,7 @@ void OutputFormatter::JsonFinalizeResult(bool result)
     Emsg0(M_ERROR, 0, "Failed to generate json string.\n");
   } else {
     size_t string_length = strlen(string);
-    Dmsg1(800, "message length (json): %lld\n", string_length);
+    Dmsg1(800, "message length (json): {}\n", string_length);
     // send json string, on failure, send json error message
     if (!send_func(send_ctx, "%s", string)) {
       /* If send failed, include short messages in error messages.

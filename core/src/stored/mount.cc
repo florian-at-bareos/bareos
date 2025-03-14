@@ -79,7 +79,7 @@ bool DeviceControlRecord::MountNextWriteVolume()
   DeviceMode mode;
   DeviceControlRecord* dcr = this;
 
-  Dmsg2(150, "Enter mount_next_volume(release=%d) dev=%s\n", dev->MustUnload(),
+  Dmsg2(150, "Enter mount_next_volume(release={}) dev={}\n", dev->MustUnload(),
         dev->print_name());
 
   InitDeviceWaitTimers(dcr);
@@ -91,7 +91,7 @@ bool DeviceControlRecord::MountNextWriteVolume()
    *  Volume, ...) */
 
 mount_next_vol:
-  Dmsg1(150, "mount_next_vol retry=%d\n", retry);
+  Dmsg1(150, "mount_next_vol retry={}\n", retry);
   // Ignore retry if this is poll request
   if (retry++ > 4) {
     // Last ditch effort before giving up, force operator to respond
@@ -103,7 +103,7 @@ mount_next_vol:
       goto no_lock_bail_out;
     }
     lock_mutex(mount_mutex);
-    Dmsg1(150, "Continue after dir_ask_sysop_to_mount. must_load=%d\n",
+    Dmsg1(150, "Continue after dir_ask_sysop_to_mount. must_load={}\n",
           dev->must_load());
   }
 
@@ -123,7 +123,7 @@ mount_next_vol:
 
   if (jcr->IsJobCanceled()) { goto bail_out; }
 
-  Dmsg2(150, "After find_next_append. Vol=%s Slot=%d\n", getVolCatName(),
+  Dmsg2(150, "After find_next_append. Vol={} Slot={}\n", getVolCatName(),
         VolCatInfo.Slot);
 
   /* Get next volume and ready it for append
@@ -182,7 +182,7 @@ mount_next_vol:
       ask = false;
       break;
   }
-  Dmsg1(150, "autoLoadDev returns %d\n", autochanger);
+  Dmsg1(150, "autoLoadDev returns {}\n", autochanger);
 
   /* If we autochanged to correct Volume or (we have not just
    * released the Volume AND we can automount) we go ahead
@@ -198,7 +198,7 @@ mount_next_vol:
     Dmsg0(250, "(2)Ask=0\n");
     ask = false;
   }
-  Dmsg2(250, "Ask=%d autochanger=%d\n", ask, autochanger);
+  Dmsg2(250, "Ask={} autochanger={}\n", ask, autochanger);
 
   if (ask) {
     unlock_mutex(mount_mutex);
@@ -212,7 +212,7 @@ mount_next_vol:
 
   if (jcr->IsJobCanceled()) { goto bail_out; }
 
-  Dmsg3(150, "want vol=%s devvol=%s dev=%s\n", VolumeName,
+  Dmsg3(150, "want vol={} devvol={} dev={}\n", VolumeName,
         dev->VolHdr.VolumeName, dev->print_name());
 
   if (dev->poll && dev->HasCap(CAP_CLOSEONPOLL)) {
@@ -233,7 +233,7 @@ mount_next_vol:
   }
 
   while (!dev->open(dcr, mode)) {
-    Dmsg1(150, "OpenDevice failed: ERR=%s\n", dev->bstrerror());
+    Dmsg1(150, "OpenDevice failed: ERR={}\n", dev->bstrerror());
     if (dev->IsRemovable()) {
       Dmsg0(150, "call ScanForVolume\n");
       if (dev->ScanForVolume(dcr) && dev->open(dcr, mode)) {
@@ -279,8 +279,8 @@ read_volume:
     dcr->VolMinBlocksize = VolCatInfo.VolMinBlocksize;
     dcr->VolMaxBlocksize = VolCatInfo.VolMaxBlocksize;
     Dmsg3(200,
-          "applying vol block sizes to device %s: dcr->VolMinBlocksize set to "
-          "%u, dcr->VolMaxBlocksize set to %u\n",
+          "applying vol block sizes to device {}: dcr->VolMinBlocksize set to "
+          "{}, dcr->VolMaxBlocksize set to {}\n",
           dev->print_name(), dcr->VolMinBlocksize, dcr->VolMaxBlocksize);
 
     // Set the block sizes of the dcr in the device.
@@ -310,13 +310,13 @@ read_volume:
      * just now putting it into append mode. */
     Dmsg1(
         100,
-        "Device previously written, moving to end of data. Expect %lld bytes\n",
+        "Device previously written, moving to end of data. Expect {} bytes\n",
         dev->VolCatInfo.VolCatBytes);
     Jmsg(jcr, M_INFO, 0, T_("Moving to end of data on volume \"%s\"\n"),
          VolumeName);
 
     if (!dev->eod(dcr)) {
-      Dmsg2(050, "Unable to position to end of data on device %s: ERR=%s\n",
+      Dmsg2(050, "Unable to position to end of data on device {}: ERR={}\n",
             dev->print_name(), dev->bstrerror());
       Jmsg(jcr, M_ERROR, 0,
            T_("Unable to position to end of data on device %s: ERR=%s\n"),
@@ -330,14 +330,14 @@ read_volume:
     }
 
     dev->VolCatInfo.VolCatMounts++; /* Update mounts */
-    Dmsg1(150, "update volinfo mounts=%d\n", dev->VolCatInfo.VolCatMounts);
+    Dmsg1(150, "update volinfo mounts={}\n", dev->VolCatInfo.VolCatMounts);
     if (!dcr->DirUpdateVolumeInfo(is_labeloperation::False)) { goto bail_out; }
 
     /* Return an empty block */
     EmptyBlock(block); /* we used it for reading so set for write */
   }
   dev->SetAppend();
-  Dmsg1(150, "set APPEND, normal return from MountNextWriteVolume. dev=%s\n",
+  Dmsg1(150, "set APPEND, normal return from MountNextWriteVolume. dev={}\n",
         dev->print_name());
 
   unlock_mutex(mount_mutex);
@@ -409,21 +409,21 @@ int DeviceControlRecord::CheckVolumeLabel(bool& ask, bool& autochanger)
   }
   if (jcr->IsJobCanceled()) { goto check_bail_out; }
 
-  Dmsg2(150, "Want dirVol=%s dirStat=%s\n", VolumeName,
+  Dmsg2(150, "Want dirVol={} dirStat={}\n", VolumeName,
         VolCatInfo.VolCatStatus);
 
   /* At this point, dev->VolCatInfo has what is in the drive, if anything,
    *          and   dcr->VolCatInfo has what the Director wants. */
   switch (vol_label_status) {
     case VOL_OK:
-      Dmsg1(150, "Vol OK name=%s\n", dev->VolHdr.VolumeName);
+      Dmsg1(150, "Vol OK name={}\n", dev->VolHdr.VolumeName);
       dev->VolCatInfo = VolCatInfo; /* structure assignment */
       break;                        /* got a Volume */
     case VOL_NAME_ERROR: {
       VolumeCatalogInfo dcrVolCatInfo, devVolCatInfo;
       char saveVolumeName[MAX_NAME_LENGTH];
 
-      Dmsg2(150, "Vol NAME Error Have=%s, want=%s\n", dev->VolHdr.VolumeName,
+      Dmsg2(150, "Vol NAME Error Have={}, want={}\n", dev->VolHdr.VolumeName,
             VolumeName);
       if (dev->IsVolumeToUnload()) {
         ask = true;
@@ -475,9 +475,9 @@ int DeviceControlRecord::CheckVolumeLabel(bool& ask, bool& autochanger)
       }
       /* This was not the volume we expected, but it is OK with
        * the Director, so use it. */
-      Dmsg1(150, "Got new Volume name=%s\n", VolumeName);
+      Dmsg1(150, "Got new Volume name={}\n", VolumeName);
       dev->VolCatInfo = VolCatInfo; /* structure assignment */
-      Dmsg1(100, "Call reserve_volume=%s\n", dev->VolHdr.VolumeName);
+      Dmsg1(100, "Call reserve_volume={}\n", dev->VolHdr.VolumeName);
       if (reserve_volume(dcr, dev->VolHdr.VolumeName) == NULL) {
         Jmsg2(jcr, M_WARNING, 0, T_("Could not reserve volume %s on %s\n"),
               dev->VolHdr.VolumeName, dev->print_name());
@@ -514,7 +514,7 @@ int DeviceControlRecord::CheckVolumeLabel(bool& ask, bool& autochanger)
         Jmsg(jcr, M_WARNING, 0, "Could not check volume label: ERR=%s\n",
              jcr->errmsg);
       } else {
-        Dmsg1(200, "Msg suppressed by poll: %s\n", jcr->errmsg);
+        Dmsg1(200, "Msg suppressed by poll: {}\n", jcr->errmsg);
       }
       ask = true;
       /* Needed, so the medium can be changed */
@@ -547,7 +547,7 @@ bool DeviceControlRecord::DoUnload()
   }
 
   if (dev->MustUnload()) {
-    Dmsg1(100, "MustUnload release %s\n", dev->print_name());
+    Dmsg1(100, "MustUnload release {}\n", dev->print_name());
     ReleaseVolume();
   }
   return true;
@@ -559,7 +559,7 @@ bool DeviceControlRecord::DoLoad(bool IsWriting)
   bool retval = false;
 
   if (dev->must_load()) {
-    Dmsg1(100, "Must load %s\n", dev->print_name());
+    Dmsg1(100, "Must load {}\n", dev->print_name());
     if (AutoloadDevice(dcr, IsWriting, NULL) > 0) {
       dev->clear_load();
       retval = true;
@@ -585,23 +585,23 @@ void DeviceControlRecord::DoSwapping(bool)
   if (dev->swap_dev) {
     if (dev->swap_dev->MustUnload()) {
       if (dev->vol) { dev->swap_dev->SetSlotNumber(dev->vol->GetSlot()); }
-      Dmsg2(100, "Swap unloading slot=%d %s\n", dev->swap_dev->GetSlot(),
+      Dmsg2(100, "Swap unloading slot={} {}\n", dev->swap_dev->GetSlot(),
             dev->swap_dev->print_name());
       UnloadDev(dcr, dev->swap_dev);
     }
     if (dev->vol) {
       dev->vol->ClearSwapping();
-      Dmsg1(100, "=== set in_use vol=%s\n", dev->vol->vol_name);
+      Dmsg1(100, "=== set in_use vol={}\n", dev->vol->vol_name);
       dev->vol->SetInUse();
       dev->VolHdr.VolumeName[0] = 0; /* don't yet have right Volume */
     } else {
-      Dmsg1(100, "No vol on dev=%s\n", dev->print_name());
+      Dmsg1(100, "No vol on dev={}\n", dev->print_name());
     }
     if (dev->swap_dev->vol) {
-      Dmsg2(100, "Vol=%s on dev=%s\n", dev->swap_dev->vol->vol_name,
+      Dmsg2(100, "Vol={} on dev={}\n", dev->swap_dev->vol->vol_name,
             dev->swap_dev->print_name());
     }
-    Dmsg2(100, "Set swap_dev=NULL for dev=%s swap_dev=%s\n", dev->print_name(),
+    Dmsg2(100, "Set swap_dev=NULL for dev={} swap_dev={}\n", dev->print_name(),
           dev->swap_dev->print_name());
     dev->swap_dev = NULL;
   } else {
@@ -721,7 +721,7 @@ int DeviceControlRecord::TryAutolabel(bool opened)
     /* Create a new Volume label and write it to the device */
     if (!WriteNewVolumeLabelToDev(dcr, VolumeName, pool_name,
                                   false /* no relabel */)) {
-      Dmsg2(150, "write_vol_label failed. vol=%s, pool=%s\n", VolumeName,
+      Dmsg2(150, "write_vol_label failed. vol={}, pool={}\n", VolumeName,
             pool_name);
       if (opened) { MarkVolumeInError(); }
       return try_next_vol;
@@ -869,7 +869,7 @@ bool MountNextReadVolume(DeviceControlRecord* dcr)
 {
   Device* dev = dcr->dev;
   JobControlRecord* jcr = dcr->jcr;
-  Dmsg2(90, "NumReadVolumes=%d CurReadVolume=%d\n",
+  Dmsg2(90, "NumReadVolumes={} CurReadVolume={}\n",
         jcr->sd_impl->NumReadVolumes, jcr->sd_impl->CurReadVolume);
 
   VolumeUnused(dcr); /* release current volume */

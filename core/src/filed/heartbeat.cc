@@ -116,13 +116,13 @@ void heartbeat_sd_dir::send_heartbeat(BareosSocket* sd,
       sd->recv(); /* read it -- probably heartbeat from sd */
       if (sd->IsStop() || stop_requested) { break; }
       if (sd->message_length <= 0) {
-        Dmsg1(100, "Got BNET_SIG %d from SD\n", sd->message_length);
+        Dmsg1(100, "Got BNET_SIG {} from SD\n", sd->message_length);
       } else {
-        Dmsg2(100, "Got %d bytes from SD. MSG=%s\n", sd->message_length,
+        Dmsg2(100, "Got {} bytes from SD. MSG={}\n", sd->message_length,
               sd->msg);
       }
     }
-    Dmsg2(200, "wait_intr=%d stop=%d\n", n, IsBnetStop(sd));
+    Dmsg2(200, "wait_intr={} stop={}\n", n, IsBnetStop(sd));
   }
 
   sd->close();

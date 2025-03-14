@@ -63,7 +63,7 @@ int WaitForSysop(DeviceControlRecord* dcr)
   JobControlRecord* jcr = dcr->jcr;
 
   dev->Lock();
-  Dmsg1(debuglevel, "Enter blocked=%s\n", dev->print_blocked());
+  Dmsg1(debuglevel, "Enter blocked={}\n", dev->print_blocked());
 
   /* Since we want to mount a tape, make sure current one is
    *  not marked as using this drive. */
@@ -88,7 +88,7 @@ int WaitForSysop(DeviceControlRecord* dcr)
   }
 
   if (!unmounted) {
-    Dmsg1(debuglevel, "blocked=%s\n", dev->print_blocked());
+    Dmsg1(debuglevel, "blocked={}\n", dev->print_blocked());
     dev->dev_prev_blocked = dev->blocked();
     dev->SetBlocked(BST_WAITING_FOR_SYSOP); /* indicate waiting for mount */
   }
@@ -101,7 +101,7 @@ int WaitForSysop(DeviceControlRecord* dcr)
     timeout.tv_sec = tv.tv_sec + add_wait;
 
     Dmsg4(debuglevel,
-          "I'm going to sleep on device %s. HB=%d rem_wait=%d add_wait=%d\n",
+          "I'm going to sleep on device {}. HB={} rem_wait={} add_wait={}\n",
           dev->print_name(), (int)me->heartbeat_interval, dev->rem_wait_sec,
           add_wait);
     start = time(NULL);
@@ -110,7 +110,7 @@ int WaitForSysop(DeviceControlRecord* dcr)
     status
         = pthread_cond_timedwait(&dev->wait_next_vol, &dev->mutex_, &timeout);
 
-    Dmsg2(debuglevel, "Wokeup from sleep on device status=%d blocked=%s\n",
+    Dmsg2(debuglevel, "Wokeup from sleep on device status={} blocked={}\n",
           status, dev->print_blocked());
     now = time(NULL);
     total_waited = now - first_start;
@@ -151,7 +151,7 @@ int WaitForSysop(DeviceControlRecord* dcr)
 
     if (!unmounted && dev->vol_poll_interval
         && (total_waited >= dev->vol_poll_interval)) {
-      Dmsg1(debuglevel, "poll return in wait blocked=%s\n",
+      Dmsg1(debuglevel, "poll return in wait blocked={}\n",
             dev->print_blocked());
       dev->poll = true; /* returning a poll event */
       status = W_POLL;
@@ -168,7 +168,7 @@ int WaitForSysop(DeviceControlRecord* dcr)
      *   return to check if state changed. */
     if (status != ETIMEDOUT) {
       BErrNo be;
-      Dmsg2(debuglevel, "Wake return. status=%d. ERR=%s\n", status,
+      Dmsg2(debuglevel, "Wake return. status={}. ERR={}\n", status,
             be.bstrerror(status));
       status = W_WAKE; /* someone woke us */
       break;
@@ -193,9 +193,9 @@ int WaitForSysop(DeviceControlRecord* dcr)
 
   if (!unmounted) {
     dev->SetBlocked(dev->dev_prev_blocked); /* restore entry state */
-    Dmsg1(debuglevel, "set %s\n", dev->print_blocked());
+    Dmsg1(debuglevel, "set {}\n", dev->print_blocked());
   }
-  Dmsg1(debuglevel, "Exit blocked=%s\n", dev->print_blocked());
+  Dmsg1(debuglevel, "Exit blocked={}\n", dev->print_blocked());
   dev->Unlock();
   return status;
 }
@@ -238,10 +238,10 @@ bool WaitForDevice(JobControlRecord* jcr, int& retries)
   /* Wait required time */
   status = pthread_cond_timedwait(&wait_device_release, &device_release_mutex,
                                   &timeout);
-  Dmsg1(debuglevel, "Wokeup from sleep on device status=%d\n", status);
+  Dmsg1(debuglevel, "Wokeup from sleep on device status={}\n", status);
 
   unlock_mutex(device_release_mutex);
-  Dmsg1(debuglevel, "Return from wait_device ok=%d\n", ok);
+  Dmsg1(debuglevel, "Return from wait_device ok={}\n", ok);
   return ok;
 }
 

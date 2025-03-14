@@ -62,7 +62,7 @@ static void SetJcrSdJobStatus(JobControlRecord* jcr, int SDJobStatus)
 {
   bool set_waittime = false;
 
-  Dmsg2(800, "SetJcrSdJobStatus(%s, %c)\n", jcr->Job, SDJobStatus);
+  Dmsg2(800, "SetJcrSdJobStatus({}, {:c})\n", jcr->Job, SDJobStatus);
 
   // If wait state is new, we keep current time for watchdog MaxWaitTime
   switch (SDJobStatus) {
@@ -134,7 +134,7 @@ int BgetDirmsg(BareosSocket* bs, bool allow_any_message)
 
   for (; !bs->IsStop() && !bs->IsTimedOut();) {
     n = bs->recv();
-    Dmsg2(200, "BgetDirmsg %d: %s\n", n, bs->msg);
+    Dmsg2(200, "BgetDirmsg {}: {}\n", n, bs->msg);
 
     if (bs->IsStop() || bs->IsTimedOut()) { return n; /* error or Terminate */ }
     if (n == BNET_SIGNAL) { /* handle signal */
@@ -153,7 +153,7 @@ int BgetDirmsg(BareosSocket* bs, bool allow_any_message)
           break;
         case BNET_HEARTBEAT:
           //          encode_time(time(NULL), Job);
-          //          Dmsg1(100, "%s got heartbeat.\n", Job);
+          //          Dmsg1(100, "{} got heartbeat.\n", Job);
           break;
         case BNET_HB_RESPONSE:
           break;
@@ -210,30 +210,30 @@ int BgetDirmsg(BareosSocket* bs, bool allow_any_message)
         Jmsg1(jcr, M_ERROR, 0, T_("Malformed message: %s\n"), bs->msg);
         continue;
       }
-      Dmsg1(900, "Got msg: %s\n", bs->msg);
+      Dmsg1(900, "Got msg: {}\n", bs->msg);
       SkipSpaces(&msg);
       SkipNonspaces(&msg); /* skip type=nnn */
       SkipSpaces(&msg);
       SkipNonspaces(&msg); /* skip level=nnn */
       if (*msg == ' ') { msg++; /* skip leading space */ }
-      Dmsg1(900, "Dispatch msg: %s", msg);
+      Dmsg1(900, "Dispatch msg: {}", msg);
       DispatchMessage(jcr, type, mtime, msg);
       continue;
     }
     /* Here we expact a CatReq message
      *   CatReq Job=nn Catalog-Request-Message */
     if (bs->msg[0] == 'C') { /* Catalog request */
-      Dmsg2(900, "Catalog req jcr 0x%x: %s", jcr, bs->msg);
+      Dmsg2(900, "Catalog req jcr 0x{:x}: {}", jcr, bs->msg);
       CatalogRequest(jcr, bs);
       continue;
     }
     if (bs->msg[0] == 'U') { /* SD sending attributes */
-      Dmsg2(900, "Catalog upd jcr 0x%x: %s", jcr, bs->msg);
+      Dmsg2(900, "Catalog upd jcr 0x{:x}: {}", jcr, bs->msg);
       CatalogUpdate(jcr, bs);
       continue;
     }
     if (bs->msg[0] == 'B') { /* SD sending file spool attributes */
-      Dmsg2(100, "Blast attributes jcr 0x%x: %s", jcr, bs->msg);
+      Dmsg2(100, "Blast attributes jcr 0x{:x}: {}", jcr, bs->msg);
       char filename[256];
       if (sscanf(bs->msg, "BlastAttr Job=%127s File=%255s", Job, filename)
           != 2) {

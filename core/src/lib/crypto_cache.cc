@@ -52,7 +52,7 @@ void ReadCryptoCache(const char* cache_file)
   if ((fd = open(cache_file, O_RDONLY | O_BINARY)) < 0) {
     BErrNo be;
 
-    Dmsg2(010, "Could not open crypto cache file. %s ERR=%s\n", cache_file,
+    Dmsg2(010, "Could not open crypto cache file. {} ERR={}\n", cache_file,
           be.bstrerror());
     goto bail_out;
   }
@@ -61,13 +61,13 @@ void ReadCryptoCache(const char* cache_file)
     BErrNo be;
 
     Dmsg4(010,
-          "Could not read crypto cache file. fd=%d status=%d size=%d: ERR=%s\n",
+          "Could not read crypto cache file. fd={} status={} size={}: ERR={}\n",
           fd, (int)status, hdr_size, be.bstrerror());
     goto bail_out;
   }
 
   if (hdr.version != crypto_cache_hdr.version) {
-    Dmsg2(010, "Crypto cache bad hdr version. Wanted %d got %d\n",
+    Dmsg2(010, "Crypto cache bad hdr version. Wanted {} got {}\n",
           crypto_cache_hdr.version, hdr.version);
     goto bail_out;
   }
@@ -100,11 +100,11 @@ void ReadCryptoCache(const char* cache_file)
   // Check if we read the number of entries the header said are in the file.
   if (cnt == hdr.nr_entries) {
     ok = true;
-    Dmsg2(010, "Crypto cache read %d entries in file %s\n", cnt, cache_file);
+    Dmsg2(010, "Crypto cache read {} entries in file {}\n", cnt, cache_file);
   } else {
     Dmsg3(
         000,
-        "Crypto cache read %d entries while %d entries should be in file %s\n",
+        "Crypto cache read {} entries while {} entries should be in file {}\n",
         cnt, hdr.nr_entries, cache_file);
   }
 
@@ -156,7 +156,7 @@ void WriteCryptoCache(const char* cache_file)
       != sizeof(crypto_cache_hdr)) {
     BErrNo be;
 
-    Dmsg1(000, "Write hdr error: ERR=%s\n", be.bstrerror());
+    Dmsg1(000, "Write hdr error: ERR={}\n", be.bstrerror());
     goto bail_out;
   }
 
@@ -165,7 +165,7 @@ void WriteCryptoCache(const char* cache_file)
         != sizeof(crypto_cache_entry_t)) {
       BErrNo be;
 
-      Dmsg1(000, "Write record error: ERR=%s\n", be.bstrerror());
+      Dmsg1(000, "Write record error: ERR={}\n", be.bstrerror());
       goto bail_out;
     }
   }
@@ -318,7 +318,7 @@ void DumpCryptoCache(int fd)
 
   if (write(fd, msg.c_str(), len) <= 0) {
     BErrNo be;
-    Dmsg1(000, "write error: ERR=%s\n", be.bstrerror());
+    Dmsg1(000, "write error: ERR={}\n", be.bstrerror());
   }
   foreach_dlist (cce, cached_crypto_keys) {
     bstrutime(dt1, sizeof(dt1), cce->added);
@@ -328,7 +328,7 @@ void DumpCryptoCache(int fd)
 
     if (write(fd, msg.c_str(), len) <= 0) {
       BErrNo be;
-      Dmsg1(000, "write error: ERR=%s\n", be.bstrerror());
+      Dmsg1(000, "write error: ERR={}\n", be.bstrerror());
     }
   }
 

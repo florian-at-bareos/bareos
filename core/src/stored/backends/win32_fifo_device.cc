@@ -63,7 +63,7 @@ void win32_fifo_device::OpenDevice(DeviceControlRecord* dcr, DeviceMode omode)
     tid = StartThreadTimer(dcr->jcr, pthread_self(), timeout);
   }
 
-  Dmsg2(100, "Try open %s mode=%s\n", prt_name, mode_to_str(omode));
+  Dmsg2(100, "Try open {} mode={}\n", prt_name, mode_to_str(omode));
 
   // If busy retry each second for max_open_wait seconds
   for (;;) {
@@ -72,7 +72,7 @@ void win32_fifo_device::OpenDevice(DeviceControlRecord* dcr, DeviceMode omode)
     if (fd < 0) {
       BErrNo be;
       dev_errno = errno;
-      Dmsg5(100, "Open error on %s omode=%d oflags=%x errno=%d: ERR=%s\n",
+      Dmsg5(100, "Open error on {} omode={} oflags={:x} errno={}: ERR={}\n",
             prt_name, omode, oflags, errno, be.bstrerror());
     } else {
       d_close(fd);
@@ -80,7 +80,7 @@ void win32_fifo_device::OpenDevice(DeviceControlRecord* dcr, DeviceMode omode)
       if (fd < 0) {
         BErrNo be;
         dev_errno = errno;
-        Dmsg5(100, "Open error on %s omode=%d oflags=%x errno=%d: ERR=%s\n",
+        Dmsg5(100, "Open error on {} omode={} oflags={:x} errno={}: ERR={}\n",
               prt_name, omode, oflags, errno, be.bstrerror());
         break;
       }
@@ -98,7 +98,7 @@ void win32_fifo_device::OpenDevice(DeviceControlRecord* dcr, DeviceMode omode)
     BErrNo be;
     Mmsg2(errmsg, T_("Unable to open device %s: ERR=%s\n"), prt_name,
           be.bstrerror(dev_errno));
-    Dmsg1(100, "%s", errmsg);
+    Dmsg1(100, "{}", errmsg);
   }
 
   // Stop any open() timer we started
@@ -107,7 +107,7 @@ void win32_fifo_device::OpenDevice(DeviceControlRecord* dcr, DeviceMode omode)
     tid = 0;
   }
 
-  Dmsg1(100, "open dev: fifo %d opened\n", fd);
+  Dmsg1(100, "open dev: fifo {} opened\n", fd);
 }
 
 bool win32_fifo_device::eod(DeviceControlRecord*)
@@ -153,7 +153,7 @@ bool win32_fifo_device::do_mount(DeviceControlRecord* dcr,
 
   EditMountCodes(ocmd, icmd);
 
-  Dmsg2(100, "do_mount: cmd=%s mounted=%d\n", ocmd.c_str(), IsMounted());
+  Dmsg2(100, "do_mount: cmd={} mounted={}\n", ocmd.c_str(), IsMounted());
 
   if (dotimeout) {
     /* Try at most 10 times to (un)mount the device. This should perhaps be
@@ -165,7 +165,7 @@ bool win32_fifo_device::do_mount(DeviceControlRecord* dcr,
   results = GetMemory(4000);
 
   /* If busy retry each second */
-  Dmsg1(100, "do_mount run_prog=%s\n", ocmd.c_str());
+  Dmsg1(100, "do_mount run_prog={}\n", ocmd.c_str());
   while (
       (status = RunProgramFullOutput(ocmd.c_str(), max_open_wait / 2, results))
       != 0) {
@@ -176,13 +176,13 @@ bool win32_fifo_device::do_mount(DeviceControlRecord* dcr,
       /* Sometimes the device cannot be mounted because it is already mounted.
        * Try to unmount it, then remount it */
       if (mount) {
-        Dmsg1(400, "Trying to unmount the device %s...\n", print_name());
+        Dmsg1(400, "Trying to unmount the device {}...\n", print_name());
         do_mount(dcr, 0, 0);
       }
       Bmicrosleep(1, 0);
       continue;
     }
-    Dmsg5(100, "Device %s cannot be %smounted. status=%d result=%s ERR=%s\n",
+    Dmsg5(100, "Device {} cannot be {}mounted. status={} result={} ERR={}\n",
           print_name(), (mount ? "" : "un"), status, results,
           be.bstrerror(status));
     Mmsg(errmsg, T_("Device %s cannot be %smounted. ERR=%s\n"), print_name(),
@@ -195,7 +195,7 @@ bool win32_fifo_device::do_mount(DeviceControlRecord* dcr,
     if (!(dp = opendir(device_resource->mount_point))) {
       BErrNo be2;
       dev_errno = errno;
-      Dmsg3(100, "do_mount: failed to open dir %s (dev=%s), ERR=%s\n",
+      Dmsg3(100, "do_mount: failed to open dir {} (dev={}), ERR={}\n",
             device_resource->mount_point, print_name(), be2.bstrerror());
       goto get_out;
     }
@@ -212,7 +212,7 @@ bool win32_fifo_device::do_mount(DeviceControlRecord* dcr,
 #endif
         dev_errno = EIO;
         Dmsg2(129,
-              "do_mount: failed to find suitable file in dir %s (dev=%s)\n",
+              "do_mount: failed to find suitable file in dir {} (dev={})\n",
               device_resource->mount_point, print_name());
         break;
       }
@@ -221,7 +221,7 @@ bool win32_fifo_device::do_mount(DeviceControlRecord* dcr,
         count++; /* result->d_name != ., .. or .keep (Gentoo-specific) */
         break;
       } else {
-        Dmsg2(129, "do_mount: ignoring %s in %s\n", result->d_name,
+        Dmsg2(129, "do_mount: ignoring {} in {}\n", result->d_name,
               device_resource->mount_point);
       }
     }
@@ -231,7 +231,7 @@ bool win32_fifo_device::do_mount(DeviceControlRecord* dcr,
     closedir(dp);
 
     Dmsg1(100,
-          "do_mount: got %d files in the mount point (not counting ., .. and "
+          "do_mount: got {} files in the mount point (not counting ., .. and "
           ".keep)\n",
           count);
 
@@ -239,7 +239,7 @@ bool win32_fifo_device::do_mount(DeviceControlRecord* dcr,
       /* If we got more than ., .. and .keep */
       /*   there must be something mounted */
       if (mount) {
-        Dmsg1(100, "Did Mount by count=%d\n", count);
+        Dmsg1(100, "Did Mount by count={}\n", count);
         break;
       } else {
         /* An unmount request. We failed to unmount - report an error */
@@ -255,7 +255,7 @@ bool win32_fifo_device::do_mount(DeviceControlRecord* dcr,
   }
 
   FreePoolMemory(results);
-  Dmsg1(200, "============ mount=%d\n", mount);
+  Dmsg1(200, "============ mount={}\n", mount);
   return true;
 }
 

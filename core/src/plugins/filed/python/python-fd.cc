@@ -325,7 +325,7 @@ bRC startBackupFile(PluginContext* plugin_ctx, save_pkt* sp)
     retval = Bareosfd_PyStartBackupFile(plugin_ctx, sp);
   }
 
-  Dmsg(plugin_ctx, debuglevel, LOGPREFIX "StartBackupFile returned: %d\n",
+  Dmsg(plugin_ctx, debuglevel, LOGPREFIX "StartBackupFile returned: {}\n",
        retval);
   if (retval != bRC_OK) { goto bail_out; }
 
@@ -623,7 +623,7 @@ bRC parse_plugin_definition(PluginContext* plugin_ctx,
    * Python Plugins enabled. */
   if (bstrcmp((char*)value, "*all*")) {
     Dmsg(plugin_ctx, debuglevel,
-         LOGPREFIX "Got plugin definition %s, skipping to ignore\n",
+         LOGPREFIX "Got plugin definition {}, skipping to ignore\n",
          (char*)value);
     return bRC_Skip;
   }
@@ -644,7 +644,7 @@ bRC parse_plugin_definition(PluginContext* plugin_ctx,
     if (!bp) {
       Jmsg(plugin_ctx, M_FATAL, LOGPREFIX "Illegal plugin definition %s\n",
            (char*)value);
-      Dmsg(plugin_ctx, debuglevel, LOGPREFIX "Illegal plugin definition %s\n",
+      Dmsg(plugin_ctx, debuglevel, LOGPREFIX "Illegal plugin definition {}\n",
            (char*)value);
       goto bail_out;
     }
@@ -663,7 +663,7 @@ bRC parse_plugin_definition(PluginContext* plugin_ctx,
   if (!bp) {
     Jmsg(plugin_ctx, M_FATAL, LOGPREFIX "Illegal plugin definition %s\n",
          plugin_definition.c_str());
-    Dmsg(plugin_ctx, debuglevel, LOGPREFIX "Illegal plugin definition %s\n",
+    Dmsg(plugin_ctx, debuglevel, LOGPREFIX "Illegal plugin definition {}\n",
          plugin_definition.c_str());
     goto bail_out;
   }
@@ -687,7 +687,7 @@ bRC parse_plugin_definition(PluginContext* plugin_ctx,
       Jmsg(plugin_ctx, M_FATAL, LOGPREFIX "Illegal argument %s without value\n",
            argument);
       Dmsg(plugin_ctx, debuglevel,
-           LOGPREFIX "Illegal argument %s without value\n", argument);
+           LOGPREFIX "Illegal argument {} without value\n", argument);
       goto bail_out;
     }
     argument_value = eq + 1;

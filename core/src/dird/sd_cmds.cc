@@ -111,7 +111,7 @@ bool ConnectToStorageDaemon(JobControlRecord* jcr,
     heart_beat = me->heartbeat_interval;
   }
 
-  Dmsg2(100, "bNetConnect to Storage daemon %s:%d\n", store->address,
+  Dmsg2(100, "bNetConnect to Storage daemon {}:{}\n", store->address,
         store->SDport);
   std::unique_ptr<BareosSocket> sd(new BareosSocketTCP);
   if (!sd) { return false; }
@@ -203,12 +203,12 @@ char* get_volume_name_from_SD(UaContext* ua,
    * specific slot of the autochanger using the drive number given.
    * This could change the loaded volume in the drive. */
   sd->fsend(readlabelcmd, dev_name, Slot, drive);
-  Dmsg1(100, "Sent: %s", sd->msg);
+  Dmsg1(100, "Sent: {}", sd->msg);
 
   // Get Volume name in this Slot
   while (sd->recv() >= 0) {
     ua->SendMsg("%s", sd->msg);
-    Dmsg1(100, "Got: %s", sd->msg);
+    Dmsg1(100, "Got: {}", sd->msg);
     if (strncmp(sd->msg, NT_("3001 Volume="), 12) == 0) {
       VolName = (char*)malloc(sd->message_length);
       if (sscanf(sd->msg, readlabelresponse, VolName, &rtn_slot) == 2) {
@@ -219,7 +219,7 @@ char* get_volume_name_from_SD(UaContext* ua,
     }
   }
   CloseSdBsock(ua);
-  Dmsg1(100, "get_vol_name=%s\n", NPRT(VolName));
+  Dmsg1(100, "get_vol_name={}\n", NPRT(VolName));
   return VolName;
 }
 
@@ -477,14 +477,14 @@ dlist<vol_list_t>* native_get_vol_list(UaContext* ua,
 
     if (vl->VolName) {
       Dmsg6(100,
-            "Add index = %hd slot=%hd loaded=%hd type=%hd content=%hd Vol=%s "
+            "Add index = {} slot={} loaded={} type={} content={} Vol={} "
             "to SD list.\n",
             vl->element_address, vl->bareos_slot_number,
             vl->currently_loaded_slot_number, vl->slot_type, vl->slot_type,
             NPRT(vl->VolName));
     } else {
       Dmsg5(100,
-            "Add index = %hd slot=%hd loaded=%hd type=%hd content=%hd Vol=NULL "
+            "Add index = {} slot={} loaded={} type={} content={} Vol=NULL "
             "to SD list.\n",
             vl->element_address, vl->bareos_slot_number,
             vl->currently_loaded_slot_number, vl->slot_type, vl->slot_type);
@@ -836,7 +836,7 @@ bool SendSecureEraseReqToSd(JobControlRecord* jcr)
         jcr->dir_impl->SDSecureEraseCmd, sd->message_length);
     if (sscanf(sd->msg, OKSecureEraseCmd, jcr->dir_impl->SDSecureEraseCmd)
         == 1) {
-      Dmsg1(421, "Got SD Secure Erase Cmd: %s\n",
+      Dmsg1(421, "Got SD Secure Erase Cmd: {}\n",
             jcr->dir_impl->SDSecureEraseCmd);
       break;
     } else {

@@ -112,7 +112,7 @@ bacl_exit_code SendAclStream(JobControlRecord* jcr,
   }
 
   // Send the buffer to the storage daemon
-  Dmsg1(400, "Backing up ACL <%s>\n", acl_data->content.c_str());
+  Dmsg1(400, "Backing up ACL <{}>\n", acl_data->content.c_str());
   msgsave = sd->msg;
   sd->msg = acl_data->content.c_str();
   sd->message_length = acl_data->content_length + 1;
@@ -132,7 +132,7 @@ bacl_exit_code SendAclStream(JobControlRecord* jcr,
     return bacl_exit_fatal;
   }
 
-  Dmsg1(200, "ACL of file: %s successfully backed up!\n", acl_data->last_fname);
+  Dmsg1(200, "ACL of file: {} successfully backed up!\n", acl_data->last_fname);
   return bacl_exit_ok;
 }
 
@@ -216,7 +216,7 @@ static bacl_exit_code aix_build_acl_streams(JobControlRecord* jcr,
       default:
         Mmsg2(jcr->errmsg, T_("aclx_get error on file \"%s\": ERR=%s\n"),
               acl_data->last_fname, be.bstrerror());
-        Dmsg2(100, "aclx_get error file=%s ERR=%s\n", acl_data->last_fname,
+        Dmsg2(100, "aclx_get error file={} ERR={}\n", acl_data->last_fname,
               be.bstrerror());
         goto bail_out;
     }
@@ -243,7 +243,7 @@ static bacl_exit_code aix_build_acl_streams(JobControlRecord* jcr,
       default:
         Mmsg2(jcr->errmsg, T_("aclx_get error on file \"%s\": ERR=%s\n"),
               acl_data->last_fname, be.bstrerror());
-        Dmsg2(100, "aclx_get error file=%s ERR=%s\n", acl_data->last_fname,
+        Dmsg2(100, "aclx_get error file={} ERR={}\n", acl_data->last_fname,
               be.bstrerror());
         goto bail_out;
     }
@@ -267,7 +267,7 @@ static bacl_exit_code aix_build_acl_streams(JobControlRecord* jcr,
       Mmsg2(jcr->errmsg,
             T_("Unknown acl type encountered on file \"%s\": %ld\n"),
             acl_data->last_fname, type.u64);
-      Dmsg2(100, "Unknown acl type encountered on file \"%s\": %ld\n",
+      Dmsg2(100, "Unknown acl type encountered on file \"{}\": {}\n",
             acl_data->last_fname, type.u64);
       goto bail_out;
   }
@@ -290,7 +290,7 @@ static bacl_exit_code aix_build_acl_streams(JobControlRecord* jcr,
           Mmsg1(jcr->errmsg,
                 T_("Failed to convert acl into text on file \"%s\"\n"),
                 acl_data->last_fname);
-          Dmsg2(100, "Failed to convert acl into text on file \"%s\": %ld\n",
+          Dmsg2(100, "Failed to convert acl into text on file \"{}\": {}\n",
                 acl_data->last_fname, type.u64);
           goto bail_out;
         }
@@ -299,7 +299,7 @@ static bacl_exit_code aix_build_acl_streams(JobControlRecord* jcr,
         Mmsg1(jcr->errmsg,
               T_("Failed to convert acl into text on file \"%s\"\n"),
               acl_data->last_fname);
-        Dmsg2(100, "Failed to convert acl into text on file \"%s\": %ld\n",
+        Dmsg2(100, "Failed to convert acl into text on file \"{}\": {}\n",
               acl_data->last_fname, type.u64);
         goto bail_out;
     }
@@ -420,7 +420,7 @@ static bacl_exit_code aix_parse_acl_streams(JobControlRecord* jcr,
               Mmsg2(jcr->errmsg,
                     T_("aclx_scanStr error on file \"%s\": ERR=%s\n"),
                     acl_data->last_fname, be.bstrerror(errno));
-              Dmsg2(100, "aclx_scanStr error file=%s ERR=%s\n",
+              Dmsg2(100, "aclx_scanStr error file={} ERR={}\n",
                     acl_data->last_fname, be.bstrerror());
               goto bail_out;
           }
@@ -429,7 +429,7 @@ static bacl_exit_code aix_parse_acl_streams(JobControlRecord* jcr,
       default:
         Mmsg2(jcr->errmsg, T_("aclx_scanStr error on file \"%s\": ERR=%s\n"),
               acl_data->last_fname, be.bstrerror());
-        Dmsg2(100, "aclx_scanStr error file=%s ERR=%s\n", acl_data->last_fname,
+        Dmsg2(100, "aclx_scanStr error file={} ERR={}\n", acl_data->last_fname,
               be.bstrerror());
     }
   }
@@ -452,7 +452,7 @@ static bacl_exit_code aix_parse_acl_streams(JobControlRecord* jcr,
       default:
         Mmsg2(jcr->errmsg, T_("aclx_put error on file \"%s\": ERR=%s\n"),
               acl_data->last_fname, be.bstrerror());
-        Dmsg2(100, "aclx_put error file=%s ERR=%s\n", acl_data->last_fname,
+        Dmsg2(100, "aclx_put error file={} ERR={}\n", acl_data->last_fname,
               be.bstrerror());
         goto bail_out;
     }
@@ -704,7 +704,7 @@ static bacl_exit_code generic_get_acl_from_os(JobControlRecord* jcr,
     BErrNo be;
     Mmsg2(jcr->errmsg, T_("acl_to_text error on file \"%s\": ERR=%s\n"),
           acl_data->last_fname, be.bstrerror());
-    Dmsg2(100, "acl_to_text error file=%s ERR=%s\n", acl_data->last_fname,
+    Dmsg2(100, "acl_to_text error file={} ERR={}\n", acl_data->last_fname,
           be.bstrerror());
 
     retval = bacl_exit_error;
@@ -729,7 +729,7 @@ static bacl_exit_code generic_get_acl_from_os(JobControlRecord* jcr,
         /* Some real error */
         Mmsg2(jcr->errmsg, T_("acl_get_file error on file \"%s\": ERR=%s\n"),
               acl_data->last_fname, be.bstrerror());
-        Dmsg2(100, "acl_get_file error file=%s ERR=%s\n", acl_data->last_fname,
+        Dmsg2(100, "acl_get_file error file={} ERR={}\n", acl_data->last_fname,
               be.bstrerror());
 
         retval = bacl_exit_error;
@@ -790,7 +790,7 @@ static bacl_exit_code generic_set_acl_on_os(JobControlRecord* jcr,
 
     Mmsg2(jcr->errmsg, T_("acl_from_text error on file \"%s\": ERR=%s\n"),
           acl_data->last_fname, be.bstrerror());
-    Dmsg3(100, "acl_from_text error acl=%s file=%s ERR=%s\n", content,
+    Dmsg3(100, "acl_from_text error acl={} file={} ERR={}\n", content,
           acl_data->last_fname, be.bstrerror());
     return bacl_exit_error;
   }
@@ -807,7 +807,7 @@ static bacl_exit_code generic_set_acl_on_os(JobControlRecord* jcr,
 
         Mmsg2(jcr->errmsg, T_("acl_valid error on file \"%s\": ERR=%s\n"),
               acl_data->last_fname, be.bstrerror());
-        Dmsg3(100, "acl_valid error acl=%s file=%s ERR=%s\n", content,
+        Dmsg3(100, "acl_valid error acl={} file={} ERR={}\n", content,
               acl_data->last_fname, be.bstrerror());
         acl_free(acl);
         return bacl_exit_error;
@@ -840,7 +840,7 @@ static bacl_exit_code generic_set_acl_on_os(JobControlRecord* jcr,
                "ACLs\n"),
             acl_data->last_fname);
         Dmsg2(100,
-              "acl_set_file error acl=%s file=%s filesystem doesn't support "
+              "acl_set_file error acl={} file={} filesystem doesn't support "
               "ACLs\n",
               content, acl_data->last_fname);
         acl_free(acl);
@@ -849,7 +849,7 @@ static bacl_exit_code generic_set_acl_on_os(JobControlRecord* jcr,
       default:
         Mmsg2(jcr->errmsg, T_("acl_set_file error on file \"%s\": ERR=%s\n"),
               acl_data->last_fname, be.bstrerror());
-        Dmsg3(100, "acl_set_file error acl=%s file=%s ERR=%s\n", content,
+        Dmsg3(100, "acl_set_file error acl={} file={} ERR={}\n", content,
               acl_data->last_fname, be.bstrerror());
         acl_free(acl);
         return bacl_exit_error;
@@ -949,7 +949,7 @@ static bacl_exit_code freebsd_build_acl_streams(JobControlRecord* jcr,
         default:
           Mmsg2(jcr->errmsg, T_("pathconf error on file \"%s\": ERR=%s\n"),
                 acl_data->last_fname, be.bstrerror());
-          Dmsg2(100, "pathconf error file=%s ERR=%s\n", acl_data->last_fname,
+          Dmsg2(100, "pathconf error file={} ERR={}\n", acl_data->last_fname,
                 be.bstrerror());
           return bacl_exit_error;
       }
@@ -975,7 +975,7 @@ static bacl_exit_code freebsd_build_acl_streams(JobControlRecord* jcr,
           default:
             Mmsg2(jcr->errmsg, T_("pathconf error on file \"%s\": ERR=%s\n"),
                   acl_data->last_fname, be.bstrerror());
-            Dmsg2(100, "pathconf error file=%s ERR=%s\n", acl_data->last_fname,
+            Dmsg2(100, "pathconf error file={} ERR={}\n", acl_data->last_fname,
                   be.bstrerror());
             return bacl_exit_error;
         }
@@ -1083,7 +1083,7 @@ static bacl_exit_code freebsd_parse_acl_streams(JobControlRecord* jcr,
         default:
           Mmsg2(jcr->errmsg, T_("pathconf error on file \"%s\": ERR=%s\n"),
                 acl_data->last_fname, be.bstrerror());
-          Dmsg3(100, "pathconf error acl=%s file=%s ERR=%s\n", content,
+          Dmsg3(100, "pathconf error acl={} file={} ERR={}\n", content,
                 acl_data->last_fname, be.bstrerror());
           return bacl_exit_error;
       }
@@ -1301,7 +1301,7 @@ static bacl_exit_code solaris_build_acl_streams(JobControlRecord* jcr,
         default:
           Mmsg2(jcr->errmsg, T_("pathconf error on file \"%s\": ERR=%s\n"),
                 acl_data->last_fname, be.bstrerror());
-          Dmsg2(100, "pathconf error file=%s ERR=%s\n", acl_data->last_fname,
+          Dmsg2(100, "pathconf error file={} ERR={}\n", acl_data->last_fname,
                 be.bstrerror());
           return bacl_exit_error;
       }
@@ -1320,7 +1320,7 @@ static bacl_exit_code solaris_build_acl_streams(JobControlRecord* jcr,
       default:
         Mmsg2(jcr->errmsg, T_("acl_get error on file \"%s\": ERR=%s\n"),
               acl_data->last_fname, acl_strerror(errno));
-        Dmsg2(100, "acl_get error file=%s ERR=%s\n", acl_data->last_fname,
+        Dmsg2(100, "acl_get error file={} ERR={}\n", acl_data->last_fname,
               acl_strerror(errno));
         return bacl_exit_error;
     }
@@ -1397,7 +1397,7 @@ static bacl_exit_code solaris_parse_acl_streams(JobControlRecord* jcr,
             default:
               Mmsg2(jcr->errmsg, T_("pathconf error on file \"%s\": ERR=%s\n"),
                     acl_data->last_fname, be.bstrerror());
-              Dmsg3(100, "pathconf error acl=%s file=%s ERR=%s\n", content,
+              Dmsg3(100, "pathconf error acl={} file={} ERR={}\n", content,
                     acl_data->last_fname, be.bstrerror());
               return bacl_exit_error;
           }
@@ -1440,7 +1440,7 @@ static bacl_exit_code solaris_parse_acl_streams(JobControlRecord* jcr,
       if ((error = acl_fromtext(content, &aclp)) != 0) {
         Mmsg2(jcr->errmsg, T_("acl_fromtext error on file \"%s\": ERR=%s\n"),
               acl_data->last_fname, acl_strerror(error));
-        Dmsg3(100, "acl_fromtext error acl=%s file=%s ERR=%s\n", content,
+        Dmsg3(100, "acl_fromtext error acl={} file={} ERR={}\n", content,
               acl_data->last_fname, acl_strerror(error));
         return bacl_exit_error;
       }
@@ -1484,7 +1484,7 @@ static bacl_exit_code solaris_parse_acl_streams(JobControlRecord* jcr,
           default:
             Mmsg2(jcr->errmsg, T_("acl_set error on file \"%s\": ERR=%s\n"),
                   acl_data->last_fname, acl_strerror(error));
-            Dmsg3(100, "acl_set error acl=%s file=%s ERR=%s\n", content,
+            Dmsg3(100, "acl_set error acl={} file={} ERR={}\n", content,
                   acl_data->last_fname, acl_strerror(error));
             acl_free(aclp);
             return bacl_exit_error;
@@ -1556,7 +1556,7 @@ static bacl_exit_code solaris_build_acl_streams(JobControlRecord* jcr,
     BErrNo be;
     Mmsg2(jcr->errmsg, T_("acltotext error on file \"%s\": ERR=%s\n"),
           acl_data->last_fname, be.bstrerror());
-    Dmsg3(100, "acltotext error acl=%s file=%s ERR=%s\n", acl_data->content,
+    Dmsg3(100, "acltotext error acl={} file={} ERR={}\n", acl_data->content,
           acl_data->last_fname, be.bstrerror());
   }
 
@@ -1579,7 +1579,7 @@ static bacl_exit_code solaris_parse_acl_streams(JobControlRecord* jcr,
 
     Mmsg2(jcr->errmsg, T_("aclfromtext error on file \"%s\": ERR=%s\n"),
           acl_data->last_fname, be.bstrerror());
-    Dmsg3(100, "aclfromtext error acl=%s file=%s ERR=%s\n", content,
+    Dmsg3(100, "aclfromtext error acl={} file={} ERR={}\n", content,
           acl_data->last_fname, be.bstrerror());
     return bacl_exit_error;
   }
@@ -1598,7 +1598,7 @@ static bacl_exit_code solaris_parse_acl_streams(JobControlRecord* jcr,
       default:
         Mmsg2(jcr->errmsg, T_("acl(SETACL) error on file \"%s\": ERR=%s\n"),
               acl_data->last_fname, be.bstrerror());
-        Dmsg3(100, "acl(SETACL) error acl=%s file=%s ERR=%s\n", content,
+        Dmsg3(100, "acl(SETACL) error acl={} file={} ERR={}\n", content,
               acl_data->last_fname, be.bstrerror());
         free(acls);
         return bacl_exit_error;
@@ -1668,7 +1668,7 @@ static bacl_exit_code afs_build_acl_streams(JobControlRecord* jcr,
 
     Mmsg2(jcr->errmsg, T_("pioctl VIOCGETAL error on file \"%s\": ERR=%s\n"),
           acl_data->last_fname, be.bstrerror());
-    Dmsg2(100, "pioctl VIOCGETAL error file=%s ERR=%s\n", acl_data->last_fname,
+    Dmsg2(100, "pioctl VIOCGETAL error file={} ERR={}\n", acl_data->last_fname,
           be.bstrerror());
     return bacl_exit_error;
   }
@@ -1695,7 +1695,7 @@ static bacl_exit_code afs_parse_acl_stream(JobControlRecord* jcr,
 
     Mmsg2(jcr->errmsg, T_("pioctl VIOCSETAL error on file \"%s\": ERR=%s\n"),
           acl_data->last_fname, be.bstrerror());
-    Dmsg2(100, "pioctl VIOCSETAL error file=%s ERR=%s\n", acl_data->last_fname,
+    Dmsg2(100, "pioctl VIOCSETAL error file={} ERR={}\n", acl_data->last_fname,
           be.bstrerror());
 
     return bacl_exit_error;
@@ -1783,7 +1783,7 @@ bacl_exit_code parse_acl_streams(JobControlRecord* jcr,
         default:
           Mmsg2(jcr->errmsg, T_("Unable to stat file \"%s\": ERR=%s\n"),
                 acl_data->last_fname, be.bstrerror());
-          Dmsg2(100, "Unable to stat file \"%s\": ERR=%s\n",
+          Dmsg2(100, "Unable to stat file \"{}\": ERR={}\n",
                 acl_data->last_fname, be.bstrerror());
           return bacl_exit_error;
       }

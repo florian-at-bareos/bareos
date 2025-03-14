@@ -136,13 +136,13 @@ static void start_bareos_server(std::promise<bool>* promise,
 
   bool success = false;
   if (bs->recv() <= 0) {
-    Dmsg1(10, T_("Connection request from %s failed.\n"), bs->who());
+    Dmsg1(10, T_("Connection request from {} failed.\n"), bs->who());
   } else if (bs->message_length < MIN_MSG_LEN
              || bs->message_length > MAX_MSG_LEN) {
-    Dmsg2(10, T_("Invalid connection from %s. Len=%d\n"), bs->who(),
+    Dmsg2(10, T_("Invalid connection from {}. Len={}\n"), bs->who(),
           bs->message_length);
   } else {
-    Dmsg1(10, "Cons->Dir: %s", bs->msg);
+    Dmsg1(10, "Cons->Dir: {}", bs->msg);
     if (!bs->AuthenticateInboundConnection(NULL, nullptr, name, password,
                                            dir_cons_config.get())) {
       Dmsg0(10, "Server: inbound auth failed\n");
@@ -153,7 +153,7 @@ static void start_bareos_server(std::promise<bool>* promise,
       std::string cipher;
       if (bs->tls_conn) {
         cipher = bs->tls_conn->TlsCipherGetName();
-        Dmsg1(10, "Server used cipher: <%s>\n", cipher.c_str());
+        Dmsg1(10, "Server used cipher: <{}>\n", cipher.c_str());
         cipher_server = cipher;
       }
       if (dir_cons_config->IsTlsConfigured()) {
@@ -236,7 +236,7 @@ static bool connect_to_server(std::string console_name,
       std::string cipher;
       if (UA_sock->tls_conn) {
         cipher = UA_sock->tls_conn->TlsCipherGetName();
-        Dmsg1(10, "Client used cipher: <%s>\n", cipher.c_str());
+        Dmsg1(10, "Client used cipher: <{}>\n", cipher.c_str());
         cipher_client = cipher;
       }
       if (cons_dir_config->IsTlsConfigured()) {

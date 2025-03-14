@@ -76,7 +76,7 @@ int JobDeleteHandler(void* ctx, int, char** row)
   if (jobs_todelete->size() >= MAX_DEL_LIST_LEN) { return 1; }
 
   jobs_todelete->push_back(static_cast<JobId_t>(str_to_int64(row[0])));
-  Dmsg2(60, "JobDeleteHandler row=%d val=%d\n", jobs_todelete->size(),
+  Dmsg2(60, "JobDeleteHandler row={} val={}\n", jobs_todelete->size(),
         jobs_todelete->back());
   return 0;
 }
@@ -458,7 +458,7 @@ static bool prune_set_filter(UaContext* ua,
 
   now = (utime_t)time(NULL);
   edit_int64(now - period, ed1);
-  Dmsg3(150, "now=%lld period=%lld JobTDate=%s\n", now, period, ed1);
+  Dmsg3(150, "now={} period={} JobTDate={}\n", now, period, ed1);
   Mmsg(tmp, " AND JobTDate < %s ", ed1);
   PmStrcat(*add_where, tmp.c_str());
 
@@ -478,7 +478,7 @@ static bool prune_set_filter(UaContext* ua,
     PmStrcat(*add_where, tmp.c_str());
     PmStrcat(*add_from, " JOIN Pool USING(PoolId) ");
   }
-  Dmsg2(150, "f=%s w=%s\n", add_from->c_str(), add_where->c_str());
+  Dmsg2(150, "f={} w={}\n", add_from->c_str(), add_where->c_str());
   return true;
 }
 
@@ -523,7 +523,7 @@ bool PruneFiles(UaContext* ua, ClientResource* client, PoolResource* pool)
   PoolMem query(PM_MESSAGE);
   Mmsg(query, "SELECT COUNT(1) FROM Job %s WHERE PurgedFiles=0 %s",
        sql_from.c_str(), sql_where.c_str());
-  Dmsg1(050, "select sql=%s\n", query.c_str());
+  Dmsg1(050, "select sql={}\n", query.c_str());
 
   struct s_count_ctx cnt;
   cnt.count = 0;
@@ -544,7 +544,7 @@ bool PruneFiles(UaContext* ua, ClientResource* client, PoolResource* pool)
   /* Now process same set but making a delete list */
   Mmsg(query, "SELECT JobId FROM Job %s WHERE PurgedFiles=0 %s ORDER BY JobId",
        sql_from.c_str(), sql_where.c_str());
-  Dmsg1(050, "select sql=%s\n", query.c_str());
+  Dmsg1(050, "select sql={}\n", query.c_str());
   ua->db->SqlQuery(query.c_str(), FileDeleteHandler,
                    static_cast<void*>(&prune_list));
 
@@ -667,7 +667,7 @@ bool PruneJobs(UaContext* ua, ClientResource* client, PoolResource* pool)
        " %s ", /* Pool/Client + JobTDate */
        sql_from.c_str(), sql_where.c_str());
 
-  Dmsg1(050, "select sql=%s\n", query.c_str());
+  Dmsg1(050, "select sql={}\n", query.c_str());
   if (!ua->db->SqlQuery(query.c_str())) {
     if (ua->verbose) { ua->ErrorMsg("%s", ua->db->strerror()); }
     DropTempTables(ua);
@@ -732,7 +732,7 @@ bool PruneJobs(UaContext* ua, ClientResource* client, PoolResource* pool)
    * also remove BaseJobs that can be linked with them
    */
   if (!jobids.empty()) {
-    Dmsg1(60, "jobids to exclude before basejobs = %s\n",
+    Dmsg1(60, "jobids to exclude before basejobs = {}\n",
           jobids.GetAsString().c_str());
     // We also need to exclude all basejobs used
     ua->db->GetUsedBaseJobids(ua->jcr, jobids.GetAsString().c_str(), &jobids);
@@ -750,7 +750,7 @@ bool PruneJobs(UaContext* ua, ClientResource* client, PoolResource* pool)
       DropTempTables(ua);
       return true;
     }
-    Dmsg1(60, "jobids to exclude = %s\n", jobids.GetAsString().c_str());
+    Dmsg1(60, "jobids to exclude = {}\n", jobids.GetAsString().c_str());
   }
 
   // We use DISTINCT because we can have two times the same job
@@ -790,7 +790,7 @@ bool PruneVolume(UaContext* ua, MediaDbRecord* mr)
 
   /* Prune only Volumes with status "Full", or "Used" */
   if (bstrcmp(mr->VolStatus, "Full") || bstrcmp(mr->VolStatus, "Used")) {
-    Dmsg2(050, "get prune list MediaId=%d Volume %s\n", (int)mr->MediaId,
+    Dmsg2(050, "get prune list MediaId={} Volume {}\n", (int)mr->MediaId,
           mr->VolumeName);
 
     std::vector<JobId_t> prune_list;
@@ -798,7 +798,7 @@ bool PruneVolume(UaContext* ua, MediaDbRecord* mr)
     ua->SendMsg(
         T_("Pruning volume %s: %d Jobs have expired and can be pruned.\n"),
         mr->VolumeName, NumJobsToBePruned);
-    Dmsg1(050, "Num pruned = %d\n", NumJobsToBePruned);
+    Dmsg1(050, "Num pruned = {}\n", NumJobsToBePruned);
     if (NumJobsToBePruned != 0) { PurgeJobListFromCatalog(ua, prune_list); }
     VolumeIsNowEmtpy = IsVolumePurged(ua, mr);
 
@@ -840,9 +840,9 @@ int GetPruneListForVolume(UaContext* ua,
                     edit_int64(mr->MediaId, ed1),
                     edit_int64(now - VolRetention, ed2));
 
-  Dmsg3(250, "Now=%d VolRetention=%d now-VolRetention=%s\n", (int)now,
+  Dmsg3(250, "Now={} VolRetention={} now-VolRetention={}\n", (int)now,
         (int)VolRetention, ed2);
-  Dmsg1(050, "Query=%s\n", query.c_str());
+  Dmsg1(050, "Query={}\n", query.c_str());
 
 
   if (!ua->db->SqlQuery(query.c_str(), FileDeleteHandler,

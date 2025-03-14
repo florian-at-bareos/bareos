@@ -32,7 +32,7 @@ JobControlRecord* NewDirectorJcr(JCR_free_HANDLER* DirdFreeJcr)
   JobControlRecord* jcr = new_jcr(DirdFreeJcr);
   jcr->dir_impl = new DirectorJcrImpl(my_config->config_resources_container_);
   register_jcr(jcr);
-  Dmsg1(10, "NewDirectorJcr: configuration_resources_ is at %p %s\n",
+  Dmsg1(10, "NewDirectorJcr: configuration_resources_ is at {:p} {}\n",
         my_config->config_resources_container_->configuration_resources_,
         my_config->config_resources_container_->TimeStampAsString().c_str());
   return jcr;

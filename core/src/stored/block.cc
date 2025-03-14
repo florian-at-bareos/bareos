@@ -88,7 +88,7 @@ void DumpBlock(DeviceBlock* b, const char* msg)
   }
 
   if (block_len > 4000000) {
-    Dmsg3(20, "Dump block %s 0x%x blocksize too big %u\n", msg, b, block_len);
+    Dmsg3(20, "Dump block {} 0x{:x} blocksize too big {}\n", msg, b, block_len);
     return;
   }
 
@@ -129,12 +129,12 @@ DeviceBlock* new_block(Device* dev)
   if (dev->max_block_size == 0) {
     block->buf_len = dev->device_resource->label_block_size;
     Dmsg1(100,
-          "created new block of blocksize %d (dev->device->label_block_size) "
+          "created new block of blocksize {} (dev->device->label_block_size) "
           "as dev->max_block_size is zero\n",
           block->buf_len);
   } else {
     block->buf_len = dev->max_block_size;
-    Dmsg1(100, "created new block of blocksize %d (dev->max_block_size)\n",
+    Dmsg1(100, "created new block of blocksize {} (dev->max_block_size)\n",
           block->buf_len);
   }
   block->dev = dev;
@@ -142,7 +142,7 @@ DeviceBlock* new_block(Device* dev)
   block->buf = GetMemory(block->buf_len);
   EmptyBlock(block);
   block->BlockVer = BLOCK_VER; /* default write version */
-  Dmsg1(650, "Returning new block=%x\n", block);
+  Dmsg1(650, "Returning new block={:x}\n", block);
   return block;
 }
 
@@ -174,9 +174,9 @@ void PrintBlockReadErrors(JobControlRecord* jcr, DeviceBlock* block)
 void FreeBlock(DeviceBlock* block)
 {
   if (block) {
-    Dmsg1(999, "FreeBlock buffer %x\n", block->buf);
+    Dmsg1(999, "FreeBlock buffer {:x}\n", block->buf);
     FreeMemory(block->buf);
-    Dmsg1(999, "FreeBlock block %x\n", block);
+    Dmsg1(999, "FreeBlock block {:x}\n", block);
     FreeMemory((POOLMEM*)block);
   }
 }
@@ -203,7 +203,7 @@ static uint32_t SerBlockHeader(DeviceBlock* block, bool DoChecksum)
   uint32_t CheckSum = 0;
   uint32_t block_len = block->binbuf;
 
-  Dmsg1(1390, "SerBlockHeader: block_len=%d\n", block_len);
+  Dmsg1(1390, "SerBlockHeader: block_len={}\n", block_len);
   SerBegin(block->buf, BLKHDR2_LENGTH);
   ser_uint32(CheckSum);
   ser_uint32(block_len);
@@ -219,7 +219,7 @@ static uint32_t SerBlockHeader(DeviceBlock* block, bool DoChecksum)
     CheckSum = crc32_fast((uint8_t*)block->buf + BLKHDR_CS_LENGTH,
                           block_len - BLKHDR_CS_LENGTH);
   }
-  Dmsg1(1390, "ser_bloc_header: checksum=%x\n", CheckSum);
+  Dmsg1(1390, "ser_bloc_header: checksum={:x}\n", CheckSum);
   SerBegin(block->buf, BLKHDR2_LENGTH);
   ser_uint32(CheckSum); /* now add checksum to block header */
   return CheckSum;
@@ -293,7 +293,7 @@ static inline bool unSerBlockHeader(JobControlRecord* jcr,
         T_("Volume data error at %u:%u! Wanted ID: \"%s\", got \"%s\". Buffer "
            "discarded.\n"),
         dev->file, dev->block_num, BLKHDR2_ID, Id);
-    Dmsg1(50, "%s", dev->errmsg);
+    Dmsg1(50, "{}", dev->errmsg);
     if (block->read_errors == 0 || g_verbose >= 2) {
       Jmsg(jcr, M_ERROR, 0, "%s", dev->errmsg);
     }
@@ -317,7 +317,7 @@ static inline bool unSerBlockHeader(JobControlRecord* jcr,
     return false;
   }
 
-  Dmsg1(390, "unSerBlockHeader block_len=%d\n", block_len);
+  Dmsg1(390, "unSerBlockHeader block_len={}\n", block_len);
   // Find end of block or end of buffer whichever is smaller
   if (block_len > block->read_len) {
     block_end = block->read_len;
@@ -327,7 +327,7 @@ static inline bool unSerBlockHeader(JobControlRecord* jcr,
   block->binbuf = block_end - bhl;
   block->block_len = block_len;
   block->BlockNumber = BlockNumber;
-  Dmsg3(390, "Read binbuf = %d %d block_len=%d\n", block->binbuf, bhl,
+  Dmsg3(390, "Read binbuf = {} {} block_len={}\n", block->binbuf, bhl,
         block_len);
   if (block_len <= block->read_len && dev->DoChecksum()) {
     BlockCheckSum = crc32_fast((uint8_t*)block->buf + BLKHDR_CS_LENGTH,
@@ -470,7 +470,7 @@ static bool TerminateWritingVolume(DeviceControlRecord* dcr)
     ok = false;
     Dmsg0(50, "Error updating volume info.\n");
   }
-  Dmsg1(50, "DirUpdateVolumeInfo Terminate writing -- %s\n",
+  Dmsg1(50, "DirUpdateVolumeInfo Terminate writing -- {}\n",
         ok ? "OK" : "ERROR");
 
   /* Walk through all attached dcrs setting flag to call
@@ -490,7 +490,7 @@ static bool TerminateWritingVolume(DeviceControlRecord* dcr)
   }
 
   dev->SetAteot(); /* no more writing this tape */
-  Dmsg1(50, "*** Leave TerminateWritingVolume -- %s\n", ok ? "OK" : "ERROR");
+  Dmsg1(50, "*** Leave TerminateWritingVolume -- {}\n", ok ? "OK" : "ERROR");
   return ok;
 }
 
@@ -585,7 +585,7 @@ bool DeviceControlRecord::WriteBlockToDev()
     dev->dev_errno = ENOSPC;
     Jmsg1(jcr, M_FATAL, 0, T_("Cannot write block. Device at EOM. dev=%s\n"),
           dev->print_name());
-    Dmsg1(100, "Attempt to write on read-only Volume. dev=%s\n",
+    Dmsg1(100, "Attempt to write on read-only Volume. dev={}\n",
           dev->print_name());
     return false;
   }
@@ -593,7 +593,7 @@ bool DeviceControlRecord::WriteBlockToDev()
     dev->dev_errno = EIO;
     Jmsg1(jcr, M_FATAL, 0, T_("Attempt to write on read-only Volume. dev=%s\n"),
           dev->print_name());
-    Dmsg1(100, "Attempt to write on read-only Volume. dev=%s\n",
+    Dmsg1(100, "Attempt to write on read-only Volume. dev={}\n",
           dev->print_name());
     return false;
   }
@@ -601,7 +601,7 @@ bool DeviceControlRecord::WriteBlockToDev()
   if (!dev->IsOpen()) {
     Jmsg1(jcr, M_FATAL, 0, T_("Attempt to write on closed device=%s\n"),
           dev->print_name());
-    Dmsg1(100, "Attempt to write on closed device=%s\n", dev->print_name());
+    Dmsg1(100, "Attempt to write on closed device={}\n", dev->print_name());
     return false;
   }
 
@@ -610,10 +610,10 @@ bool DeviceControlRecord::WriteBlockToDev()
   if (wlen != block->buf_len) {
     uint32_t blen = wlen; /* current buffer length */
 
-    Dmsg2(250, "binbuf=%d buf_len=%d\n", block->binbuf, block->buf_len);
+    Dmsg2(250, "binbuf={} buf_len={}\n", block->binbuf, block->buf_len);
 
     if (!dev->HasCap(CAP_ADJWRITESIZE)) {
-      Dmsg1(400, "%s: block write size is not adjustable", dev->print_name());
+      Dmsg1(400, "{}: block write size is not adjustable", dev->print_name());
     } else {
       /* (dev->HasCap(CAP_ADJWRITESIZE)) */
       if (dev->min_block_size == dev->max_block_size) {
@@ -635,8 +635,8 @@ bool DeviceControlRecord::WriteBlockToDev()
   }
 
   Dmsg5(400,
-        "dev=%s: writing %d bytes as block of %d bytes. Block sizes: min=%d, "
-        "max=%d\n",
+        "dev={}: writing {} bytes as block of {} bytes. Block sizes: min={}, "
+        "max={}\n",
         dev->print_name(), block->binbuf, wlen, dev->min_block_size,
         dev->max_block_size);
 
@@ -694,7 +694,7 @@ bool DeviceControlRecord::WriteBlockToDev()
   }
 
   dev->VolCatInfo.VolCatWrites++;
-  Dmsg1(1300, "Write block of %u bytes\n", wlen);
+  Dmsg1(1300, "Write block of {} bytes\n", wlen);
 #ifdef DEBUG_BLOCK_ZEROING
   uint32_t* bp = (uint32_t*)block->buf;
   if (bp[0] == 0 && bp[1] == 0 && bp[2] == 0 && block->buf[12] == 0) {
@@ -711,7 +711,7 @@ bool DeviceControlRecord::WriteBlockToDev()
   do {
     if (retry > 0 && status == -1 && errno == EBUSY) {
       BErrNo be;
-      Dmsg4(100, "===== write retry=%d status=%d errno=%d: ERR=%s\n", retry,
+      Dmsg4(100, "===== write retry={} status={} errno={}: ERR={}\n", retry,
             status, errno, be.bstrerror());
       Bmicrosleep(5, 0); /* pause a bit if busy or lots of errors */
       dev->clrerror(-1);
@@ -781,8 +781,8 @@ bool DeviceControlRecord::WriteBlockToDev()
 
       be.SetErrno(dev->dev_errno);
       Dmsg7(100,
-            "=== Write error. fd=%d size=%u rtn=%d dev_blk=%d blk_blk=%d "
-            "errno=%d: ERR=%s\n",
+            "=== Write error. fd={} size={} rtn={} dev_blk={} blk_blk={} "
+            "errno={}: ERR={}\n",
             dev->fd, wlen, status, dev->block_num, block->BlockNumber,
             dev->dev_errno, be.bstrerror(dev->dev_errno));
     }
@@ -818,7 +818,7 @@ bool DeviceControlRecord::WriteBlockToDev()
   if (block->LastIndex > 0) { dcr->VolLastIndex = block->LastIndex; }
 
   // We successfully wrote the block, now do housekeeping
-  Dmsg2(1300, "VolCatBytes=%d newVolCatBytes=%d\n",
+  Dmsg2(1300, "VolCatBytes={} newVolCatBytes={}\n",
         (int)dev->VolCatInfo.VolCatBytes,
         (int)(dev->VolCatInfo.VolCatBytes + wlen));
   dev->VolCatInfo.VolCatBytes += wlen;
@@ -845,7 +845,7 @@ bool DeviceControlRecord::WriteBlockToDev()
   dev->file_addr += wlen; /* update file address */
   dev->file_size += wlen;
 
-  Dmsg2(1300, "WriteBlock: wrote block %d bytes=%d\n", dev->block_num, wlen);
+  Dmsg2(1300, "WriteBlock: wrote block {} bytes={}\n", dev->block_num, wlen);
   EmptyBlock(block);
   return true;
 }
@@ -956,7 +956,7 @@ DeviceControlRecord::ReadStatus DeviceControlRecord::ReadBlockFromDev(bool)
     return ReadStatus::EndOfTape;
   }
   looping = 0;
-  Dmsg1(250, "Full read in ReadBlockFromDevice() len=%d\n", block->buf_len);
+  Dmsg1(250, "Full read in ReadBlockFromDevice() len={}\n", block->buf_len);
 
   if (!dev->IsOpen()) {
     Mmsg4(dev->errmsg,
@@ -985,7 +985,7 @@ reread:
   do {
     if (retry) {
       BErrNo be;
-      Dmsg4(100, "===== read retry=%d status=%d errno=%d: ERR=%s\n", retry,
+      Dmsg4(100, "===== read retry={} status={} errno={}: ERR={}\n", retry,
             status, errno, be.bstrerror());
       Bmicrosleep(10, 0); /* pause a bit if busy or lots of errors */
       dev->clrerror(-1);
@@ -999,7 +999,7 @@ reread:
     BErrNo be;
 
     dev->clrerror(-1);
-    Dmsg1(250, "Read device got: ERR=%s\n", be.bstrerror());
+    Dmsg1(250, "Read device got: ERR={}\n", be.bstrerror());
     block->read_len = 0;
     Mmsg5(dev->errmsg,
           T_("Read error on fd=%d at file:blk %u:%u on device %s. ERR=%s.\n"),
@@ -1016,7 +1016,7 @@ reread:
     return ReadStatus::Error;
   }
 
-  Dmsg3(250, "Read device got %d bytes at %u:%u\n", status, dev->file,
+  Dmsg3(250, "Read device got {} bytes at {}:{}\n", status, dev->file,
         dev->block_num);
 
   if (status == 0) { /* EOF (Berkley I/O Conventions) */
@@ -1039,7 +1039,7 @@ reread:
       && (dcr->VolCatInfo.LabelType != B_BAREOS_LABEL
           || dcr->device_resource->label_type != B_BAREOS_LABEL)) {
     /* ***FIXME*** should check label */
-    Dmsg2(100, "Ignore 80 byte ANSI label at %u:%u\n", dev->file,
+    Dmsg2(100, "Ignore 80 byte ANSI label at {}:{}\n", dev->file,
           dev->block_num);
     dev->ClearEof();
     goto reread; /* skip ANSI/IBM label */
@@ -1054,7 +1054,7 @@ reread:
     Jmsg(jcr, M_ERROR, 0, "%s", dev->errmsg);
     dev->SetShortBlock();
     block->read_len = block->binbuf = 0;
-    Dmsg2(200, "set block=%p binbuf=%d\n", block, block->binbuf);
+    Dmsg2(200, "set block={:p} binbuf={}\n", block, block->binbuf);
     return ReadStatus::Error;
   }
 
@@ -1166,15 +1166,15 @@ reread:
     char ed1[50];
     boffset_t pos
         = dev->d_lseek(dcr, (boffset_t)0, SEEK_CUR); /* get curr pos */
-    Dmsg1(250, "Current lseek pos=%s\n", edit_int64(pos, ed1));
+    Dmsg1(250, "Current lseek pos={}\n", edit_int64(pos, ed1));
     pos -= (block->read_len - block->block_len);
     dev->d_lseek(dcr, pos, SEEK_SET);
-    Dmsg3(250, "Did lseek pos=%s blk_size=%d rdlen=%d\n", edit_int64(pos, ed1),
+    Dmsg3(250, "Did lseek pos={} blk_size={} rdlen={}\n", edit_int64(pos, ed1),
           block->block_len, block->read_len);
     dev->file_addr = pos;
     dev->file_size = pos;
   }
-  Dmsg2(250, "Exit read_block read_len=%d block_len=%d\n", block->read_len,
+  Dmsg2(250, "Exit read_block read_len={} block_len={}\n", block->read_len,
         block->block_len);
   block->block_read = true;
   return ReadStatus::Ok;

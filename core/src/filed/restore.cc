@@ -488,7 +488,7 @@ void DoRestore(JobControlRecord* jcr)
     }
     /* Strip off new stream high bits */
     rctx.stream = rctx.full_stream & STREAMMASK_TYPE;
-    Dmsg5(150, "Got hdr: Files=%d FilInx=%d size=%d Stream=%d, %s.\n",
+    Dmsg5(150, "Got hdr: Files={} FilInx={} size={} Stream={}, {}.\n",
           jcr->JobFiles, file_index, rctx.size, rctx.stream,
           stream_to_ascii(rctx.stream));
 
@@ -501,11 +501,11 @@ void DoRestore(JobControlRecord* jcr)
     if (rctx.size != (uint32_t)sd->message_length) {
       Jmsg2(jcr, M_FATAL, 0, T_("Actual data size %d not same as header %d\n"),
             sd->message_length, rctx.size);
-      Dmsg2(50, "Actual data size %d not same as header %d\n",
+      Dmsg2(50, "Actual data size {} not same as header {}\n",
             sd->message_length, rctx.size);
       goto bail_out;
     }
-    Dmsg3(130, "Got stream: %s len=%d extract=%d\n",
+    Dmsg3(130, "Got stream: {} len={} extract={}\n",
           stream_to_ascii(rctx.stream), sd->message_length, rctx.extract);
 
     // If we change streams, close and reset alternate data streams
@@ -552,9 +552,9 @@ void DoRestore(JobControlRecord* jcr)
           goto bail_out;
         }
 
-        Dmsg3(100, "File %s\nattrib=%s\nattribsEx=%s\n", attr->fname,
+        Dmsg3(100, "File {}\nattrib={}\nattribsEx={}\n", attr->fname,
               attr->attr, attr->attrEx);
-        Dmsg3(100, "=== message_length=%d attrExlen=%d msg=%s\n",
+        Dmsg3(100, "=== message_length={} attrExlen={} msg={}\n",
               sd->message_length, strlen(attr->attrEx), sd->msg);
 
         attr->data_stream = DecodeStat(attr->attr, &attr->statp,
@@ -593,7 +593,7 @@ void DoRestore(JobControlRecord* jcr)
           jcr->fd_impl->last_type = attr->type;
         }
 
-        Dmsg2(130, "Outfile=%s CreateFile status=%d\n", attr->ofname, status);
+        Dmsg2(130, "Outfile={} CreateFile status={}\n", attr->ofname, status);
         switch (status) {
           case CF_ERROR:
             break;
@@ -1007,7 +1007,7 @@ void DoRestore(JobControlRecord* jcr)
 
       case STREAM_PLUGIN_NAME:
         if (!ClosePreviousStream(jcr, rctx)) { goto bail_out; }
-        Dmsg1(50, "restore stream_plugin_name=%s\n", sd->msg);
+        Dmsg1(50, "restore stream_plugin_name={}\n", sd->msg);
         if (!PluginNameStream(jcr, sd->msg)) { goto bail_out; }
         break;
 
@@ -1019,7 +1019,7 @@ void DoRestore(JobControlRecord* jcr)
         Jmsg(jcr, M_WARNING, 0,
              T_("Unknown stream=%d ignored. This shouldn't happen!\n"),
              rctx.stream);
-        Dmsg2(0, "Unknown stream=%d data=%s\n", rctx.stream, sd->msg);
+        Dmsg2(0, "Unknown stream={} data={}\n", rctx.stream, sd->msg);
         break;
     } /* end switch(stream) */
   } /* end while get_msg() */
@@ -1044,7 +1044,7 @@ ok_out:
 #endif
 
   // First output the statistics.
-  Dmsg2(10, "End Do Restore. Files=%d Bytes=%s\n", jcr->JobFiles,
+  Dmsg2(10, "End Do Restore. Files={} Bytes={}\n", jcr->JobFiles,
         edit_uint64(jcr->JobBytes, ec1));
   if (have_acl && jcr->fd_impl->acl_data->nr_errors > 0) {
     Jmsg(jcr, M_WARNING, 0,
@@ -1128,7 +1128,7 @@ ok_out:
 
 int DoFileDigest(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
 {
-  Dmsg1(50, "DoFileDigest jcr=%p\n", jcr);
+  Dmsg1(50, "DoFileDigest jcr={:p}\n", jcr);
   return (DigestFile(jcr, ff_pkt, jcr->fd_impl->crypto.digest));
 }
 
@@ -1253,14 +1253,14 @@ int32_t ExtractData(JobControlRecord* jcr,
   }
   jcr->JobBytes += wsize;
   *addr += wsize;
-  Dmsg2(130, "Write %u bytes, JobBytes=%s\n", wsize,
+  Dmsg2(130, "Write {} bytes, JobBytes={}\n", wsize,
         edit_uint64(jcr->JobBytes, ec1));
 
   // Clean up crypto buffers
   if (BitIsSet(FO_ENCRYPT, flags)) {
     // Move any remaining data to start of buffer
     if (cipher_ctx->buf_len > 0) {
-      Dmsg1(130, "Moving %u buffered bytes to start of buffer\n",
+      Dmsg1(130, "Moving {} buffered bytes to start of buffer\n",
             cipher_ctx->buf_len);
       memmove(cipher_ctx->buf, &cipher_ctx->buf[cipher_ctx->packet_len],
               cipher_ctx->buf_len);
@@ -1285,7 +1285,7 @@ static bool ClosePreviousStream(JobControlRecord* jcr, r_ctx& rctx)
     if (rctx.size > 0 && !IsBopen(&rctx.bfd)) {
       Jmsg0(rctx.jcr, M_ERROR, 0,
             T_("Logic error: output file should be open\n"));
-      Dmsg2(000, "=== logic error size=%d bopen=%d\n", rctx.size,
+      Dmsg2(000, "=== logic error size={} bopen={}\n", rctx.size,
             IsBopen(&rctx.bfd));
     }
 

@@ -219,7 +219,7 @@ static bRC handlePluginEvent(PluginContext* ctx, bEvent* event, void* value)
 
   switch (event->eventType) {
     case bEventJobStart:
-      Dmsg(ctx, debuglevel, "bpipe-fd: JobStart=%s\n", (char*)value);
+      Dmsg(ctx, debuglevel, "bpipe-fd: JobStart={}\n", (char*)value);
       break;
     case bEventRestoreCommand:
       // Fall-through wanted
@@ -244,7 +244,7 @@ static bRC handlePluginEvent(PluginContext* ctx, bEvent* event, void* value)
       break;
     default:
       Jmsg(ctx, M_FATAL, "bpipe-fd: unknown event=%d\n", event->eventType);
-      Dmsg(ctx, debuglevel, "bpipe-fd: unknown event=%d\n", event->eventType);
+      Dmsg(ctx, debuglevel, "bpipe-fd: unknown event={}\n", event->eventType);
       retval = bRC_Error;
       break;
   }
@@ -300,14 +300,14 @@ static bRC pluginIO(PluginContext* ctx, io_pkt* io)
         char* writer_codes = apply_rp_codes(ctx);
 
         p_ctx->pfd = OpenBpipe(writer_codes, 0, "w");
-        Dmsg(ctx, debuglevel, "bpipe-fd: IO_OPEN fd=%p writer=%s\n", p_ctx->pfd,
+        Dmsg(ctx, debuglevel, "bpipe-fd: IO_OPEN fd={:p} writer={}\n", p_ctx->pfd,
              writer_codes);
         if (!p_ctx->pfd) {
           io->io_errno = errno;
           Jmsg(ctx, M_FATAL, "bpipe-fd: Open pipe writer=%s failed: ERR=%s\n",
                writer_codes, strerror(io->io_errno));
           Dmsg(ctx, debuglevel,
-               "bpipe-fd: Open pipe writer=%s failed: ERR=%s\n", writer_codes,
+               "bpipe-fd: Open pipe writer={} failed: ERR={}\n", writer_codes,
                strerror(io->io_errno));
           if (writer_codes) { free(writer_codes); }
           return bRC_Error;
@@ -315,14 +315,14 @@ static bRC pluginIO(PluginContext* ctx, io_pkt* io)
         if (writer_codes) { free(writer_codes); }
       } else {
         p_ctx->pfd = OpenBpipe(p_ctx->reader, 0, "r", false);
-        Dmsg(ctx, debuglevel, "bpipe-fd: IO_OPEN fd=%p reader=%s\n", p_ctx->pfd,
+        Dmsg(ctx, debuglevel, "bpipe-fd: IO_OPEN fd={:p} reader={}\n", p_ctx->pfd,
              p_ctx->reader);
         if (!p_ctx->pfd) {
           io->io_errno = errno;
           Jmsg(ctx, M_FATAL, "bpipe-fd: Open pipe reader=%s failed: ERR=%s\n",
                p_ctx->reader, strerror(io->io_errno));
           Dmsg(ctx, debuglevel,
-               "bpipe-fd: Open pipe reader=%s failed: ERR=%s\n", p_ctx->reader,
+               "bpipe-fd: Open pipe reader={} failed: ERR={}\n", p_ctx->reader,
                strerror(io->io_errno));
           return bRC_Error;
         }
@@ -340,7 +340,7 @@ static bRC pluginIO(PluginContext* ctx, io_pkt* io)
         io->io_errno = errno;
         Jmsg(ctx, M_FATAL, "bpipe-fd: Pipe read error: ERR=%s\n",
              strerror(io->io_errno));
-        Dmsg(ctx, debuglevel, "bpipe-fd: Pipe read error: ERR=%s\n",
+        Dmsg(ctx, debuglevel, "bpipe-fd: Pipe read error: ERR={}\n",
              strerror(io->io_errno));
         return bRC_Error;
       }
@@ -356,7 +356,7 @@ static bRC pluginIO(PluginContext* ctx, io_pkt* io)
         io->io_errno = errno;
         Jmsg(ctx, M_FATAL, "bpipe-fd: Pipe write error: ERR=%s\n",
              strerror(io->io_errno));
-        Dmsg(ctx, debuglevel, "bpipe-fd: Pipe write error: ERR=%s\n",
+        Dmsg(ctx, debuglevel, "bpipe-fd: Pipe write error: ERR={}\n",
              strerror(io->io_errno));
         return bRC_Error;
       }
@@ -374,7 +374,7 @@ static bRC pluginIO(PluginContext* ctx, io_pkt* io)
              "bpipe-fd: Error closing stream for pseudo file %s: %d\n",
              p_ctx->fname, io->status);
         Dmsg(ctx, debuglevel,
-             "bpipe-fd: Error closing stream for pseudo file %s: %d\n",
+             "bpipe-fd: Error closing stream for pseudo file {}: {}\n",
              p_ctx->fname, io->status);
       }
       break;
@@ -595,7 +595,7 @@ static bRC parse_plugin_definition(PluginContext* ctx, void* value)
   if (!bp) {
     Jmsg(ctx, M_FATAL, "bpipe-fd: Illegal plugin definition %s\n",
          plugin_definition);
-    Dmsg(ctx, debuglevel, "bpipe-fd: Illegal plugin definition %s\n",
+    Dmsg(ctx, debuglevel, "bpipe-fd: Illegal plugin definition {}\n",
          plugin_definition);
     goto bail_out;
   }
@@ -624,7 +624,7 @@ static bRC parse_plugin_definition(PluginContext* ctx, void* value)
            plugin_definition);
       Dmsg(ctx, debuglevel,
            "bpipe-fd: Found mixing of old and new syntax, please fix your "
-           "plugin definition (%s)\n",
+           "plugin definition ({})\n",
            plugin_definition);
       goto bail_out;
     }
@@ -718,7 +718,7 @@ static bRC parse_plugin_definition(PluginContext* ctx, void* value)
                      "structure. Please fix your plugin definition\n",
                      argument_value);
                 Dmsg(ctx, debuglevel,
-                     "bpipe-fd: file argument (%s) must contain a directory "
+                     "bpipe-fd: file argument ({}) must contain a directory "
                      "structure. Please fix your plugin definition\n",
                      argument_value);
                 goto bail_out;
@@ -757,7 +757,7 @@ static bRC parse_plugin_definition(PluginContext* ctx, void* value)
              "definition\n",
              argument, argument_value);
         Dmsg(ctx, debuglevel,
-             "bpipe-fd: Illegal argument %s with value %s in plugin "
+             "bpipe-fd: Illegal argument {} with value {} in plugin "
              "definition\n",
              argument, argument_value);
         goto bail_out;

@@ -73,7 +73,7 @@ bool DoReadData(JobControlRecord* jcr)
     return false;
   }
 
-  Dmsg2(200, "Found %d volumes names to restore. First=%s\n",
+  Dmsg2(200, "Found {} volumes names to restore. First={}\n",
         jcr->sd_impl->NumReadVolumes, jcr->sd_impl->VolList->VolumeName);
 
   // Ready device for reading
@@ -118,7 +118,7 @@ static bool RecordCb(DeviceControlRecord* dcr, DeviceRecord* rec)
 
   if (rec->FileIndex < 0) { return true; }
 
-  Dmsg5(400, "Send to FD: SessId=%u SessTim=%u FI=%s Strm=%s, len=%d\n",
+  Dmsg5(400, "Send to FD: SessId={} SessTim={} FI={} Strm={}, len={}\n",
         rec->VolSessionId, rec->VolSessionTime,
         FI_to_ascii(ec1, rec->FileIndex),
         stream_to_ascii(ec2, rec->Stream, rec->FileIndex), rec->data_len);
@@ -131,7 +131,7 @@ static bool RecordCb(DeviceControlRecord* dcr, DeviceRecord* rec)
           fd->bstrerror());
     return false;
   } else {
-    Dmsg1(400, ">filed: Hdr=%s\n", fd->msg);
+    Dmsg1(400, ">filed: Hdr={}\n", fd->msg);
   }
 
   // Send data record to File daemon
@@ -139,7 +139,7 @@ static bool RecordCb(DeviceControlRecord* dcr, DeviceRecord* rec)
   fd->msg = rec->data; /* pass data directly to the FD */
   fd->message_length = rec->data_len;
 
-  Dmsg1(400, ">filed: send %d bytes data.\n", fd->message_length);
+  Dmsg1(400, ">filed: send {} bytes data.\n", fd->message_length);
   if (!fd->send()) {
     Pmsg1(000, T_("Error sending to FD. ERR=%s\n"), fd->bstrerror());
     Jmsg1(jcr, M_FATAL, 0, T_("Error sending to File daemon. ERR=%s\n"),

@@ -119,12 +119,12 @@ bool CheckCatalog(cat_op mode)
       ClientDbRecord cr;
       /* Create clients only if they use the current catalog */
       if (client->catalog != catalog) {
-        Dmsg3(500, "Skip client=%s with cat=%s not catalog=%s\n",
+        Dmsg3(500, "Skip client={} with cat={} not catalog={}\n",
               client->resource_name_, client->catalog->resource_name_,
               catalog->resource_name_);
         continue;
       }
-      Dmsg2(500, "create cat=%s for client=%s\n",
+      Dmsg2(500, "create cat={} for client={}\n",
             client->catalog->resource_name_, client->resource_name_);
       bstrncpy(cr.Name, client->resource_name_, sizeof(cr.Name));
       db->CreateClientRecord(NULL, &cr);
@@ -182,7 +182,7 @@ bool CheckCatalog(cat_op mode)
         if (db->CreateCounterRecord(NULL, &cr)) {
           counter->CurrentValue = cr.CurrentValue;
           counter->created = true;
-          Dmsg2(100, "Create counter %s val=%d\n", counter->resource_name_,
+          Dmsg2(100, "Create counter {} val={}\n", counter->resource_name_,
                 counter->CurrentValue);
         }
       }

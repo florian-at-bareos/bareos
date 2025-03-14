@@ -85,7 +85,7 @@ void* HandleConnectionRequest(ConfigurationParser* config, void* arg)
 
   // Do a sanity check on the message received
   if (bs->message_length < MIN_MSG_LEN || bs->message_length > MAX_MSG_LEN) {
-    Dmsg1(000, "<filed: %s", bs->msg);
+    Dmsg1(000, "<filed: {}", bs->msg);
     Emsg2(M_ERROR, 0, T_("Invalid connection from %s. Len=%d\n"), bs->who(),
           bs->message_length);
     Bmicrosleep(5, 0); /* make user wait 5 seconds */
@@ -94,23 +94,23 @@ void* HandleConnectionRequest(ConfigurationParser* config, void* arg)
     return NULL;
   }
 
-  Dmsg1(110, "Conn: %s", bs->msg);
+  Dmsg1(110, "Conn: {}", bs->msg);
 
   // See if this is a File daemon connection. If so call FD handler.
   if (sscanf(bs->msg, "Hello Start Job %127s", name) == 1) {
-    Dmsg1(110, "Got a FD connection at %s\n",
+    Dmsg1(110, "Got a FD connection at {}\n",
           bstrftimes(tbuf, sizeof(tbuf), (utime_t)time(NULL)));
     return HandleFiledConnection(bs, name);
   }
 
   // See if this is a Storage daemon connection. If so call SD handler.
   if (sscanf(bs->msg, "Hello Start Storage Job %127s", name) == 1) {
-    Dmsg1(110, "Got a SD connection at %s\n",
+    Dmsg1(110, "Got a SD connection at {}\n",
           bstrftimes(tbuf, sizeof(tbuf), (utime_t)time(NULL)));
     return handle_stored_connection(bs, name);
   }
 
-  Dmsg1(110, "Got a DIR connection at %s\n",
+  Dmsg1(110, "Got a DIR connection at {}\n",
         bstrftimes(tbuf, sizeof(tbuf), (utime_t)time(NULL)));
 
   return HandleDirectorConnection(bs);
@@ -133,7 +133,7 @@ void StartSocketServer(dlist<IPADDR>* addrs)
 
   // Become server, and handle requests
   foreach_dlist (p, addrs) {
-    Dmsg1(10, "stored: listening on port %d\n", p->GetPortHostOrder());
+    Dmsg1(10, "stored: listening on port {}\n", p->GetPortHostOrder());
   }
 
   auto bound_sockets = OpenAndBindSockets(addrs);

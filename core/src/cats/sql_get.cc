@@ -61,7 +61,7 @@ bool BareosDb::GetFileAttributesRecord(JobControlRecord* jcr,
                                        JobDbRecord* jr,
                                        FileDbRecord* fdbr)
 {
-  Dmsg1(100, "db_get_file_attributes_record filename=%s \n", filename);
+  Dmsg1(100, "db_get_file_attributes_record filename={} \n", filename);
 
   DbLocker _{this};
 
@@ -128,14 +128,14 @@ bool BareosDb::GetFileRecord(JobControlRecord* jcr,
          "File.Name='%s'",
          edit_int64(fdbr->JobId, ed1), edit_int64(fdbr->PathId, ed2), esc_name);
   }
-  Dmsg3(450, "Get_file_record JobId=%u Filename=%s PathId=%u\n", fdbr->JobId,
+  Dmsg3(450, "Get_file_record JobId={} Filename={} PathId={}\n", fdbr->JobId,
         esc_name, fdbr->PathId);
 
-  Dmsg1(100, "Query=%s\n", cmd);
+  Dmsg1(100, "Query={}\n", cmd);
 
   if (QueryDb(jcr, cmd)) {
     num_rows = SqlNumRows();
-    Dmsg1(050, "GetFileRecord num_rows=%d\n", num_rows);
+    Dmsg1(050, "GetFileRecord num_rows={}\n", num_rows);
     if (num_rows >= 1) {
       if ((row = SqlFetchRow()) == NULL) {
         Mmsg1(errmsg, T_("Error fetching row: %s\n"), sql_strerror());
@@ -148,7 +148,7 @@ bool BareosDb::GetFileRecord(JobControlRecord* jcr,
           Mmsg3(errmsg,
                 T_("GetFileRecord want 1 got rows=%d PathId=%s Filename=%s\n"),
                 num_rows, edit_int64(fdbr->PathId, ed1), esc_name);
-          Dmsg1(000, "=== Problem!  %s", errmsg);
+          Dmsg1(000, "=== Problem!  {}", errmsg);
         }
       }
     } else {
@@ -340,11 +340,11 @@ int BareosDb::GetJobVolumeNames(JobControlRecord* jcr,
        "ORDER BY 2 ASC",
        edit_int64(JobId, ed1));
 
-  Dmsg1(130, "VolNam=%s\n", cmd);
+  Dmsg1(130, "VolNam={}\n", cmd);
   VolumeNames[0] = '\0';
   if (QueryDb(jcr, cmd)) {
     num_rows = SqlNumRows();
-    Dmsg1(130, "Num rows=%d\n", num_rows);
+    Dmsg1(130, "Num rows={}\n", num_rows);
     if (num_rows <= 0) {
       Mmsg1(errmsg, T_("No volumes found for JobId=%d\n"), JobId);
       retval = 0;
@@ -400,10 +400,10 @@ int BareosDb::GetJobVolumeParameters(JobControlRecord* jcr,
        " AND JobMedia.MediaId=Media.MediaId ORDER BY VolIndex,JobMediaId",
        edit_int64(JobId, ed1));
 
-  Dmsg1(130, "VolNam=%s\n", cmd);
+  Dmsg1(130, "VolNam={}\n", cmd);
   if (QueryDb(jcr, cmd)) {
     num_rows = SqlNumRows();
-    Dmsg1(200, "Num rows=%d\n", num_rows);
+    Dmsg1(200, "Num rows={}\n", num_rows);
     if (num_rows <= 0) {
       Mmsg1(errmsg, T_("No volumes found for JobId=%d\n"), JobId);
       retval = 0;
@@ -652,7 +652,7 @@ bool BareosDb::GetPoolRecord(JobControlRecord* jcr, PoolDbRecord* pdbr)
     Mmsg(cmd, "SELECT count(*) from Media WHERE PoolId=%s",
          edit_int64(pdbr->PoolId, ed1));
     NumVols = GetSqlRecordMax(jcr);
-    Dmsg2(400, "Actual NumVols=%d Pool NumVols=%d\n", NumVols, pdbr->NumVols);
+    Dmsg2(400, "Actual NumVols={} Pool NumVols={}\n", NumVols, pdbr->NumVols);
     if (NumVols != pdbr->NumVols) {
       pdbr->NumVols = NumVols;
       ok = UpdatePoolRecord(jcr, pdbr);
@@ -937,7 +937,7 @@ bool BareosDb::PrepareMediaSqlQuery(JobControlRecord* jcr,
     PmStrcat(cmd, buf.c_str());
   }
 
-  Dmsg1(100, "query=%s\n", cmd);
+  Dmsg1(100, "query={}\n", cmd);
 
   return true;
 }
@@ -1242,7 +1242,7 @@ bool BareosDb::GetFileList(JobControlRecord*,
 
   if (!use_md5) { strip_md5(query.c_str()); }
 
-  Dmsg1(100, "q=%s\n", query.c_str());
+  Dmsg1(100, "q={}\n", query.c_str());
 
   return BigSqlQuery(query.c_str(), ResultHandler, ctx);
 }
@@ -1318,7 +1318,7 @@ bool BareosDb::AccurateGetJobids(JobControlRecord* jcr,
   jobids->clear();
 
   char job_type = jr->JobType == JT_ARCHIVE ? 'A' : 'B';
-  Dmsg1(300, "AccurateGetJobids: Looking for jobs of type '%c'.\n", job_type);
+  Dmsg1(300, "AccurateGetJobids: Looking for jobs of type '{:c}'.\n", job_type);
   // First, find the last good Full backup for this job/client/fileset
   FillQuery(query, SQL_QUERY::create_temp_accurate_jobids,
             edit_uint64(jcr->JobId, jobid), edit_uint64(jr->ClientId, clientid),
@@ -1377,7 +1377,7 @@ bool BareosDb::AccurateGetJobids(JobControlRecord* jcr,
     Mmsg(query, "SELECT JobId FROM btemp3%s ORDER by JobTDate ASC", jobid);
   }
   SqlQueryWithHandler(query.c_str(), DbListHandler, jobids);
-  Dmsg1(1, "db_accurate_get_jobids=%s\n", jobids->GetAsString().c_str());
+  Dmsg1(1, "db_accurate_get_jobids={}\n", jobids->GetAsString().c_str());
   retval = true;
 
 bail_out:
@@ -1440,13 +1440,13 @@ bool BareosDb::GetBaseJobid(JobControlRecord* jcr,
        //      edit_uint64(jr->FileSetId, filesetid));
        date);
 
-  Dmsg1(10, "GetBaseJobid q=%s\n", query.c_str());
+  Dmsg1(10, "GetBaseJobid q={}\n", query.c_str());
   if (!SqlQueryWithHandler(query.c_str(), db_int64_handler, &lctx)) {
     goto bail_out;
   }
   *jobid = (JobId_t)lctx.value;
 
-  Dmsg1(10, "GetBaseJobid=%lld\n", *jobid);
+  Dmsg1(10, "GetBaseJobid={}\n", *jobid);
   retval = true;
 
 bail_out:
@@ -1699,7 +1699,7 @@ bool BareosDb::GetNdmpEnvironmentString(const std::string& query,
   auto myctx = std::make_unique<CountContext>(ResultHandler, ctx);
   bool status
       = SqlQueryWithHandler(query.c_str(), CountingHandler, myctx.get());
-  Dmsg3(150, "Got %d NDMP environment records\n", myctx->count);
+  Dmsg3(150, "Got {} NDMP environment records\n", myctx->count);
   return status && myctx->count > 0;  // no rows means no environment was found
 }
 
@@ -1765,7 +1765,7 @@ bool BareosDb::GetNdmpEnvironmentString(const VolumeSessionInfo& vsi,
   }
   Dmsg3(
       100,
-      "Got %d JobIds for VolSessionTime=%lld VolSessionId=%lld instead of 1\n",
+      "Got {} JobIds for VolSessionTime={} VolSessionId={} instead of 1\n",
       lctx.count, vsi.time, vsi.id);
   return false;
 }
@@ -1854,7 +1854,7 @@ bool BareosDb::PrepareMediaSqlQuery(JobControlRecord* jcr,
     PmStrcat(querystring, buf.c_str());
   }
 
-  Dmsg1(100, "query=%s\n", querystring);
+  Dmsg1(100, "query={}\n", querystring);
 
   return ok;
 }

@@ -437,8 +437,8 @@ cleanup:
     // old openssl versions might return -1 as well; so check for > 0 instead
     bool ktls_send = KtlsSendStatus();
     bool ktls_recv = KtlsRecvStatus();
-    Dmsg1(150, "kTLS used for Recv: %s\n", ktls_recv ? "yes" : "no");
-    Dmsg1(150, "kTLS used for Send: %s\n", ktls_send ? "yes" : "no");
+    Dmsg1(150, "kTLS used for Recv: {}\n", ktls_recv ? "yes" : "no");
+    Dmsg1(150, "kTLS used for Send: {}\n", ktls_send ? "yes" : "no");
   }
 
   return status;
@@ -498,7 +498,7 @@ unsigned int TlsOpenSslPrivate::psk_server_cb(SSL* ssl,
   }
   BStringList lst(std::string(identity),
                   AsciiControlCharacters::RecordSeparator());
-  Dmsg1(100, "psk_server_cb. identitiy: %s.\n", lst.JoinReadable().c_str());
+  Dmsg1(100, "psk_server_cb. identitiy: {}.\n", lst.JoinReadable().c_str());
 
   std::string configured_psk;
 
@@ -519,7 +519,7 @@ unsigned int TlsOpenSslPrivate::psk_server_cb(SSL* ssl,
     int psklen = Bsnprintf((char*)psk_output, max_psk_len, "%s",
                            configured_psk.c_str());
     result = (psklen < 0) ? 0 : psklen;
-    Dmsg1(100, "psk_server_cb. result: %d.\n", result);
+    Dmsg1(100, "psk_server_cb. result: {}.\n", result);
   }
   return result;
 }
@@ -561,7 +561,7 @@ unsigned int TlsOpenSslPrivate::psk_client_cb(SSL* ssl,
   std::string identity_log = identity;
   std::replace(identity_log.begin(), identity_log.end(),
                AsciiControlCharacters::RecordSeparator(), ' ');
-  Dmsg1(100, "psk_client_cb. identity: %s.\n", identity_log.c_str());
+  Dmsg1(100, "psk_client_cb. identity: {}.\n", identity_log.c_str());
 
   ret = Bsnprintf((char*)psk, max_psk_len, "%s", credentials.get_psk().c_str());
   if (ret < 0 || (unsigned int)ret > max_psk_len) {
@@ -574,84 +574,84 @@ unsigned int TlsOpenSslPrivate::psk_client_cb(SSL* ssl,
 // public interfaces from TlsOpenSsl that set private data
 void TlsOpenSsl::Setca_certfile_(const std::string& ca_certfile)
 {
-  Dmsg1(100, "Set ca_certfile:\t<%s>\n", ca_certfile.c_str());
+  Dmsg1(100, "Set ca_certfile:\t<{}>\n", ca_certfile.c_str());
   d_->ca_certfile_ = ca_certfile;
 }
 
 void TlsOpenSsl::SetCaCertdir(const std::string& ca_certdir)
 {
-  Dmsg1(100, "Set ca_certdir:\t<%s>\n", ca_certdir.c_str());
+  Dmsg1(100, "Set ca_certdir:\t<{}>\n", ca_certdir.c_str());
   d_->ca_certdir_ = ca_certdir;
 }
 
 void TlsOpenSsl::SetCrlfile(const std::string& crlfile_)
 {
-  Dmsg1(100, "Set crlfile_:\t<%s>\n", crlfile_.c_str());
+  Dmsg1(100, "Set crlfile_:\t<{}>\n", crlfile_.c_str());
   d_->crlfile_ = crlfile_;
 }
 
 void TlsOpenSsl::SetCertfile(const std::string& certfile_)
 {
-  Dmsg1(100, "Set certfile_:\t<%s>\n", certfile_.c_str());
+  Dmsg1(100, "Set certfile_:\t<{}>\n", certfile_.c_str());
   d_->certfile_ = certfile_;
 }
 
 void TlsOpenSsl::SetKeyfile(const std::string& keyfile_)
 {
-  Dmsg1(100, "Set keyfile_:\t<%s>\n", keyfile_.c_str());
+  Dmsg1(100, "Set keyfile_:\t<{}>\n", keyfile_.c_str());
   d_->keyfile_ = keyfile_;
 }
 
 void TlsOpenSsl::SetPemCallback(CRYPTO_PEM_PASSWD_CB pem_callback)
 {
-  Dmsg1(100, "Set pem_callback to address: <%#x>\n", pem_callback);
+  Dmsg1(100, "Set pem_callback to address: <arg_start##x#arg_end>\n", pem_callback);
   d_->pem_callback_ = pem_callback;
 }
 
 void TlsOpenSsl::SetPemUserdata(void* pem_userdata)
 {
-  Dmsg1(100, "Set pem_userdata to address: <%#x>\n", pem_userdata);
+  Dmsg1(100, "Set pem_userdata to address: <arg_start##x#arg_end>\n", pem_userdata);
   d_->pem_userdata_ = pem_userdata;
 }
 
 void TlsOpenSsl::SetDhFile(const std::string& dhfile_)
 {
-  Dmsg1(100, "Set dhfile_:\t<%s>\n", dhfile_.c_str());
+  Dmsg1(100, "Set dhfile_:\t<{}>\n", dhfile_.c_str());
   d_->dhfile_ = dhfile_;
 }
 
 void TlsOpenSsl::SetVerifyPeer(const bool& verify_peer)
 {
-  Dmsg1(100, "Set Verify Peer:\t<%s>\n", verify_peer ? "true" : "false");
+  Dmsg1(100, "Set Verify Peer:\t<{}>\n", verify_peer ? "true" : "false");
   d_->verify_peer_ = verify_peer;
 }
 
 void TlsOpenSsl::SetEnableKtls(bool ktls)
 {
-  Dmsg1(100, "Set ktls:\t<%s>\n", ktls ? "true" : "false");
+  Dmsg1(100, "Set ktls:\t<{}>\n", ktls ? "true" : "false");
   d_->enable_ktls_ = ktls;
 }
 
 void TlsOpenSsl::SetTcpFileDescriptor(const int& fd)
 {
-  Dmsg1(100, "Set tcp filedescriptor: <%d>\n", fd);
+  Dmsg1(100, "Set tcp filedescriptor: <{}>\n", fd);
   d_->tcp_file_descriptor_ = fd;
 }
 
 void TlsOpenSsl::SetCipherList(const std::string& cipherlist)
 {
-  Dmsg1(100, "Set cipherlist:\t<%s>\n", cipherlist.c_str());
+  Dmsg1(100, "Set cipherlist:\t<{}>\n", cipherlist.c_str());
   d_->cipherlist_ = cipherlist;
 }
 
 void TlsOpenSsl::SetCipherSuites(const std::string& ciphersuites)
 {
-  Dmsg1(100, "Set ciphersuites:\t<%s>\n", ciphersuites.c_str());
+  Dmsg1(100, "Set ciphersuites:\t<{}>\n", ciphersuites.c_str());
   d_->ciphersuites_ = ciphersuites;
 }
 
 void TlsOpenSsl::SetProtocol(const std::string& protocol)
 {
-  Dmsg1(100, "Set protocol:\t<%s>\n", protocol.c_str());
+  Dmsg1(100, "Set protocol:\t<{}>\n", protocol.c_str());
   d_->protocol_ = protocol;
 }

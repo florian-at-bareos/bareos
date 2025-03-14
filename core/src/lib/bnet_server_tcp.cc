@@ -138,7 +138,7 @@ static void LogAllAddresses(dlist<IPADDR>* addr_list)
 {
   std::vector<char> buf(256 * addr_list->size());
 
-  Dmsg1(100, "Addresses %s\n",
+  Dmsg1(100, "Addresses {}\n",
         BuildAddressesString(addr_list, buf.data(), buf.size()));
 }
 
@@ -383,7 +383,7 @@ void BnetThreadServerTcp(
         if (setsockopt(newsockfd, SOL_TCP, TCP_ULP, "tls", sizeof("tls")) < 0) {
           BErrNo be;
           Dmsg1(250,
-                "Cannot set TCP_ULP on socket: ERR=%s.\n"
+                "Cannot set TCP_ULP on socket: ERR={}.\n"
                 "Is the tls module not loaded?  kTLS will not work without it.",
                 be.bstrerror());
         }

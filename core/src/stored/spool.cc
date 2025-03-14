@@ -154,7 +154,7 @@ bool CommitDataSpool(DeviceControlRecord* dcr)
     Dmsg0(100, "Committing spooled data\n");
     status = DespoolData(dcr, true /*commit*/);
     if (!status) {
-      Dmsg1(100, T_("Bad return from despool WroteVol=%d\n"), dcr->WroteVol);
+      Dmsg1(100, T_("Bad return from despool WroteVol={}\n"), dcr->WroteVol);
       CloseDataSpoolFile(dcr, true);
       return false;
     }
@@ -197,7 +197,7 @@ static bool OpenDataSpoolFile(DeviceControlRecord* dcr)
     FreePoolMemory(name);
     return false;
   }
-  Dmsg1(100, "Created spool file: %s\n", name);
+  Dmsg1(100, "Created spool file: {}\n", name);
   FreePoolMemory(name);
 
   return true;
@@ -213,7 +213,7 @@ static bool CloseDataSpoolFile(DeviceControlRecord* dcr, bool end_of_spool)
 
   MakeUniqueDataSpoolFilename(dcr, name);
   SecureErase(dcr->jcr, name);
-  Dmsg1(100, "Deleted spool file: %s\n", name);
+  Dmsg1(100, "Deleted spool file: {}\n", name);
   FreePoolMemory(name);
 
   lock_mutex(mutex);
@@ -299,7 +299,7 @@ static bool DespoolData(DeviceControlRecord* dcr, bool commit)
   block = dcr->block;       /* save block */
   dcr->block = rdcr->block; /* make read and write block the same */
 
-  Dmsg1(800, "read/write block size = %d\n", block->buf_len);
+  Dmsg1(800, "read/write block size = {}\n", block->buf_len);
   lseek(rdcr->spool_fd, 0, SEEK_SET); /* rewind */
 
 #if defined(HAVE_POSIX_FADVISE) && defined(POSIX_FADV_WILLNEED)
@@ -327,12 +327,12 @@ static bool DespoolData(DeviceControlRecord* dcr, bool commit)
     if (!ok) {
       Jmsg2(jcr, M_FATAL, 0, T_("Fatal append error on device %s: ERR=%s\n"),
             dcr->dev->print_name(), dcr->dev->bstrerror());
-      Dmsg2(000, "Fatal append error on device %s: ERR=%s\n",
+      Dmsg2(000, "Fatal append error on device {}: ERR={}\n",
             dcr->dev->print_name(), dcr->dev->bstrerror());
       /* Force in case Incomplete set */
       jcr->setJobStatus(JS_FatalError);
     }
-    Dmsg3(800, "Write block ok=%d FI=%d LI=%d\n", ok, block->FirstIndex,
+    Dmsg3(800, "Write block ok={} FI={} LI={}\n", ok, block->FirstIndex,
           block->LastIndex);
   }
 
@@ -341,7 +341,7 @@ static bool DespoolData(DeviceControlRecord* dcr, bool commit)
    *  LastIndex is correct. */
   if (jcr->is_JobStatus(JS_Incomplete)) {
     dcr->VolLastIndex = dir->get_FileIndex();
-    Dmsg1(100, "======= Set FI=%ld\n", dir->get_FileIndex());
+    Dmsg1(100, "======= Set FI={}\n", dir->get_FileIndex());
   }
 
   if (!dcr->DirCreateJobmediaRecord(false)) {
@@ -474,7 +474,7 @@ static int ReadBlockFromSpoolFile(DeviceControlRecord* dcr)
   block->LastIndex = hdr.LastIndex;
   block->VolSessionId = dcr->jcr->VolSessionId;
   block->VolSessionTime = dcr->jcr->VolSessionTime;
-  Dmsg2(800, "Read block FI=%d LI=%d\n", block->FirstIndex, block->LastIndex);
+  Dmsg2(800, "Read block FI={} LI={}\n", block->FirstIndex, block->LastIndex);
   return RB_OK;
 }
 
@@ -546,7 +546,7 @@ bool WriteBlockToSpoolFile(DeviceControlRecord* dcr)
   if (!WriteSpoolHeader(dcr)) { return false; }
   if (!WriteSpoolData(dcr)) { return false; }
 
-  Dmsg2(800, "Wrote block FI=%d LI=%d\n", block->FirstIndex, block->LastIndex);
+  Dmsg2(800, "Wrote block FI={} LI={}\n", block->FirstIndex, block->LastIndex);
   EmptyBlock(block);
   return true;
 }
@@ -743,7 +743,7 @@ bool CommitAttributeSpool(JobControlRecord* jcr)
   char tbuf[MAX_TIME_LENGTH];
   BareosSocket* dir;
 
-  Dmsg1(100, "Commit attributes at %s\n",
+  Dmsg1(100, "Commit attributes at {}\n",
         bstrftimes(tbuf, sizeof(tbuf), (utime_t)time(NULL)));
   if (AttributesAreSpooled(jcr)) {
     dir = jcr->dir_bsock;
@@ -770,7 +770,7 @@ bool CommitAttributeSpool(JobControlRecord* jcr)
           jcr->setJobStatus(JS_FatalError); /* override any Incomplete */
           goto bail_out;
         }
-        Dmsg2(100, "=== Attrib spool truncated from %lld to %lld\n", size,
+        Dmsg2(100, "=== Attrib spool truncated from {} to {}\n", size,
               data_end);
         size = data_end;
       }
@@ -842,7 +842,7 @@ static bool CloseAttrSpoolFile(JobControlRecord* jcr, BareosSocket* bs)
   POOLMEM* name;
   char tbuf[MAX_TIME_LENGTH];
 
-  Dmsg1(100, "Close attr spool file at %s\n",
+  Dmsg1(100, "Close attr spool file at {}\n",
         bstrftimes(tbuf, sizeof(tbuf), (utime_t)time(NULL)));
   if (bs->spool_fd_ == -1) { return true; }
 

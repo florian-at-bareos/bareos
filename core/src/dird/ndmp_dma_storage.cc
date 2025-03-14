@@ -83,7 +83,7 @@ int get_tape_info_cb(struct ndm_session* sess,
   /* } */
   if (store->runtime_storage_status->ndmp_deviceinfo.empty()) {
     for (i = 0; i < n_info; i++) {
-      Dmsg2(100, "  %s %s\n", what, info[i].model);
+      Dmsg2(100, "  {} {}\n", what, info[i].model);
 
       ndmp_deviceinfo_t* devinfo = new (ndmp_deviceinfo_t);
       devinfo->JobIdUsingDevice = 0;
@@ -98,14 +98,14 @@ int get_tape_info_cb(struct ndm_session* sess,
         ndmp9_device_capability* dc;
         uint32_t attr;
         dc = &info[i].caplist.caplist_val[j];
-        Dmsg1(100, "    device     %s\n", dc->device);
+        Dmsg1(100, "    device     {}\n", dc->device);
 
 
         if (!strcmp(what, "tape\n")) {
 #  ifndef NDMOS_OPTION_NO_NDMP3
           if (sess->plumb.tape->protocol_version == 3) {
             attr = dc->v3attr.value;
-            Dmsg1(100, "      attr       0x%lx\n", attr);
+            Dmsg1(100, "      attr       0x{:x}\n", attr);
             if (attr & NDMP3_TAPE_ATTR_REWIND) Dmsg0(100, "        REWIND\n");
             if (attr & NDMP3_TAPE_ATTR_UNLOAD) Dmsg0(100, "        UNLOAD\n");
           }
@@ -113,14 +113,14 @@ int get_tape_info_cb(struct ndm_session* sess,
 #  ifndef NDMOS_OPTION_NO_NDMP4
           if (sess->plumb.tape->protocol_version == 4) {
             attr = dc->v4attr.value;
-            Dmsg1(100, "      attr       0x%lx\n", attr);
+            Dmsg1(100, "      attr       0x{:x}\n", attr);
             if (attr & NDMP4_TAPE_ATTR_REWIND) Dmsg0(100, "        REWIND\n");
             if (attr & NDMP4_TAPE_ATTR_UNLOAD) Dmsg0(100, "        UNLOAD\n");
           }
 #  endif /* !NDMOS_OPTION_NO_NDMP4 */
         }
         for (k = 0; k < dc->capability.capability_len; k++) {
-          Dmsg2(100, "      set        %s=%s\n",
+          Dmsg2(100, "      set        {}={}\n",
                 dc->capability.capability_val[k].name,
                 dc->capability.capability_val[k].value);
         }
@@ -130,7 +130,7 @@ int get_tape_info_cb(struct ndm_session* sess,
       Dmsg0(100, "\n");
     }
   }
-  if (i == 0) Dmsg1(100, "  Empty %s info\n", what);
+  if (i == 0) Dmsg1(100, "  Empty {} info\n", what);
   return 0;
 }
 
@@ -238,7 +238,7 @@ extern "C" void NdmpRobotStatusHandler(struct ndmlog* log,
   nis = (NIS*)log->ctx;
   if (!nis) { return; }
 
-  Dmsg1(100, "%s\n", msg);
+  Dmsg1(100, "{}\n", msg);
 }
 
 /**
@@ -311,13 +311,13 @@ static bool NdmpRunStorageJob(JobControlRecord* jcr,
   ndmp_sess->conn_authorized = 1;
 
   char ndm_job_type = ndmp_sess->control_acb->job.operation & 0xff;
-  Dmsg2(200, "ndma job.operation - job_type: %#x - %c\n",
+  Dmsg2(200, "ndma job.operation - job_type: arg_start##x#arg_end - {:c}\n",
         ndmp_sess->control_acb->job.operation, ndm_job_type);
 
   // Let the DMA perform its magic.
   int err{};
   if ((err = ndmca_control_agent(ndmp_sess)) != 0) {
-    Dmsg1(200, "Ndma control agent error: %d\n", err);
+    Dmsg1(200, "Ndma control agent error: {}\n", err);
     return false;
   }
 
@@ -333,7 +333,7 @@ static bool GetRobotElementStatus(JobControlRecord* jcr,
 
   // See if this is an autochanger.
   if (!store->autochanger || !store->ndmp_changer_device) {
-    Dmsg2(200, "Autochanger: %s - NDMP Changer device: %s\n",
+    Dmsg2(200, "Autochanger: {} - NDMP Changer device: {}\n",
           store->autochanger ? "true" : "false",
           store->ndmp_changer_device ? store->ndmp_changer_device : "(NULL)");
     return false;
@@ -355,7 +355,7 @@ static bool GetRobotElementStatus(JobControlRecord* jcr,
                                              store->ndmp_changer_device);
   if (error_number != 0) {
     free(ndmp_job.robot_target);
-    Dmsg1(200, "Could not create NDMP target name from string: %d\n",
+    Dmsg1(200, "Could not create NDMP target name from string: {}\n",
           error_number);
     return false;
   }
@@ -548,14 +548,14 @@ dlist<vol_list_t>* ndmp_get_vol_list(UaContext* ua,
         edp->element_address);
     if (vl->VolName) {
       Dmsg6(100,
-            "Add phys_slot = %hd logi_slot=%hd loaded=%hd type=%hd status=%hd "
-            "Vol=%s to SD list.\n",
+            "Add phys_slot = {} logi_slot={} loaded={} type={} status={} "
+            "Vol={} to SD list.\n",
             vl->element_address, vl->bareos_slot_number,
             vl->currently_loaded_slot_number, vl->slot_type, vl->slot_status,
             NPRT(vl->VolName));
     } else {
       Dmsg5(100,
-            "Add phys_slot = %hd logi_slot=%hd loaded=%hd type=%hd status=%hd "
+            "Add phys_slot = {} logi_slot={} loaded={} type={} status={} "
             "Vol=NULL to SD list.\n",
             vl->element_address, vl->bareos_slot_number,
             vl->currently_loaded_slot_number, vl->slot_type, vl->slot_status);
@@ -825,7 +825,7 @@ bool NdmpAutochangerVolumeOperation(UaContext* ua,
   struct ndm_session* ndmp_sess;
 
   Dmsg3(100,
-        "NdmpAutochangerVolumeOperation: operation %s, drive %hd, slot %hd\n",
+        "NdmpAutochangerVolumeOperation: operation {}, drive {}, slot {}\n",
         operation, drive, slot);
   ua->WarningMsg(
       T_("NdmpAutochangerVolumeOperation: operation %s, drive %hd, slot %hd\n"),
@@ -922,8 +922,8 @@ bool NdmpSendLabelRequest(UaContext* ua,
   struct ndmmedia* media;
 
   Dmsg4(100,
-        "ndmp_send_label_request: VolumeName=%s MediaType=%s PoolName=%s "
-        "drive=%hd\n",
+        "ndmp_send_label_request: VolumeName={} MediaType={} PoolName={} "
+        "drive={}\n",
         mr->VolumeName, mr->MediaType, pr->Name, drive);
 
   // See if this is an autochanger.

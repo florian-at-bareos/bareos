@@ -58,7 +58,7 @@ CramMd5Handshake::CompareChallengeWithOwnQualifiedName(
   // string contains the closing ">" of the challenge
   std::string challenge_qualified_name(buffer, strlen(buffer) - 1);
 
-  Dmsg1(debuglevel_, "my_name: <%s> - challenge_name: <%s>\n",
+  Dmsg1(debuglevel_, "my_name: <{}> - challenge_name: <{}>\n",
         own_qualified_name_bashed_spaces_.c_str(),
         challenge_qualified_name.c_str());
 
@@ -92,23 +92,23 @@ bool CramMd5Handshake::CramMd5Challenge()
        own_qualified_name_bashed_spaces_.c_str());
 
   if (bs_->IsBnetDumpEnabled()) {
-    Dmsg2(debuglevel_, "send: auth cram-md5 %s ssl=%d qualified-name=%s\n",
+    Dmsg2(debuglevel_, "send: auth cram-md5 {} ssl={} qualified-name={}\n",
           chal.c_str(), local_tls_policy_, own_qualified_name_.c_str());
 
     if (!bs_->fsend("auth cram-md5 %s ssl=%d qualified-name=%s\n", chal.c_str(),
                     local_tls_policy_, own_qualified_name_.c_str())) {
-      Dmsg1(debuglevel_, "Bnet send challenge comm error. ERR=%s\n",
+      Dmsg1(debuglevel_, "Bnet send challenge comm error. ERR={}\n",
             bs_->bstrerror());
       result = HandshakeResult::NETWORK_ERROR;
       return false;
     }
   } else {  // network dump disabled
-    Dmsg2(debuglevel_, "send: auth cram-md5 %s ssl=%d\n", chal.c_str(),
+    Dmsg2(debuglevel_, "send: auth cram-md5 {} ssl={}\n", chal.c_str(),
           local_tls_policy_);
 
     if (!bs_->fsend("auth cram-md5 %s ssl=%d\n", chal.c_str(),
                     local_tls_policy_)) {
-      Dmsg1(debuglevel_, "Bnet send challenge comm error. ERR=%s\n",
+      Dmsg1(debuglevel_, "Bnet send challenge comm error. ERR={}\n",
             bs_->bstrerror());
       result = HandshakeResult::NETWORK_ERROR;
       return false;
@@ -117,7 +117,7 @@ bool CramMd5Handshake::CramMd5Challenge()
 
   /* Read hashed response to challenge */
   if (bs_->WaitData(180) <= 0 || bs_->recv() <= 0) {
-    Dmsg1(debuglevel_, "Bnet receive challenge response comm error. ERR=%s\n",
+    Dmsg1(debuglevel_, "Bnet receive challenge response comm error. ERR={}\n",
           bs_->bstrerror());
     Bmicrosleep(bs_->sleep_time_after_authentication_error, 0);
     result = HandshakeResult::NETWORK_ERROR;
@@ -132,12 +132,12 @@ bool CramMd5Handshake::CramMd5Challenge()
 
   bool ok = bstrcmp(bs_->msg, host.c_str());
   if (ok) {
-    Dmsg1(debuglevel_, "Authenticate OK %s\n", host.c_str());
+    Dmsg1(debuglevel_, "Authenticate OK {}\n", host.c_str());
   } else {
     BinToBase64(host.c_str(), MAXHOSTNAMELEN, (char*)hmac, 16, false);
     ok = bstrcmp(bs_->msg, host.c_str());
     if (!ok) {
-      Dmsg2(debuglevel_, "Authenticate NOT OK: wanted %s, got %s\n",
+      Dmsg2(debuglevel_, "Authenticate NOT OK: wanted {}, got {}\n",
             host.c_str(), bs_->msg);
     }
   }
@@ -164,7 +164,7 @@ bool CramMd5Handshake::CramMd5Response()
     return false;
   }
 
-  Dmsg1(100, "cram-get received: %s", bs_->msg);
+  Dmsg1(100, "cram-get received: {}", bs_->msg);
   chal.check_size(bs_->message_length);
   if (bs_->IsBnetDumpEnabled()) {
     std::vector<char> destination_qualified_name(256);
@@ -178,7 +178,7 @@ bool CramMd5Handshake::CramMd5Response()
                       destination_qualified_name.data())
                < 2) {  // minimum 2
       if (sscanf(bs_->msg, "auth cram-md5 %s\n", chal.c_str()) != 1) {
-        Dmsg1(debuglevel_, "Cannot scan challenge: %s", bs_->msg);
+        Dmsg1(debuglevel_, "Cannot scan challenge: {}", bs_->msg);
         bs_->fsend(T_("1999 Authorization failed.\n"));
         Bmicrosleep(bs_->sleep_time_after_authentication_error, 0);
         result = HandshakeResult::FORMAT_MISMATCH;
@@ -195,7 +195,7 @@ bool CramMd5Handshake::CramMd5Response()
                       &remote_tls_policy_)
                != 2) {
       if (sscanf(bs_->msg, "auth cram-md5 %s\n", chal.c_str()) != 1) {
-        Dmsg1(debuglevel_, "Cannot scan challenge: %s", bs_->msg);
+        Dmsg1(debuglevel_, "Cannot scan challenge: {}", bs_->msg);
         bs_->fsend(T_("1999 Authorization failed.\n"));
         Bmicrosleep(bs_->sleep_time_after_authentication_error, 0);
         result = HandshakeResult::FORMAT_MISMATCH;
@@ -226,12 +226,12 @@ bool CramMd5Handshake::CramMd5Response()
       = BinToBase64(bs_->msg, 50, (char*)hmac, 16, compatible_) + 1;
   if (!bs_->send()) {
     result = HandshakeResult::NETWORK_ERROR;
-    Dmsg1(debuglevel_, "Send challenge failed. ERR=%s\n", bs_->bstrerror());
+    Dmsg1(debuglevel_, "Send challenge failed. ERR={}\n", bs_->bstrerror());
     return false;
   }
-  Dmsg1(99, "sending resp to challenge: %s\n", bs_->msg);
+  Dmsg1(99, "sending resp to challenge: {}\n", bs_->msg);
   if (bs_->WaitData(180) <= 0 || bs_->recv() <= 0) {
-    Dmsg1(debuglevel_, "Receive challenge response failed. ERR=%s\n",
+    Dmsg1(debuglevel_, "Receive challenge response failed. ERR={}\n",
           bs_->bstrerror());
     Bmicrosleep(bs_->sleep_time_after_authentication_error, 0);
     result = HandshakeResult::NETWORK_ERROR;
@@ -242,7 +242,7 @@ bool CramMd5Handshake::CramMd5Response()
     return true;
   }
   result = HandshakeResult::WRONG_HASH;
-  Dmsg1(debuglevel_, "Received bad response: %s\n", bs_->msg);
+  Dmsg1(debuglevel_, "Received bad response: {}\n", bs_->msg);
   Bmicrosleep(bs_->sleep_time_after_authentication_error, 0);
   return false;
 }
@@ -259,7 +259,7 @@ bool CramMd5Handshake::DoHandshake(bool initiated_by_remote)
     }
   }
 
-  Dmsg1(debuglevel_, "cram-auth failed with %s\n", bs_->who());
+  Dmsg1(debuglevel_, "cram-auth failed with {}\n", bs_->who());
   return false;
 }
 

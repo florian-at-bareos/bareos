@@ -119,7 +119,7 @@ void UnlockReservations() { reservation_mutex->unlock(); }
 void DeviceControlRecord::SetReserved()
 {
   reserved_ = true;
-  Dmsg2(debuglevel, "Inc reserve=%d dev=%s\n", dev->NumReserved(),
+  Dmsg2(debuglevel, "Inc reserve={} dev={}\n", dev->NumReserved(),
         dev->print_name());
   dev->IncReserved();
 }
@@ -129,7 +129,7 @@ void DeviceControlRecord::ClearReserved()
   if (reserved_) {
     reserved_ = false;
     dev->DecReserved();
-    Dmsg2(debuglevel, "Dec reserve=%d dev=%s\n", dev->NumReserved(),
+    Dmsg2(debuglevel, "Dec reserve={} dev={}\n", dev->NumReserved(),
           dev->print_name());
   }
 }
@@ -279,7 +279,7 @@ static bool UseDeviceCmd(JobControlRecord* jcr)
   /* If there are multiple devices, the director sends us
    * use_device for each device that it wants to use. */
   do {
-    Dmsg1(debuglevel, "<dird: %s", dir->msg);
+    Dmsg1(debuglevel, "<dird: {}", dir->msg);
     auto res
         = sscanf(dir->msg, use_storage, StoreName.c_str(), media_type.c_str(),
                  pool_name.c_str(), pool_type.c_str(), &append, &Copy, &Stripe);
@@ -300,7 +300,7 @@ static bool UseDeviceCmd(JobControlRecord* jcr)
 
     // Now get all devices
     while (dir->recv() >= 0) {
-      Dmsg1(debuglevel, "<dird device: %s", dir->msg);
+      Dmsg1(debuglevel, "<dird device: {}", dir->msg);
       ok = sscanf(dir->msg, use_device, dev_name.c_str()) == 1;
       if (!ok) { break; }
       UnbashSpaces(dev_name);
@@ -314,7 +314,7 @@ static bool UseDeviceCmd(JobControlRecord* jcr)
     UnbashSpaces(jcr->errmsg);
     Jmsg(jcr, M_FATAL, 0, T_("Failed command: %s\n"), jcr->errmsg);
     dir->fsend(BAD_use, jcr->errmsg);
-    Dmsg1(debuglevel, ">dird: %s", dir->msg);
+    Dmsg1(debuglevel, ">dird: {}", dir->msg);
     return false;
   }
 
@@ -337,7 +337,7 @@ static bool UseDeviceCmd(JobControlRecord* jcr)
   if (ok) {
     BashSpaces(dev_name);
     ok = dir->fsend(OK_device, dev_name.c_str()); /* Return real device name */
-    Dmsg1(debuglevel, ">dird: %s", dir->msg);
+    Dmsg1(debuglevel, ">dird: {}", dir->msg);
   } else {
     /* If we get here, there are no suitable devices available, which
      * means nothing configured.  If a device is suitable but busy
@@ -347,7 +347,7 @@ static bool UseDeviceCmd(JobControlRecord* jcr)
     Jmsg(jcr, M_FATAL, 0, T_("Device reservation failed for JobId=%d: %s\n"),
          jcr->JobId, jcr->errmsg);
     dir->fsend(NO_device, dev_name.c_str());
-    Dmsg1(debuglevel, ">dird: %s", dir->msg);
+    Dmsg1(debuglevel, ">dird: {}", dir->msg);
   }
   return ok;
 }
@@ -367,11 +367,11 @@ static bool IsVolInAutochanger(ReserveContext& rctx, VolumeReservationItem* vol)
 
   // Find resource, and make sure we were able to open it
   if (bstrcmp(rctx.device_name, changer->resource_name_)) {
-    Dmsg1(debuglevel, "Found changer device %s\n",
+    Dmsg1(debuglevel, "Found changer device {}\n",
           vol->dev->device_resource->resource_name_);
     return true;
   }
-  Dmsg1(debuglevel, "Incorrect changer device %s\n", changer->resource_name_);
+  Dmsg1(debuglevel, "Incorrect changer device {}\n", changer->resource_name_);
 
   return false;
 }
@@ -391,8 +391,8 @@ bool FindSuitableDeviceForJob(JobControlRecord* jcr, ReserveContext& rctx)
 
   auto& storages = jcr->sd_impl->dirstores;
   Dmsg5(debuglevel,
-        "Start find_suit_dev PrefMnt=%d exact=%d suitable=%d chgronly=%d "
-        "any=%d\n",
+        "Start find_suit_dev PrefMnt={} exact={} suitable={} chgronly={} "
+        "any={}\n",
         rctx.PreferMountedVols, rctx.exact_match, rctx.suitable_device,
         rctx.autochanger_only, rctx.any_drive);
 
@@ -409,7 +409,7 @@ bool FindSuitableDeviceForJob(JobControlRecord* jcr, ReserveContext& rctx)
     Dmsg0(debuglevel, "look for vol in vol list\n");
     foreach_dlist (vol, temp_vol_list) {
       if (!vol->dev) {
-        Dmsg1(debuglevel, "vol=%s no dev\n", vol->vol_name);
+        Dmsg1(debuglevel, "vol={} no dev\n", vol->vol_name);
         continue;
       }
 
@@ -417,7 +417,7 @@ bool FindSuitableDeviceForJob(JobControlRecord* jcr, ReserveContext& rctx)
       bstrncpy(dcr->VolumeName, vol->vol_name, sizeof(dcr->VolumeName));
       if (!dcr->DirGetVolumeInfo(GET_VOL_INFO_FOR_WRITE)) { continue; }
 
-      Dmsg1(debuglevel, "vol=%s OK for this job\n", vol->vol_name);
+      Dmsg1(debuglevel, "vol={} OK for this job\n", vol->vol_name);
       for (auto& store : storages) {
         int status;
         if (rctx.append != store.append) { continue; }
@@ -428,13 +428,13 @@ bool FindSuitableDeviceForJob(JobControlRecord* jcr, ReserveContext& rctx)
           rctx.device_resource = vol->dev->device_resource;
 
           if (vol->dev->AttachedToAutochanger()) {
-            Dmsg1(debuglevel, "vol=%s is in changer\n", vol->vol_name);
+            Dmsg1(debuglevel, "vol={} is in changer\n", vol->vol_name);
             if (!IsVolInAutochanger(rctx, vol) || !vol->dev->autoselect) {
               continue;
             }
           } else if (!bstrcmp(device_name.c_str(),
                               vol->dev->device_resource->resource_name_)) {
-            Dmsg2(debuglevel, "device=%s not suitable want %s\n",
+            Dmsg2(debuglevel, "device={} not suitable want {}\n",
                   vol->dev->device_resource->resource_name_,
                   device_name.c_str());
             continue;
@@ -444,16 +444,16 @@ bool FindSuitableDeviceForJob(JobControlRecord* jcr, ReserveContext& rctx)
           rctx.have_volume = true;
 
           // Try reserving this device and volume
-          Dmsg2(debuglevel, "try vol=%s on device=%s\n", rctx.VolumeName,
+          Dmsg2(debuglevel, "try vol={} on device={}\n", rctx.VolumeName,
                 device_name.c_str());
           status = ReserveDevice(jcr, rctx);
           if (status == 1) { /* found available device */
-            Dmsg1(debuglevel, "Suitable device found=%s\n",
+            Dmsg1(debuglevel, "Suitable device found={}\n",
                   device_name.c_str());
             ok = true;
             break;
           } else if (status == 0) { /* device busy */
-            Dmsg1(debuglevel, "Suitable device=%s, busy: not use\n",
+            Dmsg1(debuglevel, "Suitable device={}, busy: not use\n",
                   device_name.c_str());
           } else {
             Dmsg0(debuglevel, "No suitable device found.\n");
@@ -472,7 +472,7 @@ bool FindSuitableDeviceForJob(JobControlRecord* jcr, ReserveContext& rctx)
   }
 
   if (ok) {
-    Dmsg1(debuglevel, "OK dev found. Vol=%s from in-use vols list\n",
+    Dmsg1(debuglevel, "OK dev found. Vol={} from in-use vols list\n",
           rctx.VolumeName);
     return true;
   } else {
@@ -492,11 +492,11 @@ bool FindSuitableDeviceForJob(JobControlRecord* jcr, ReserveContext& rctx)
       rctx.device_name = device_name.c_str();
       status = SearchResForDevice(jcr, rctx);
       if (status == 1) { /* found available device */
-        Dmsg1(debuglevel, "available device found=%s\n", device_name.c_str());
+        Dmsg1(debuglevel, "available device found={}\n", device_name.c_str());
         ok = true;
         break;
       } else if (status == 0) { /* device busy */
-        Dmsg1(debuglevel, "No usable device=%s, busy: not use\n",
+        Dmsg1(debuglevel, "No usable device={}, busy: not use\n",
               device_name.c_str());
       } else {
         Dmsg0(debuglevel, "No usable device found.\n");
@@ -505,7 +505,7 @@ bool FindSuitableDeviceForJob(JobControlRecord* jcr, ReserveContext& rctx)
     if (ok) { break; }
   }
   if (ok) {
-    Dmsg1(debuglevel, "OK dev found. Vol=%s\n", rctx.VolumeName);
+    Dmsg1(debuglevel, "OK dev found. Vol={}\n", rctx.VolumeName);
   } else {
     Dmsg0(debuglevel, "Leave find_suit_dev: no dev found.\n");
   }
@@ -523,17 +523,17 @@ int SearchResForDevice(JobControlRecord* jcr, ReserveContext& rctx)
 
   // Look through Autochangers first
   foreach_res (changer, R_AUTOCHANGER) {
-    Dmsg2(debuglevel, "Try match changer res=%s, wanted %s\n",
+    Dmsg2(debuglevel, "Try match changer res={}, wanted {}\n",
           changer->resource_name_, rctx.device_name);
     // Find resource, and make sure we were able to open it
     if (bstrcmp(rctx.device_name, changer->resource_name_)) {
       // Try each device_resource in this AutoChanger
       for (auto* device_resource : changer->device_resources) {
         rctx.device_resource = device_resource;
-        Dmsg1(debuglevel, "Try changer device %s\n",
+        Dmsg1(debuglevel, "Try changer device {}\n",
               device_resource->resource_name_);
         if (!device_resource->autoselect) {
-          Dmsg1(100, "Device %s not autoselect skipped.\n",
+          Dmsg1(100, "Device {} not autoselect skipped.\n",
                 device_resource->resource_name_);
           continue; /* Device is not available */
         }
@@ -544,11 +544,11 @@ int SearchResForDevice(JobControlRecord* jcr, ReserveContext& rctx)
 
         // Debug code
         if (rctx.store->append) {
-          Dmsg2(debuglevel, "Device %s reserved=%d for append.\n",
+          Dmsg2(debuglevel, "Device {} reserved={} for append.\n",
                 device_resource->resource_name_,
                 jcr->sd_impl->dcr->dev->NumReserved());
         } else {
-          Dmsg2(debuglevel, "Device %s reserved=%d for read.\n",
+          Dmsg2(debuglevel, "Device {} reserved={} for read.\n",
                 device_resource->resource_name_,
                 jcr->sd_impl->read_dcr->dev->NumReserved());
         }
@@ -561,7 +561,7 @@ int SearchResForDevice(JobControlRecord* jcr, ReserveContext& rctx)
   // Now if requested look through regular devices
   if (!rctx.autochanger_only) {
     foreach_res (rctx.device_resource, R_DEVICE) {
-      Dmsg2(debuglevel, "Try match res=%s wanted %s\n",
+      Dmsg2(debuglevel, "Try match res={} wanted {}\n",
             rctx.device_resource->resource_name_, rctx.device_name);
 
       // Find resource, and make sure we were able to open it
@@ -572,11 +572,11 @@ int SearchResForDevice(JobControlRecord* jcr, ReserveContext& rctx)
         }
         // Debug code
         if (rctx.store->append) {
-          Dmsg2(debuglevel, "Device %s reserved=%d for append.\n",
+          Dmsg2(debuglevel, "Device {} reserved={} for append.\n",
                 rctx.device_resource->resource_name_,
                 jcr->sd_impl->dcr->dev->NumReserved());
         } else {
-          Dmsg2(debuglevel, "Device %s reserved=%d for read.\n",
+          Dmsg2(debuglevel, "Device {} reserved={} for read.\n",
                 rctx.device_resource->resource_name_,
                 jcr->sd_impl->read_dcr->dev->NumReserved());
         }
@@ -590,7 +590,7 @@ int SearchResForDevice(JobControlRecord* jcr, ReserveContext& rctx)
     if (me->device_reserve_by_mediatype) {
       foreach_res (rctx.device_resource, R_DEVICE) {
         Dmsg3(debuglevel,
-              "Try match res=%s, mediatype=%s wanted mediatype=%s\n",
+              "Try match res={}, mediatype={} wanted mediatype={}\n",
               rctx.device_resource->resource_name_,
               rctx.store->media_type.c_str(), rctx.store->media_type.c_str());
 
@@ -603,11 +603,11 @@ int SearchResForDevice(JobControlRecord* jcr, ReserveContext& rctx)
 
           // Debug code
           if (rctx.store->append) {
-            Dmsg2(debuglevel, "Device %s reserved=%d for append.\n",
+            Dmsg2(debuglevel, "Device {} reserved={} for append.\n",
                   rctx.device_resource->resource_name_,
                   jcr->sd_impl->dcr->dev->NumReserved());
           } else {
-            Dmsg2(debuglevel, "Device %s reserved=%d for read.\n",
+            Dmsg2(debuglevel, "Device {} reserved={} for read.\n",
                   rctx.device_resource->resource_name_,
                   jcr->sd_impl->read_dcr->dev->NumReserved());
           }
@@ -634,7 +634,7 @@ static int ReserveDevice(JobControlRecord* jcr, ReserveContext& rctx)
   const int name_len = MAX_NAME_LENGTH;
 
   // Make sure MediaType is OK
-  Dmsg2(debuglevel, "chk MediaType device=%s request=%s\n",
+  Dmsg2(debuglevel, "chk MediaType device={} request={}\n",
         rctx.device_resource->media_type, rctx.store->media_type.c_str());
   if (!bstrcmp(rctx.device_resource->media_type,
                rctx.store->media_type.c_str())) {
@@ -642,7 +642,7 @@ static int ReserveDevice(JobControlRecord* jcr, ReserveContext& rctx)
   }
 
   // Make sure device access mode matches
-  Dmsg3(debuglevel, "chk AccessMode append=%d access_mode=%d\n", rctx.append,
+  Dmsg3(debuglevel, "chk AccessMode append={} access_mode={}\n", rctx.append,
         rctx.device_resource->access_mode);
   if (rctx.append && rctx.device_resource->access_mode == IODirection::READ) {
     // Trying to write but access mode is readonly
@@ -675,7 +675,7 @@ static int ReserveDevice(JobControlRecord* jcr, ReserveContext& rctx)
   }
 
   rctx.suitable_device = true;
-  Dmsg1(debuglevel, "try reserve %s\n", rctx.device_resource->resource_name_);
+  Dmsg1(debuglevel, "try reserve {}\n", rctx.device_resource->resource_name_);
 
   if (rctx.store->append) {
     dcr = jcr->sd_impl->dcr;
@@ -693,23 +693,23 @@ static int ReserveDevice(JobControlRecord* jcr, ReserveContext& rctx)
   bstrncpy(dcr->media_type, rctx.store->media_type.c_str(), name_len);
   bstrncpy(dcr->dev_name, rctx.device_name, name_len);
   if (rctx.store->append) {
-    Dmsg2(debuglevel, "call reserve for append: have_vol=%d vol=%s\n",
+    Dmsg2(debuglevel, "call reserve for append: have_vol={} vol={}\n",
           rctx.have_volume, rctx.VolumeName);
     ok = ReserveDeviceForAppend(dcr, rctx);
     if (!ok) { goto bail_out; }
 
     jcr->sd_impl->dcr = dcr;
-    Dmsg5(debuglevel, "Reserved=%d dev_name=%s mediatype=%s pool=%s ok=%d\n",
+    Dmsg5(debuglevel, "Reserved={} dev_name={} mediatype={} pool={} ok={}\n",
           dcr->dev->NumReserved(), dcr->dev_name, dcr->media_type,
           dcr->pool_name, ok);
-    Dmsg3(debuglevel, "Vol=%s num_writers=%d, have_vol=%d\n", rctx.VolumeName,
+    Dmsg3(debuglevel, "Vol={} num_writers={}, have_vol={}\n", rctx.VolumeName,
           dcr->dev->num_writers, rctx.have_volume);
     if (rctx.have_volume) {
       Dmsg0(debuglevel, "Call reserve_volume for append.\n");
       if (reserve_volume(dcr, rctx.VolumeName)) {
-        Dmsg1(debuglevel, "Reserved vol=%s\n", rctx.VolumeName);
+        Dmsg1(debuglevel, "Reserved vol={}\n", rctx.VolumeName);
       } else {
-        Dmsg1(debuglevel, "Could not reserve vol=%s\n", rctx.VolumeName);
+        Dmsg1(debuglevel, "Could not reserve vol={}\n", rctx.VolumeName);
         goto bail_out;
       }
     } else {
@@ -718,7 +718,7 @@ static int ReserveDevice(JobControlRecord* jcr, ReserveContext& rctx)
       if (dcr->DirFindNextAppendableVolume()) {
         bstrncpy(rctx.VolumeName, dcr->VolumeName, sizeof(rctx.VolumeName));
         rctx.have_volume = true;
-        Dmsg1(debuglevel, "looking for Volume=%s\n", rctx.VolumeName);
+        Dmsg1(debuglevel, "looking for Volume={}\n", rctx.VolumeName);
       } else {
         Dmsg0(debuglevel, "No next volume found\n");
         rctx.have_volume = false;
@@ -755,7 +755,7 @@ static int ReserveDevice(JobControlRecord* jcr, ReserveContext& rctx)
     if (ok) {
       jcr->sd_impl->read_dcr = dcr;
       Dmsg5(debuglevel,
-            "Read reserved=%d dev_name=%s mediatype=%s pool=%s ok=%d\n",
+            "Read reserved={} dev_name={} mediatype={} pool={} ok={}\n",
             dcr->dev->NumReserved(), dcr->dev_name, dcr->media_type,
             dcr->pool_name, ok);
     }
@@ -790,7 +790,7 @@ static bool ReserveDeviceForRead(DeviceControlRecord* dcr)
   dev->Lock();
 
   if (dev->IsDeviceUnmounted()) {
-    Dmsg1(debuglevel, "Device %s is BLOCKED due to user unmount.\n",
+    Dmsg1(debuglevel, "Device {} is BLOCKED due to user unmount.\n",
           dev->print_name());
     Mmsg(jcr->errmsg,
          T_("3601 JobId=%u device %s is BLOCKED due to user unmount.\n"),
@@ -801,7 +801,7 @@ static bool ReserveDeviceForRead(DeviceControlRecord* dcr)
 
   if (dev->IsBusy()) {
     Dmsg4(debuglevel,
-          "Device %s is busy ST_READREADY=%d num_writers=%d reserved=%d.\n",
+          "Device {} is busy ST_READREADY={} num_writers={} reserved={}.\n",
           dev->print_name(), BitIsSet(ST_READREADY, dev->state) ? 1 : 0,
           dev->num_writers, dev->NumReserved());
     Mmsg(jcr->errmsg,
@@ -857,7 +857,7 @@ static bool ReserveDeviceForAppend(DeviceControlRecord* dcr,
   if (dev->CanRead()) {
     Mmsg(jcr->errmsg, T_("3603 JobId=%u device %s is busy reading.\n"),
          jcr->JobId, dev->print_name());
-    Dmsg1(debuglevel, "Failed: %s", jcr->errmsg);
+    Dmsg1(debuglevel, "Failed: {}", jcr->errmsg);
     QueueReserveMessage(jcr);
     goto bail_out;
   }
@@ -867,12 +867,12 @@ static bool ReserveDeviceForAppend(DeviceControlRecord* dcr,
     Mmsg(jcr->errmsg,
          T_("3604 JobId=%u device %s is BLOCKED due to user unmount.\n"),
          jcr->JobId, dev->print_name());
-    Dmsg1(debuglevel, "Failed: %s", jcr->errmsg);
+    Dmsg1(debuglevel, "Failed: {}", jcr->errmsg);
     QueueReserveMessage(jcr);
     goto bail_out;
   }
 
-  Dmsg1(debuglevel, "reserve_append device is %s\n", dev->print_name());
+  Dmsg1(debuglevel, "reserve_append device is {}\n", dev->print_name());
 
   // Now do detailed tests ...
   if (CanReserveDrive(dcr, rctx) != 1) {
@@ -902,7 +902,7 @@ static int IsPoolOk(DeviceControlRecord* dcr)
   if (bstrcmp(dev->pool_name, dcr->pool_name)
       && bstrcmp(dev->pool_type, dcr->pool_type)) {
     // OK, compatible device
-    Dmsg1(debuglevel, "OK dev: %s num_writers=0, reserved, pool matches\n",
+    Dmsg1(debuglevel, "OK dev: {} num_writers=0, reserved, pool matches\n",
           dev->print_name());
     return 1;
   } else {
@@ -912,7 +912,7 @@ static int IsPoolOk(DeviceControlRecord* dcr)
             "on drive %s.\n"),
          (uint32_t)jcr->JobId, dcr->pool_name, dev->pool_name,
          dev->NumReserved(), dev->print_name());
-    Dmsg1(debuglevel, "Failed: %s", jcr->errmsg);
+    Dmsg1(debuglevel, "Failed: {}", jcr->errmsg);
     QueueReserveMessage(jcr);
   }
   return 0;
@@ -923,7 +923,7 @@ static bool IsMaxJobsOk(DeviceControlRecord* dcr)
   Device* dev = dcr->dev;
   JobControlRecord* jcr = dcr->jcr;
 
-  Dmsg5(debuglevel, "MaxJobs=%d Jobs=%d reserves=%d Status=%s Vol=%s\n",
+  Dmsg5(debuglevel, "MaxJobs={} Jobs={} reserves={} Status={} Vol={}\n",
         dcr->VolCatInfo.VolCatMaxJobs, dcr->VolCatInfo.VolCatJobs,
         dev->NumReserved(), dcr->VolCatInfo.VolCatStatus, dcr->VolumeName);
 
@@ -935,7 +935,7 @@ static bool IsMaxJobsOk(DeviceControlRecord* dcr)
     Mmsg(jcr->errmsg,
          T_("3609 JobId=%u Max concurrent jobs exceeded on drive %s.\n"),
          (uint32_t)jcr->JobId, dev->print_name());
-    Dmsg1(debuglevel, "Failed: %s", jcr->errmsg);
+    Dmsg1(debuglevel, "Failed: {}", jcr->errmsg);
     QueueReserveMessage(jcr);
     return false;
   }
@@ -947,7 +947,7 @@ static bool IsMaxJobsOk(DeviceControlRecord* dcr)
     Mmsg(jcr->errmsg,
          T_("3610 JobId=%u Volume max jobs exceeded on drive %s.\n"),
          (uint32_t)jcr->JobId, dev->print_name());
-    Dmsg1(debuglevel, "reserve dev failed: %s", jcr->errmsg);
+    Dmsg1(debuglevel, "reserve dev failed: {}", jcr->errmsg);
     QueueReserveMessage(jcr);
     return false; /* wait */
   }
@@ -964,7 +964,7 @@ static int CanReserveDrive(DeviceControlRecord* dcr, ReserveContext& rctx)
   Device* dev = dcr->dev;
   JobControlRecord* jcr = dcr->jcr;
 
-  Dmsg5(debuglevel, "PrefMnt=%d exact=%d suitable=%d chgronly=%d any=%d\n",
+  Dmsg5(debuglevel, "PrefMnt={} exact={} suitable={} chgronly={} any={}\n",
         rctx.PreferMountedVols, rctx.exact_match, rctx.suitable_device,
         rctx.autochanger_only, rctx.any_drive);
 
@@ -978,7 +978,7 @@ static int CanReserveDrive(DeviceControlRecord* dcr, ReserveContext& rctx)
      * no unmounted drive is found, we try that drive. This
      * helps spread the load to the least used drives. */
     if (rctx.try_low_use_drive && dev == rctx.low_use_drive) {
-      Dmsg2(debuglevel, "OK dev=%s == low_drive=%s.\n", dev->print_name(),
+      Dmsg2(debuglevel, "OK dev={} == low_drive={}.\n", dev->print_name(),
             rctx.low_use_drive->print_name());
       return 1;
     }
@@ -989,16 +989,16 @@ static int CanReserveDrive(DeviceControlRecord* dcr, ReserveContext& rctx)
       if ((dev->num_writers + dev->NumReserved()) < rctx.num_writers) {
         rctx.num_writers = dev->num_writers + dev->NumReserved();
         rctx.low_use_drive = dev;
-        Dmsg2(debuglevel, "set low use drive=%s num_writers=%d\n",
+        Dmsg2(debuglevel, "set low use drive={} num_writers={}\n",
               dev->print_name(), rctx.num_writers);
       } else {
-        Dmsg1(debuglevel, "not low use num_writers=%d\n",
+        Dmsg1(debuglevel, "not low use num_writers={}\n",
               dev->num_writers + dev->NumReserved());
       }
       Mmsg(jcr->errmsg,
            T_("3605 JobId=%u wants free drive but device %s is busy.\n"),
            jcr->JobId, dev->print_name());
-      Dmsg1(debuglevel, "Failed: %s", jcr->errmsg);
+      Dmsg1(debuglevel, "Failed: {}", jcr->errmsg);
       QueueReserveMessage(jcr);
       return 0;
     }
@@ -1009,7 +1009,7 @@ static int CanReserveDrive(DeviceControlRecord* dcr, ReserveContext& rctx)
            T_("3606 JobId=%u prefers mounted drives, but drive %s has no "
               "Volume.\n"),
            jcr->JobId, dev->print_name());
-      Dmsg1(debuglevel, "Failed: %s", jcr->errmsg);
+      Dmsg1(debuglevel, "Failed: {}", jcr->errmsg);
       QueueReserveMessage(jcr);
       return 0; /* No volume mounted */
     }
@@ -1020,10 +1020,10 @@ static int CanReserveDrive(DeviceControlRecord* dcr, ReserveContext& rctx)
     if (rctx.exact_match && rctx.have_volume) {
       bool ok;
 
-      Dmsg5(debuglevel, "PrefMnt=%d exact=%d suitable=%d chgronly=%d any=%d\n",
+      Dmsg5(debuglevel, "PrefMnt={} exact={} suitable={} chgronly={} any={}\n",
             rctx.PreferMountedVols, rctx.exact_match, rctx.suitable_device,
             rctx.autochanger_only, rctx.any_drive);
-      Dmsg4(debuglevel, "have_vol=%d have=%s resvol=%s want=%s\n",
+      Dmsg4(debuglevel, "have_vol={} have={} resvol={} want={}\n",
             rctx.have_volume, dev->VolHdr.VolumeName,
             dev->vol ? dev->vol->vol_name : "*None*", rctx.VolumeName);
       ok = bstrcmp(dev->VolHdr.VolumeName, rctx.VolumeName)
@@ -1035,7 +1035,7 @@ static int CanReserveDrive(DeviceControlRecord* dcr, ReserveContext& rctx)
              jcr->JobId, rctx.VolumeName, dev->VolHdr.VolumeName,
              dev->print_name());
         QueueReserveMessage(jcr);
-        Dmsg3(debuglevel, "not OK: dev have=%s resvol=%s want=%s\n",
+        Dmsg3(debuglevel, "not OK: dev have={} resvol={} want={}\n",
               dev->VolHdr.VolumeName, dev->vol ? dev->vol->vol_name : "*None*",
               rctx.VolumeName);
         return 0;
@@ -1050,7 +1050,7 @@ static int CanReserveDrive(DeviceControlRecord* dcr, ReserveContext& rctx)
   if (rctx.autochanger_only && !dev->IsBusy()
       && dev->VolHdr.VolumeName[0] == 0) {
     // Device is available but not yet reserved, reserve it for us
-    Dmsg1(debuglevel, "OK Res Unused autochanger %s.\n", dev->print_name());
+    Dmsg1(debuglevel, "OK Res Unused autochanger {}.\n", dev->print_name());
     bstrncpy(dev->pool_name, dcr->pool_name, sizeof(dev->pool_name));
     bstrncpy(dev->pool_type, dcr->pool_type, sizeof(dev->pool_type));
     return 1; /* reserve drive */
@@ -1075,7 +1075,7 @@ static int CanReserveDrive(DeviceControlRecord* dcr, ReserveContext& rctx)
     }
 
     // Device is available but not yet reserved, reserve it for us
-    Dmsg1(debuglevel, "OK Dev avail reserved %s\n", dev->print_name());
+    Dmsg1(debuglevel, "OK Dev avail reserved {}\n", dev->print_name());
     bstrncpy(dev->pool_name, dcr->pool_name, sizeof(dev->pool_name));
     bstrncpy(dev->pool_type, dcr->pool_type, sizeof(dev->pool_type));
     return 1; /* reserve drive */

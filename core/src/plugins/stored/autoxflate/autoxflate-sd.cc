@@ -178,7 +178,7 @@ static bRC newPlugin(PluginContext* ctx)
   struct plugin_ctx* p_ctx;
 
   bareos_core_functions->getBareosValue(ctx, bsdVarJobId, (void*)&JobId);
-  Dmsg(ctx, debuglevel, "autoxflate-sd: newPlugin JobId=%d\n", JobId);
+  Dmsg(ctx, debuglevel, "autoxflate-sd: newPlugin JobId={}\n", JobId);
 
   p_ctx = (struct plugin_ctx*)malloc(sizeof(struct plugin_ctx));
   if (!p_ctx) { return bRC_Error; }
@@ -207,10 +207,10 @@ static bRC freePlugin(PluginContext* ctx)
   struct plugin_ctx* p_ctx = (struct plugin_ctx*)ctx->plugin_private_context;
 
   bareos_core_functions->getBareosValue(ctx, bsdVarJobId, (void*)&JobId);
-  Dmsg(ctx, debuglevel, "autoxflate-sd: freePlugin JobId=%d\n", JobId);
+  Dmsg(ctx, debuglevel, "autoxflate-sd: freePlugin JobId={}\n", JobId);
 
   if (!p_ctx) {
-    Dmsg(ctx, debuglevel, "autoxflate-sd: freePlugin JobId=%d\n", JobId);
+    Dmsg(ctx, debuglevel, "autoxflate-sd: freePlugin JobId={}\n", JobId);
     return bRC_Error;
   }
 
@@ -223,7 +223,7 @@ static bRC freePlugin(PluginContext* ctx)
 // Return some plugin value (none defined)
 static bRC getPluginValue(PluginContext* ctx, pVariable var, void*)
 {
-  Dmsg(ctx, debuglevel, "autoxflate-sd: getPluginValue var=%d\n", var);
+  Dmsg(ctx, debuglevel, "autoxflate-sd: getPluginValue var={}\n", var);
 
   return bRC_OK;
 }
@@ -231,7 +231,7 @@ static bRC getPluginValue(PluginContext* ctx, pVariable var, void*)
 // Set a plugin value (none defined)
 static bRC setPluginValue(PluginContext* ctx, pVariable var, void*)
 {
-  Dmsg(ctx, debuglevel, "autoxflate-sd: setPluginValue var=%d\n", var);
+  Dmsg(ctx, debuglevel, "autoxflate-sd: setPluginValue var={}\n", var);
 
   return bRC_OK;
 }
@@ -250,7 +250,7 @@ static bRC handlePluginEvent(PluginContext* ctx, bSdEvent* event, void* value)
       return handleJobEnd(ctx);
   }
 
-  Dmsg(ctx, debuglevel, "autoxflate-sd: Unknown event %d\n", event->eventType);
+  Dmsg(ctx, debuglevel, "autoxflate-sd: Unknown event {}\n", event->eventType);
   return bRC_Error;
 }
 
@@ -262,7 +262,7 @@ static bRC handleJobEnd(PluginContext* ctx)
   if (!p_ctx) { goto bail_out; }
 
   if (p_ctx->inflate_bytes_in) {
-    Dmsg(ctx, debuglevel, "autoxflate-sd: inflate ratio: %lld/%lld = %0.2f%%\n",
+    Dmsg(ctx, debuglevel, "autoxflate-sd: inflate ratio: {}/{} = {:0.2}%%\n",
          p_ctx->inflate_bytes_out, p_ctx->inflate_bytes_in,
          (p_ctx->inflate_bytes_out * 100.0 / p_ctx->inflate_bytes_in));
     Jmsg(ctx, M_INFO, T_("autoxflate-sd: inflate ratio: %0.2f%%\n"),
@@ -271,7 +271,7 @@ static bRC handleJobEnd(PluginContext* ctx)
 
   if (p_ctx->deflate_bytes_in) {
     Dmsg(ctx, debuglevel,
-         "autoxflate-sd: deflate ratio: %lld/%lld =  %0.2f%%\n",
+         "autoxflate-sd: deflate ratio: {}/{} =  {:0.2}%%\n",
          p_ctx->deflate_bytes_out, p_ctx->deflate_bytes_in,
          (p_ctx->deflate_bytes_out * 100.0 / p_ctx->deflate_bytes_in));
     Jmsg(ctx, M_INFO, T_("autoxflate-sd: deflate ratio: %0.2f%%\n"),
@@ -605,8 +605,8 @@ static bool AutoDeflateRecord(PluginContext* ctx, DeviceControlRecord* dcr)
   }
 
   Dmsg(ctx, 400,
-       "AutoDeflateRecord: From datastream %d to %d from original size %ld to "
-       "%ld\n",
+       "AutoDeflateRecord: From datastream {} to {} from original size {} to "
+       "{}\n",
        rec->maskedStream, nrec->maskedStream, rec->data_len, nrec->data_len);
 
   p_ctx->deflate_bytes_in += rec->data_len;
@@ -690,8 +690,8 @@ static bool AutoInflateRecord(PluginContext* ctx, DeviceControlRecord* dcr)
   }
 
   Dmsg(ctx, 400,
-       "AutoInflateRecord: From datastream %d to %d from original size %ld to "
-       "%ld\n",
+       "AutoInflateRecord: From datastream {} to {} from original size {} to "
+       "{}\n",
        rec->maskedStream, nrec->maskedStream, rec->data_len, nrec->data_len);
 
   p_ctx->inflate_bytes_in += rec->data_len;

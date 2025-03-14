@@ -301,14 +301,14 @@ static inline bool HandleVolumeMountPoint(
     if (SUCCEEDED(hr)) {
       pVssClient->AddVolumeMountPointSnapshots(pVssObj, vol,
                                                snapshoted_volumes);
-      Dmsg1(200, "%s added to snapshotset \n", pvol.c_str());
+      Dmsg1(200, "{} added to snapshotset \n", pvol.c_str());
       snapshot_success = true;
     } else if (hr == VSS_E_OBJECT_ALREADY_EXISTS) {
-      Dmsg1(200, "%s already in snapshotset, skipping.\n", pvol.c_str());
+      Dmsg1(200, "{} already in snapshotset, skipping.\n", pvol.c_str());
     } else {
       Dmsg3(
           200,
-          "%s with vmp %s could not be added to snapshotset, COM ERROR: 0x%X\n",
+          "{} with vmp {} could not be added to snapshotset, COM ERROR: 0x{:X}\n",
           pvol.c_str(), utf8_mp.c_str(), hr);
     }
   } else {
@@ -395,8 +395,8 @@ bool VSSClientGeneric::Initialize(DWORD dwContext, bool bDuringRestore)
 
   if (!(CreateVssBackupComponents_ && VssFreeSnapshotProperties_)) {
     Dmsg2(0,
-          "VSSClientGeneric::Initialize: CreateVssBackupComponents_=0x%08X, "
-          "VssFreeSnapshotProperties_=0x%08X\n",
+          "VSSClientGeneric::Initialize: CreateVssBackupComponents_=0x{:08X}, "
+          "VssFreeSnapshotProperties_=0x{:08X}\n",
           CreateVssBackupComponents_, VssFreeSnapshotProperties_);
     Jmsg(jcr_, M_FATAL, 0,
          "Entry point CreateVssBackupComponents or VssFreeSnapshotProperties "
@@ -408,7 +408,7 @@ bool VSSClientGeneric::Initialize(DWORD dwContext, bool bDuringRestore)
   if (!bCoInitializeCalled_) {
     hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
     if (FAILED(hr)) {
-      Dmsg1(0, "VSSClientGeneric::Initialize: CoInitializeEx returned 0x%08X\n",
+      Dmsg1(0, "VSSClientGeneric::Initialize: CoInitializeEx returned 0x{:08X}\n",
             hr);
       JmsgVssApiStatus(jcr_, M_FATAL, hr, "CoInitializeEx");
       errno = b_errno_win32;
@@ -435,7 +435,7 @@ bool VSSClientGeneric::Initialize(DWORD dwContext, bool bDuringRestore)
     BErrNo be;
     Dmsg2(0,
           "VSSClientGeneric::Initialize: CreateVssBackupComponents returned "
-          "0x%08X. ERR=%s\n",
+          "0x{:08X}. ERR={}\n",
           hr, be.bstrerror(b_errno_win32));
     JmsgVssApiStatus(jcr_, M_FATAL, hr, "CreateVssBackupComponents");
     errno = b_errno_win32;
@@ -452,7 +452,7 @@ bool VSSClientGeneric::Initialize(DWORD dwContext, bool bDuringRestore)
       if (FAILED(hr)) {
         Dmsg1(0,
               "VSSClientGeneric::Initialize: IVssBackupComponents->SetContext "
-              "returned 0x%08X\n",
+              "returned 0x{:08X}\n",
               hr);
         JmsgVssApiStatus(jcr_, M_FATAL, hr, "SetContext");
         errno = b_errno_win32;
@@ -466,7 +466,7 @@ bool VSSClientGeneric::Initialize(DWORD dwContext, bool bDuringRestore)
     if (FAILED(hr)) {
       Dmsg1(0,
             "VSSClientGeneric::Initialize: "
-            "IVssBackupComponents->InitializeForBackup returned 0x%08X\n",
+            "IVssBackupComponents->InitializeForBackup returned 0x{:08X}\n",
             hr);
       JmsgVssApiStatus(jcr_, M_FATAL, hr, "InitializeForBackup");
       errno = b_errno_win32;
@@ -492,7 +492,7 @@ bool VSSClientGeneric::Initialize(DWORD dwContext, bool bDuringRestore)
           backup_type = VSS_BT_INCREMENTAL;
           break;
         default:
-          Dmsg1(0, "VSSClientGeneric::Initialize: unknown backup level %d\n",
+          Dmsg1(0, "VSSClientGeneric::Initialize: unknown backup level {}\n",
                 jcr_->getJobLevel());
           backup_type = VSS_BT_FULL;
           break;
@@ -506,7 +506,7 @@ bool VSSClientGeneric::Initialize(DWORD dwContext, bool bDuringRestore)
       if (FAILED(hr)) {
         Dmsg1(0,
               "VSSClientGeneric::Initialize: "
-              "IVssBackupComponents->SetBackupState returned 0x%08X\n",
+              "IVssBackupComponents->SetBackupState returned 0x{:08X}\n",
               hr);
         JmsgVssApiStatus(jcr_, M_FATAL, hr, "SetBackupState");
         errno = b_errno_win32;
@@ -519,7 +519,7 @@ bool VSSClientGeneric::Initialize(DWORD dwContext, bool bDuringRestore)
     if (FAILED(hr)) {
       Dmsg1(0,
             "VSSClientGeneric::Initialize: "
-            "IVssBackupComponents->GatherWriterMetadata returned 0x%08X\n",
+            "IVssBackupComponents->GatherWriterMetadata returned 0x{:08X}\n",
             hr);
       JmsgVssApiStatus(jcr_, M_FATAL, hr, "GatherWriterMetadata");
       errno = b_errno_win32;
@@ -539,7 +539,7 @@ bool VSSClientGeneric::Initialize(DWORD dwContext, bool bDuringRestore)
       if (FAILED(_vss_call_hr)) {                                  \
         Dmsg1(0,                                                   \
               "VSSClientGeneric::Initialize: "                     \
-              "IVssBackupComponents->" #Name " returned 0x%08X\n", \
+              "IVssBackupComponents->" #Name " returned 0x{:08X}\n", \
               _vss_call_hr);                                       \
         JmsgVssApiStatus(jcr_, M_FATAL, _vss_call_hr, #Name);      \
         errno = b_errno_win32;                                     \
@@ -564,7 +564,7 @@ bool VSSClientGeneric::Initialize(DWORD dwContext, bool bDuringRestore)
     // This is currently only used for debugging so it should be ok!
 
     for (UINT i = 0; i < cWriters; ++i) {
-      Dmsg1(500, "VSS Writer: %u\n", i);
+      Dmsg1(500, "VSS Writer: {}\n", i);
       VSS_CALL(pVssObj, GetWriterMetadata, i, &idInstance, &pMetadata);
 
       UINT cIncludeFiles, cExcludeFiles, cComponents;
@@ -588,7 +588,7 @@ bool VSSClientGeneric::Initialize(DWORD dwContext, bool bDuringRestore)
         char* path = BSTR_2_str(bstrPath);
 
         if (auto [_, inserted] = excluded_files.emplace(path); inserted) {
-          Dmsg1(500, "Excluded path: %s\n", path);
+          Dmsg1(500, "Excluded path: {}\n", path);
         }
 
         free(path);
@@ -623,7 +623,7 @@ bool VSSClientGeneric::Initialize(DWORD dwContext, bool bDuringRestore)
         auto cDependencies = pInfo->cDependencies;
 
         char* name = BSTR_2_str(pInfo->bstrComponentName);
-        Dmsg1(500, "Start component: %s\n", name);
+        Dmsg1(500, "Start component: {}\n", name);
         free(name);
 
         BSTR bstrPath;
@@ -635,7 +635,7 @@ bool VSSClientGeneric::Initialize(DWORD dwContext, bool bDuringRestore)
           if (auto it = included_files.find(path);
               excluded_files.find(path) == excluded_files.end()
               && it == included_files.end()) {
-            Dmsg1(1000, "File: %s\n", path);
+            Dmsg1(1000, "File: {}\n", path);
             included_files.emplace_hint(it, path);
           }
           free(path);
@@ -651,7 +651,7 @@ bool VSSClientGeneric::Initialize(DWORD dwContext, bool bDuringRestore)
           if (auto it = included_files.find(path);
               excluded_files.find(path) == excluded_files.end()
               && it == included_files.end()) {
-            Dmsg1(1000, "DB File: %s\n", path);
+            Dmsg1(1000, "DB File: {}\n", path);
             included_files.emplace_hint(it, path);
           }
           free(path);
@@ -668,7 +668,7 @@ bool VSSClientGeneric::Initialize(DWORD dwContext, bool bDuringRestore)
           if (auto it = included_files.find(path);
               excluded_files.find(path) == excluded_files.end()
               && it == included_files.end()) {
-            Dmsg1(1000, "DB Log File: %s\n", path);
+            Dmsg1(1000, "DB Log File: {}\n", path);
             included_files.emplace_hint(it, path);
           }
           free(path);
@@ -684,7 +684,7 @@ bool VSSClientGeneric::Initialize(DWORD dwContext, bool bDuringRestore)
           VSS_CALL(pDepedency, GetComponentName, &bstrComponentName);
 
           char* name2 = BSTR_2_str(bstrComponentName);
-          Dmsg1(500, "Depedency: %s\n", name2);
+          Dmsg1(500, "Depedency: {}\n", name2);
           free(name2);
 
           SysFreeString(bstrComponentName);
@@ -700,7 +700,7 @@ bool VSSClientGeneric::Initialize(DWORD dwContext, bool bDuringRestore)
       pMetadata->Release();
     }
 
-    Dmsg1(150, "VSS: Found %llu files to exclude and %llu files to include.\n",
+    Dmsg1(150, "VSS: Found {} files to exclude and {} files to include.\n",
           excluded_files.size(), included_files.size());
   }
 
@@ -769,7 +769,7 @@ void VSSClientGeneric::AddVolumeSnapshots(
       if (SUCCEEDED(pVssObj->AddToSnapshotSet(
               const_cast<LPWSTR>(unique_name.c_str()), GUID_NULL, &pid))) {
         if (debug_level >= 200) {
-          Dmsg2(200, "%s added to snapshotset (Path: %s)\n", utf_unique.c_str(),
+          Dmsg2(200, "{} added to snapshotset (Path: {})\n", utf_unique.c_str(),
                 utf_vol.c_str());
         }
 

@@ -178,14 +178,14 @@ extern "C" void* sched_wait(void* arg)
 
   // Check every 30 seconds if canceled
   while (wtime > 0) {
-    Dmsg3(2300, "Waiting on sched time, jobid=%d secs=%d use=%d\n", jcr->JobId,
+    Dmsg3(2300, "Waiting on sched time, jobid={} secs={} use={}\n", jcr->JobId,
           wtime, jcr->UseCount());
     if (wtime > 30) { wtime = 30; }
     Bmicrosleep(wtime, 0);
     if (jcr->IsJobCanceled()) { break; }
     wtime = jcr->sched_time - time(NULL);
   }
-  Dmsg1(200, "resched use=%d\n", jcr->UseCount());
+  Dmsg1(200, "resched use={}\n", jcr->UseCount());
   JobqAdd(jq, jcr);
   FreeJcr(jcr); /* we are done with jcr */
   Dmsg0(2300, "Exit sched_wait\n");
@@ -206,7 +206,7 @@ int JobqAdd(jobq_t* jq, JobControlRecord* jcr)
   pthread_t id;
   wait_pkt* sched_pkt;
 
-  Dmsg3(2300, "JobqAdd jobid=%d jcr=0x%x UseCount=%d\n", jcr->JobId, jcr,
+  Dmsg3(2300, "JobqAdd jobid={} jcr=0x{:x} UseCount={}\n", jcr->JobId, jcr,
         jcr->UseCount());
   if (jq->valid != JOBQ_VALID) {
     Jmsg0(jcr, M_ERROR, 0, "Jobq_add queue not initialized.\n");
@@ -214,7 +214,7 @@ int JobqAdd(jobq_t* jq, JobControlRecord* jcr)
   }
 
   jcr->IncUseCount(); /* mark jcr in use by us */
-  Dmsg3(2300, "JobqAdd jobid=%d jcr=0x%x UseCount=%d\n", jcr->JobId, jcr,
+  Dmsg3(2300, "JobqAdd jobid={} jcr=0x{:x} UseCount={}\n", jcr->JobId, jcr,
         jcr->UseCount());
   if (!jcr->IsJobCanceled() && wtime > 0) {
     sched_pkt = (wait_pkt*)malloc(sizeof(wait_pkt));
@@ -242,15 +242,15 @@ int JobqAdd(jobq_t* jq, JobControlRecord* jcr)
   if (jcr->IsJobCanceled()) {
     // Add job to ready queue so that it is canceled quickly
     jq->ready_jobs->prepend(item);
-    Dmsg1(2300, "Prepended job=%d to ready queue\n", jcr->JobId);
+    Dmsg1(2300, "Prepended job={} to ready queue\n", jcr->JobId);
   } else {
     // Add this job to the wait queue in priority sorted order
     foreach_dlist (li, jq->waiting_jobs) {
-      Dmsg2(2300, "waiting item jobid=%d priority=%d\n", li->jcr->JobId,
+      Dmsg2(2300, "waiting item jobid={} priority={}\n", li->jcr->JobId,
             li->jcr->JobPriority);
       if (li->jcr->JobPriority > jcr->JobPriority) {
         jq->waiting_jobs->InsertBefore(item, li);
-        Dmsg2(2300, "InsertBefore jobid=%d before waiting job=%d\n",
+        Dmsg2(2300, "InsertBefore jobid={} before waiting job={}\n",
               li->jcr->JobId, jcr->JobId);
         inserted = true;
         break;
@@ -260,7 +260,7 @@ int JobqAdd(jobq_t* jq, JobControlRecord* jcr)
     // If not jobs in wait queue, append it
     if (!inserted) {
       jq->waiting_jobs->append(item);
-      Dmsg1(2300, "Appended item jobid=%d to waiting queue\n", jcr->JobId);
+      Dmsg1(2300, "Appended item jobid={} to waiting queue\n", jcr->JobId);
     }
   }
 
@@ -285,7 +285,7 @@ int JobqRemove(jobq_t* jq, JobControlRecord* jcr)
   bool found = false;
   jobq_item_t* item;
 
-  Dmsg2(2300, "JobqRemove jobid=%d jcr=0x%x\n", jcr->JobId, jcr);
+  Dmsg2(2300, "JobqRemove jobid={} jcr=0x{:x}\n", jcr->JobId, jcr);
   if (jq->valid != JOBQ_VALID) { return EINVAL; }
 
   lock_mutex(jq->mutex);
@@ -297,7 +297,7 @@ int JobqRemove(jobq_t* jq, JobControlRecord* jcr)
   }
   if (!found) {
     unlock_mutex(jq->mutex);
-    Dmsg2(2300, "JobqRemove jobid=%d jcr=0x%x not in wait queue\n", jcr->JobId,
+    Dmsg2(2300, "JobqRemove jobid={} jcr=0x{:x} not in wait queue\n", jcr->JobId,
           jcr);
     return EINVAL;
   }
@@ -305,7 +305,7 @@ int JobqRemove(jobq_t* jq, JobControlRecord* jcr)
   // Move item to be the first on the list
   jq->waiting_jobs->remove(item);
   jq->ready_jobs->prepend(item);
-  Dmsg2(2300, "JobqRemove jobid=%d jcr=0x%x moved to ready queue\n", jcr->JobId,
+  Dmsg2(2300, "JobqRemove jobid={} jcr=0x{:x} moved to ready queue\n", jcr->JobId,
         jcr);
 
   status = StartServer(jq);
@@ -402,13 +402,13 @@ extern "C" void* jobq_server(void* arg)
       // Attach jcr to this thread while we run the job
       jcr->SetKillable(true);
       SetJcrInThreadSpecificData(jcr);
-      Dmsg1(2300, "Took jobid=%d from ready and appended to run\n", jcr->JobId);
+      Dmsg1(2300, "Took jobid={} from ready and appended to run\n", jcr->JobId);
 
       // Release job queue lock
       unlock_mutex(jq->mutex);
 
       // Call user's routine here
-      Dmsg3(2300, "Calling user engine for jobid=%d use=%d stat=%c\n",
+      Dmsg3(2300, "Calling user engine for jobid={} use={} stat={:c}\n",
             jcr->JobId, jcr->UseCount(), jcr->getJobStatus());
       jq->engine(je->jcr);
 
@@ -416,7 +416,7 @@ extern "C" void* jobq_server(void* arg)
       RemoveJcrFromThreadSpecificData(je->jcr);
       je->jcr->SetKillable(false);
 
-      Dmsg2(2300, "Back from user engine jobid=%d use=%d.\n", jcr->JobId,
+      Dmsg2(2300, "Back from user engine jobid={} use={}.\n", jcr->JobId,
             jcr->UseCount());
 
       // Reacquire job queue lock
@@ -438,7 +438,7 @@ extern "C" void* jobq_server(void* arg)
       if (RescheduleJob(jcr, jq, je)) { continue; /* go look for more work */ }
 
       // Clean up and release old jcr
-      Dmsg2(2300, "====== Termination job=%d use_cnt=%d\n", jcr->JobId,
+      Dmsg2(2300, "====== Termination job={} use_cnt={}\n", jcr->JobId,
             jcr->UseCount());
       jcr->dir_impl->SDJobStatus = 0;
       unlock_mutex(jq->mutex); /* release internal lock */
@@ -456,12 +456,12 @@ extern "C" void* jobq_server(void* arg)
       jobq_item_t* re = (jobq_item_t*)jq->running_jobs->first();
       if (re) {
         Priority = re->jcr->JobPriority;
-        Dmsg2(2300, "JobId %d is running. Look for pri=%d\n", re->jcr->JobId,
+        Dmsg2(2300, "JobId {} is running. Look for pri={}\n", re->jcr->JobId,
               Priority);
         running_allow_mix = true;
 
         for (; re;) {
-          Dmsg2(2300, "JobId %d is also running with %s\n", re->jcr->JobId,
+          Dmsg2(2300, "JobId {} is also running with {}\n", re->jcr->JobId,
                 re->jcr->allow_mixed_priority ? "mix" : "no mix");
           if (!re->jcr->allow_mixed_priority) {
             running_allow_mix = false;
@@ -469,11 +469,11 @@ extern "C" void* jobq_server(void* arg)
           }
           re = (jobq_item_t*)jq->running_jobs->next(re);
         }
-        Dmsg1(2300, "The running job(s) %s mixing priorities.\n",
+        Dmsg1(2300, "The running job(s) {} mixing priorities.\n",
               running_allow_mix ? "allow" : "don't allow");
       } else {
         Priority = je->jcr->JobPriority;
-        Dmsg1(2300, "No job running. Look for Job pri=%d\n", Priority);
+        Dmsg1(2300, "No job running. Look for Job pri={}\n", Priority);
       }
 
       /* Walk down the list of waiting jobs and attempt to acquire the resources
@@ -483,7 +483,7 @@ extern "C" void* jobq_server(void* arg)
         JobControlRecord* jcr = je->jcr;
         jobq_item_t* jn = (jobq_item_t*)jq->waiting_jobs->next(je);
 
-        Dmsg4(2300, "Examining Job=%d JobPri=%d want Pri=%d (%s)\n", jcr->JobId,
+        Dmsg4(2300, "Examining Job={} JobPri={} want Pri={} ({})\n", jcr->JobId,
               jcr->JobPriority, Priority,
               jcr->allow_mixed_priority ? "mix" : "no mix");
 
@@ -508,7 +508,7 @@ extern "C" void* jobq_server(void* arg)
          * job was canceled.  Once it is "run", it will quickly Terminate. */
         jq->waiting_jobs->remove(je);
         jq->ready_jobs->append(je);
-        Dmsg1(2300, "moved JobId=%d from wait to ready queue\n",
+        Dmsg1(2300, "moved JobId={} from wait to ready queue\n",
               je->jcr->JobId);
         je = jn; /* Point to next waiting job */
       }          /* end for loop */
@@ -531,7 +531,7 @@ extern "C" void* jobq_server(void* arg)
     Dmsg0(2300, "Check for work request\n");
 
     // If no more work requests, and we waited long enough, quit
-    Dmsg2(2300, "timedout=%d read empty=%d\n", timedout,
+    Dmsg2(2300, "timedout={} read empty={}\n", timedout,
           jq->ready_jobs->empty());
 
     if (jq->ready_jobs->empty() && timedout) {
@@ -553,7 +553,7 @@ extern "C" void* jobq_server(void* arg)
       // Recompute work as something may have changed in last 2 secs
       work = !jq->ready_jobs->empty() || !jq->waiting_jobs->empty();
     }
-    Dmsg1(2300, "Loop again. work=%d\n", work);
+    Dmsg1(2300, "Loop again. work={}\n", work);
   } /* end of big for loop */
 
   Dmsg0(200, "unlock mutex\n");
@@ -595,7 +595,7 @@ static bool RescheduleJob(JobControlRecord* jcr, jobq_t* jq, jobq_item_t* je)
     jcr->sched_time = now + jcr->dir_impl->res.job->RescheduleInterval;
     bstrftime(dt, sizeof(dt), now);
     bstrftime(dt2, sizeof(dt2), jcr->sched_time);
-    Dmsg4(2300, "Rescheduled Job %s to re-run in %d seconds.(now=%u,then=%u)\n",
+    Dmsg4(2300, "Rescheduled Job {} to re-run in {} seconds.(now={},then={})\n",
           jcr->Job, (int)jcr->dir_impl->res.job->RescheduleInterval, now,
           jcr->sched_time);
     Jmsg(jcr, M_INFO, 0,
@@ -611,7 +611,7 @@ static bool RescheduleJob(JobControlRecord* jcr, jobq_t* jq, jobq_item_t* je)
      * JobControlRecord */
     if (jcr->JobBytes == 0) {
       UpdateJobEnd(jcr, JS_WaitStartTime);
-      Dmsg2(2300, "Requeue job=%d use=%d\n", jcr->JobId, jcr->UseCount());
+      Dmsg2(2300, "Requeue job={} use={}\n", jcr->JobId, jcr->UseCount());
       unlock_mutex(jq->mutex);
       jcr->dir_impl->jr.RealEndTime = 0;
       JobqAdd(jq, jcr); /* queue the job to run again */
@@ -698,14 +698,14 @@ static bool AcquireResources(JobControlRecord* jcr)
       /* Migration/Copy and Consolidation jobs are not counted for client
        * concurrency as they do not touch the client at all */
       jcr->dir_impl->IgnoreClientConcurrency = true;
-      Dmsg1(200, "Skipping migrate/copy Job %s for client concurrency\n",
+      Dmsg1(200, "Skipping migrate/copy Job {} for client concurrency\n",
             jcr->Job);
 
       if (jcr->dir_impl->MigrateJobId == 0) {
         /* Migration/Copy control jobs are not counted for storage concurrency
          * as they do not touch the storage at all */
         Dmsg1(200,
-              "Skipping migrate/copy Control Job %s for storage concurrency\n",
+              "Skipping migrate/copy Control Job {} for storage concurrency\n",
               jcr->Job);
         jcr->dir_impl->IgnoreStorageConcurrency = true;
       }
@@ -765,7 +765,7 @@ static bool IncClientConcurrency(JobControlRecord* jcr)
   if (jcr->dir_impl->res.client->rcs->NumConcurrentJobs
       < jcr->dir_impl->res.client->MaxConcurrentJobs) {
     jcr->dir_impl->res.client->rcs->NumConcurrentJobs++;
-    Dmsg2(50, "Inc Client=%s rncj=%d\n",
+    Dmsg2(50, "Inc Client={} rncj={}\n",
           jcr->dir_impl->res.client->resource_name_,
           jcr->dir_impl->res.client->rcs->NumConcurrentJobs);
     unlock_mutex(mutex);
@@ -785,7 +785,7 @@ static void DecClientConcurrency(JobControlRecord* jcr)
   lock_mutex(mutex);
   if (jcr->dir_impl->res.client) {
     jcr->dir_impl->res.client->rcs->NumConcurrentJobs--;
-    Dmsg2(50, "Dec Client=%s rncj=%d\n",
+    Dmsg2(50, "Dec Client={} rncj={}\n",
           jcr->dir_impl->res.client->resource_name_,
           jcr->dir_impl->res.client->rcs->NumConcurrentJobs);
   }
@@ -798,7 +798,7 @@ static bool IncJobConcurrency(JobControlRecord* jcr)
   if (jcr->dir_impl->res.rjs->NumConcurrentJobs
       < jcr->dir_impl->max_concurrent_jobs) {
     jcr->dir_impl->res.rjs->NumConcurrentJobs++;
-    Dmsg2(50, "Inc Job=%s rncj=%d\n", jcr->dir_impl->res.job->resource_name_,
+    Dmsg2(50, "Inc Job={} rncj={}\n", jcr->dir_impl->res.job->resource_name_,
           jcr->dir_impl->res.rjs->NumConcurrentJobs);
     unlock_mutex(mutex);
 
@@ -814,7 +814,7 @@ static void DecJobConcurrency(JobControlRecord* jcr)
 {
   lock_mutex(mutex);
   jcr->dir_impl->res.rjs->NumConcurrentJobs--;
-  Dmsg2(50, "Dec Job=%s rncj=%d\n", jcr->dir_impl->res.job->resource_name_,
+  Dmsg2(50, "Dec Job={} rncj={}\n", jcr->dir_impl->res.job->resource_name_,
         jcr->dir_impl->res.rjs->NumConcurrentJobs);
   unlock_mutex(mutex);
 }
@@ -834,7 +834,7 @@ bool IncReadStore(JobControlRecord* jcr)
         ->NumConcurrentReadJobs++;
     jcr->dir_impl->res.read_storage->runtime_storage_status
         ->NumConcurrentJobs++;
-    Dmsg2(50, "Inc Rstore=%s rncj=%d\n",
+    Dmsg2(50, "Inc Rstore={} rncj={}\n",
           jcr->dir_impl->res.read_storage->resource_name_,
           jcr->dir_impl->res.read_storage->runtime_storage_status
               ->NumConcurrentJobs);
@@ -844,7 +844,7 @@ bool IncReadStore(JobControlRecord* jcr)
   }
   unlock_mutex(mutex);
 
-  Dmsg2(50, "Fail to acquire Rstore=%s rncj=%d\n",
+  Dmsg2(50, "Fail to acquire Rstore={} rncj={}\n",
         jcr->dir_impl->res.read_storage->resource_name_,
         jcr->dir_impl->res.read_storage->runtime_storage_status
             ->NumConcurrentJobs);
@@ -861,7 +861,7 @@ void DecReadStore(JobControlRecord* jcr)
         ->NumConcurrentReadJobs--;
     jcr->dir_impl->res.read_storage->runtime_storage_status
         ->NumConcurrentJobs--;
-    Dmsg2(50, "Dec Rstore=%s rncj=%d\n",
+    Dmsg2(50, "Dec Rstore={} rncj={}\n",
           jcr->dir_impl->res.read_storage->resource_name_,
           jcr->dir_impl->res.read_storage->runtime_storage_status
               ->NumConcurrentJobs);
@@ -897,7 +897,7 @@ static bool IncWriteStore(JobControlRecord* jcr)
       < jcr->dir_impl->res.write_storage->MaxConcurrentJobs) {
     jcr->dir_impl->res.write_storage->runtime_storage_status
         ->NumConcurrentJobs++;
-    Dmsg2(50, "Inc Wstore=%s wncj=%d\n",
+    Dmsg2(50, "Inc Wstore={} wncj={}\n",
           jcr->dir_impl->res.write_storage->resource_name_,
           jcr->dir_impl->res.write_storage->runtime_storage_status
               ->NumConcurrentJobs);
@@ -907,7 +907,7 @@ static bool IncWriteStore(JobControlRecord* jcr)
   }
   unlock_mutex(mutex);
 
-  Dmsg2(50, "Fail to acquire Wstore=%s wncj=%d\n",
+  Dmsg2(50, "Fail to acquire Wstore={} wncj={}\n",
         jcr->dir_impl->res.write_storage->resource_name_,
         jcr->dir_impl->res.write_storage->runtime_storage_status
             ->NumConcurrentJobs);
@@ -922,7 +922,7 @@ static void DecWriteStore(JobControlRecord* jcr)
     lock_mutex(mutex);
     jcr->dir_impl->res.write_storage->runtime_storage_status
         ->NumConcurrentJobs--;
-    Dmsg2(50, "Dec Wstore=%s wncj=%d\n",
+    Dmsg2(50, "Dec Wstore={} wncj={}\n",
           jcr->dir_impl->res.write_storage->resource_name_,
           jcr->dir_impl->res.write_storage->runtime_storage_status
               ->NumConcurrentJobs);

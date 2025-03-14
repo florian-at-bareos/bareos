@@ -253,7 +253,7 @@ static bool PurgeFilesFromClient(UaContext* ua, ClientResource* client)
         "ORDER BY JobId";
 
   Mmsg(query, select_jobIds_from_client.c_str(), edit_int64(cr.ClientId, ed1));
-  Dmsg1(050, "select sql=%s\n", query.c_str());
+  Dmsg1(050, "select sql={}\n", query.c_str());
   ua->db->SqlQuery(query.c_str(), FileDeleteHandler, static_cast<void*>(&del));
 
   if (del.empty()) {
@@ -367,7 +367,7 @@ static bool PurgeJobsFromClient(UaContext* ua, ClientResource* client)
 
   PoolMem query(PM_MESSAGE);
   Mmsg(query, select_jobs_from_client.c_str(), cr.ClientId);
-  Dmsg1(150, "select sql=%s\n", query.c_str());
+  Dmsg1(150, "select sql={}\n", query.c_str());
 
   std::vector<JobId_t> delete_list;
   ua->db->SqlQuery(query.c_str(), JobDeleteHandler,
@@ -422,7 +422,7 @@ std::string PrepareJobidsTobedeleted(UaContext* ua,
 // Delete given jobids (all records) from the catalog.
 void PurgeJobListFromCatalog(UaContext* ua, std::vector<JobId_t>& deletion_list)
 {
-  Dmsg1(150, "num_ids=%d\n", deletion_list.size());
+  Dmsg1(150, "num_ids={}\n", deletion_list.size());
 
   std::string jobids_to_delete_string
       = PrepareJobidsTobedeleted(ua, deletion_list);
@@ -775,7 +775,7 @@ static bool ActionOnPurgeCmd(UaContext* ua, const char*)
                              sd);
       }
     } else {
-      Dmsg1(0, "Can't find MediaId=%lld\n", (uint64_t)mr_temp.MediaId);
+      Dmsg1(0, "Can't find MediaId={}\n", (uint64_t)mr_temp.MediaId);
     }
   }
 

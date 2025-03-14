@@ -439,7 +439,7 @@ void StoreRun(LEX* lc, ResourceItem* item, int index, int pass)
           return;
         }
         if (!have_hour) { ClearBitRange(0, 23, res_run.date_time_mask.hour); }
-        //       Dmsg1(000, "s_time=%s\n", lc->str);
+        //       Dmsg1(000, "s_time={}\n", lc->str);
         p = strchr(lc->str, ':');
         if (!p) {
           scan_err0(lc, T_("Time logic error.\n"));

@@ -459,7 +459,7 @@ static void CleanUpOldFiles()
     /* Exclude any name with ., .., not my_name or containing a space */
     if (strcmp(result->d_name, ".") == 0 || strcmp(result->d_name, "..") == 0
         || strncmp(result->d_name, my_name, my_name_len) != 0) {
-      Dmsg1(500, "Skipped: %s\n", result->d_name);
+      Dmsg1(500, "Skipped: {}\n", result->d_name);
       continue;
     }
 
@@ -467,7 +467,7 @@ static void CleanUpOldFiles()
     if (regexec(&preg1, result->d_name, 0, nullptr, 0) == 0) {
       PmStrcpy(cleanup, basename);
       PmStrcat(cleanup, result->d_name);
-      Dmsg1(500, "Unlink: %s\n", cleanup);
+      Dmsg1(500, "Unlink: {}\n", cleanup);
       SecureErase(nullptr, cleanup);
     }
   }
@@ -513,10 +513,10 @@ extern "C" void* device_initialization(void*)
   }
 
   foreach_res (device_resource, R_DEVICE) {
-    Dmsg1(90, "calling FactoryCreateDevice %s\n",
+    Dmsg1(90, "calling FactoryCreateDevice {}\n",
           device_resource->archive_device_string);
     dev = FactoryCreateDevice(nullptr, device_resource);
-    Dmsg1(10, "SD init done %s\n", device_resource->archive_device_string);
+    Dmsg1(10, "SD init done {}\n", device_resource->archive_device_string);
     if (!dev) {
       Jmsg1(nullptr, M_ERROR, 0, T_("Could not initialize %s\n"),
             device_resource->archive_device_string);
@@ -534,11 +534,11 @@ extern "C" void* device_initialization(void*)
     }
 
     if (BitIsSet(CAP_ALWAYSOPEN, device_resource->cap_bits)) {
-      Dmsg1(20, "calling FirstOpenDevice %s\n", dev->print_name());
+      Dmsg1(20, "calling FirstOpenDevice {}\n", dev->print_name());
       if (!FirstOpenDevice(dcr)) {
         Jmsg1(nullptr, M_ERROR, 0, T_("Could not open device %s\n"),
               dev->print_name());
-        Dmsg1(20, "Could not open device %s\n", dev->print_name());
+        Dmsg1(20, "Could not open device {}\n", dev->print_name());
         FreeDeviceControlRecord(dcr);
         jcr->sd_impl->dcr = nullptr;
         continue;
@@ -605,19 +605,19 @@ static
       if (fd) {
         fd->SetTimedOut();
         jcr->MyThreadSendSignal(kTimeoutSignal);
-        Dmsg1(100, "term_stored killing JobId=%d\n", jcr->JobId);
+        Dmsg1(100, "term_stored killing JobId={}\n", jcr->JobId);
         /* ***FIXME*** wiffle through all dcrs */
         if (jcr->sd_impl->dcr && jcr->sd_impl->dcr->dev
             && jcr->sd_impl->dcr->dev->blocked()) {
           pthread_cond_broadcast(&jcr->sd_impl->dcr->dev->wait_next_vol);
-          Dmsg1(100, "JobId=%u broadcast wait_device_release\n",
+          Dmsg1(100, "JobId={} broadcast wait_device_release\n",
                 (uint32_t)jcr->JobId);
           ReleaseDeviceCond();
         }
         if (jcr->sd_impl->read_dcr && jcr->sd_impl->read_dcr->dev
             && jcr->sd_impl->read_dcr->dev->blocked()) {
           pthread_cond_broadcast(&jcr->sd_impl->read_dcr->dev->wait_next_vol);
-          Dmsg1(100, "JobId=%u broadcast wait_device_release\n",
+          Dmsg1(100, "JobId={} broadcast wait_device_release\n",
                 (uint32_t)jcr->JobId);
           ReleaseDeviceCond();
         }
@@ -633,20 +633,20 @@ static
                  GetFirstPortHostOrder(me->SDaddrs));
   DeletePidFile(pidfile_path);
 
-  Dmsg1(200, "In TerminateStored() sig=%d\n", sig);
+  Dmsg1(200, "In TerminateStored() sig={}\n", sig);
 
   UnloadSdPlugins();
   FlushCryptoCache();
   FreeVolumeLists();
 
   foreach_res (device_resource, R_DEVICE) {
-    Dmsg1(10, "Term device %s\n", device_resource->archive_device_string);
+    Dmsg1(10, "Term device {}\n", device_resource->archive_device_string);
     if (device_resource->dev) {
       device_resource->dev->ClearVolhdr();
       delete device_resource->dev;
       device_resource->dev = nullptr;
     } else {
-      Dmsg1(10, "No dev structure %s\n",
+      Dmsg1(10, "No dev structure {}\n",
             device_resource->archive_device_string);
     }
   }

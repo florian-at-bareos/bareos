@@ -97,7 +97,7 @@ static Plugin* new_plugin()
 static void ClosePlugin(Plugin* plugin)
 {
   if (plugin->file) {
-    Dmsg1(50, "Got plugin=%s but not accepted.\n", plugin->file);
+    Dmsg1(50, "Got plugin={} but not accepted.\n", plugin->file);
   }
   if (plugin->unloadPlugin) { plugin->unloadPlugin(); }
   if (plugin->plugin_handle) { dlclose(plugin->plugin_handle); }
@@ -131,7 +131,7 @@ static bool load_a_plugin(void* bareos_plugin_interface_version,
 
     Jmsg(NULL, M_ERROR, 0, T_("dlopen plugin %s failed: ERR=%s\n"),
          plugin_pathname, NPRT(error));
-    Dmsg2(debuglevel, "dlopen plugin %s failed: ERR=%s\n", plugin_pathname,
+    Dmsg2(debuglevel, "dlopen plugin {} failed: ERR={}\n", plugin_pathname,
           NPRT(error));
 
     ClosePlugin(plugin);
@@ -145,7 +145,7 @@ static bool load_a_plugin(void* bareos_plugin_interface_version,
     Jmsg(NULL, M_ERROR, 0,
          T_("Lookup of loadPlugin in plugin %s failed: ERR=%s\n"),
          plugin_pathname, NPRT(dlerror()));
-    Dmsg2(debuglevel, "Lookup of loadPlugin in plugin %s failed: ERR=%s\n",
+    Dmsg2(debuglevel, "Lookup of loadPlugin in plugin {} failed: ERR={}\n",
           plugin_pathname, NPRT(dlerror()));
 
     ClosePlugin(plugin);
@@ -159,7 +159,7 @@ static bool load_a_plugin(void* bareos_plugin_interface_version,
     Jmsg(NULL, M_ERROR, 0,
          T_("Lookup of unloadPlugin in plugin %s failed: ERR=%s\n"),
          plugin_pathname, NPRT(dlerror()));
-    Dmsg2(debuglevel, "Lookup of unloadPlugin in plugin %s failed: ERR=%s\n",
+    Dmsg2(debuglevel, "Lookup of unloadPlugin in plugin {} failed: ERR={}\n",
           plugin_pathname, NPRT(dlerror()));
 
     ClosePlugin(plugin);
@@ -253,7 +253,7 @@ bool LoadPlugins(void* bareos_plugin_interface_version,
       Jmsg(NULL, M_ERROR_TERM, 0,
            T_("Failed to open Plugin directory %s: ERR=%s\n"), plugin_dir,
            be.bstrerror());
-      Dmsg2(debuglevel, "Failed to open Plugin directory %s: ERR=%s\n",
+      Dmsg2(debuglevel, "Failed to open Plugin directory {}: ERR={}\n",
             plugin_dir, be.bstrerror());
       goto bail_out;
     }
@@ -270,7 +270,7 @@ bool LoadPlugins(void* bareos_plugin_interface_version,
         if (!found) {
           Jmsg(NULL, M_WARNING, 0, T_("Failed to find any plugins in %s\n"),
                plugin_dir);
-          Dmsg1(debuglevel, "Failed to find any plugins in %s\n", plugin_dir);
+          Dmsg1(debuglevel, "Failed to find any plugins in {}\n", plugin_dir);
         }
         break;
       }
@@ -283,11 +283,11 @@ bool LoadPlugins(void* bareos_plugin_interface_version,
       type_len = strlen(type);
       if (len < type_len + 1
           || !bstrcmp(&result->d_name[len - type_len], type)) {
-        Dmsg3(debuglevel, "Rejected plugin: want=%s name=%s len=%d\n", type,
+        Dmsg3(debuglevel, "Rejected plugin: want={} name={} len={}\n", type,
               result->d_name, len);
         continue;
       }
-      Dmsg2(debuglevel, "Found plugin: name=%s len=%d\n", result->d_name, len);
+      Dmsg2(debuglevel, "Found plugin: name={} len={}\n", result->d_name, len);
 
       PmStrcpy(fname, plugin_dir);
       if (need_slash) { PmStrcat(fname, "/"); }

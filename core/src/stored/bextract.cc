@@ -163,7 +163,7 @@ int main(int argc, char* argv[])
             }
             while (fgets(line, sizeof(line), fd) != nullptr) {
               StripTrailingJunk(line);
-              Dmsg1(900, "add_exclude %s\n", line);
+              Dmsg1(900, "add_exclude {}\n", line);
               AddFnameToExcludeList(ff, line);
             }
             fclose(fd);
@@ -186,7 +186,7 @@ int main(int argc, char* argv[])
             }
             while (fgets(line, sizeof(line), fd) != nullptr) {
               StripTrailingJunk(line);
-              Dmsg1(900, "add_include %s\n", line);
+              Dmsg1(900, "add_include {}\n", line);
               AddFnameToIncludeList(ff, 0, line);
             }
             fclose(fd);
@@ -609,7 +609,7 @@ static bool RecordCb(DeviceControlRecord* dcr, DeviceRecord* rec)
           wsize = rec->data_len;
         }
         total += wsize;
-        Dmsg2(8, "Write %u bytes, total=%u\n", wsize, total);
+        Dmsg2(8, "Write {} bytes, total={}\n", wsize, total);
         StoreData(&g_bfd, wbuf, wsize);
         fileAddr += wsize;
       }
@@ -653,12 +653,12 @@ static bool RecordCb(DeviceControlRecord* dcr, DeviceRecord* rec)
 
         if (DecompressData(jcr, attr->ofname, rec->maskedStream, &wbuf, &wsize,
                            false)) {
-          Dmsg2(100, "Write uncompressed %d bytes, total before write=%d\n",
+          Dmsg2(100, "Write uncompressed {} bytes, total before write={}\n",
                 wsize, total);
           StoreData(&g_bfd, wbuf, wsize);
           total += wsize;
           fileAddr += wsize;
-          Dmsg2(100, "Compress len=%d uncompressed=%d\n", rec->data_len, wsize);
+          Dmsg2(100, "Compress len={} uncompressed={}\n", rec->data_len, wsize);
         } else {
           extract = false;
           return false;

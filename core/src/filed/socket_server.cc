@@ -79,19 +79,19 @@ static void* HandleConnectionRequest(ConfigurationParser* config, void* arg)
     return nullptr;
   }
 
-  Dmsg1(110, "Conn: %s\n", bs->msg);
+  Dmsg1(110, "Conn: {}\n", bs->msg);
 
   // See if its a director making a connection.
   char tbuf[100];
   if (bstrncmp(bs->msg, "Hello Director", 14)) {
-    Dmsg1(110, "Got a DIR connection at %s\n",
+    Dmsg1(110, "Got a DIR connection at {}\n",
           bstrftimes(tbuf, sizeof(tbuf), (utime_t)time(NULL)));
     return handle_director_connection(bs);
   }
 
   // See if its a storage daemon making a connection.
   if (bstrncmp(bs->msg, "Hello Storage", 13)) {
-    Dmsg1(110, "Got a SD connection at %s\n",
+    Dmsg1(110, "Got a SD connection at {}\n",
           bstrftimes(tbuf, sizeof(tbuf), (utime_t)time(NULL)));
     return handle_stored_connection(bs);
   }
@@ -119,7 +119,7 @@ void StartSocketServer(dlist<IPADDR>* addrs)
 
   // Become server, and handle requests
   foreach_dlist (p, addrs) {
-    Dmsg1(10, "filed: listening on port %d\n", p->GetPortHostOrder());
+    Dmsg1(10, "filed: listening on port {}\n", p->GetPortHostOrder());
   }
 
   auto bound_sockets = OpenAndBindSockets(addrs);

@@ -188,7 +188,7 @@ bool RegisterWatchdog(watchdog_t* wd)
   wd_lock();
   wd->next_fire = watchdog_time + wd->interval;
   wd_queue->append(wd);
-  Dmsg3(800, "Registered watchdog %p, interval %d%s\n", wd, wd->interval,
+  Dmsg3(800, "Registered watchdog {:p}, interval {}{}\n", wd, wd->interval,
         wd->one_shot ? " one shot" : "");
   wd_unlock();
   ping_watchdog();
@@ -211,7 +211,7 @@ bool UnregisterWatchdog(watchdog_t* wd)
   foreach_dlist (p, wd_queue) {
     if (wd == p) {
       wd_queue->remove(wd);
-      Dmsg1(800, "Unregistered watchdog %p\n", wd);
+      Dmsg1(800, "Unregistered watchdog {:p}\n", wd);
       ok = true;
       goto get_out;
     }
@@ -220,13 +220,13 @@ bool UnregisterWatchdog(watchdog_t* wd)
   foreach_dlist (p, wd_inactive) {
     if (wd == p) {
       wd_inactive->remove(wd);
-      Dmsg1(800, "Unregistered inactive watchdog %p\n", wd);
+      Dmsg1(800, "Unregistered inactive watchdog {:p}\n", wd);
       ok = true;
       goto get_out;
     }
   }
 
-  Dmsg1(800, "Failed to unregister watchdog %p\n", wd);
+  Dmsg1(800, "Failed to unregister watchdog {:p}\n", wd);
 
 get_out:
   wd_unlock();
@@ -270,7 +270,7 @@ extern "C" void* watchdog_thread(void*)
     foreach_dlist (p, wd_queue) {
       if (p->next_fire <= watchdog_time) {
         /* Run the callback */
-        Dmsg2(3400, "Watchdog callback p=0x%p fire=%d\n", p, p->next_fire);
+        Dmsg2(3400, "Watchdog callback p=0x{:p} fire={}\n", p, p->next_fire);
         p->callback(p);
 
         /* Reschedule (or move to inactive list if it's a one-shot timer) */
@@ -295,7 +295,7 @@ extern "C" void* watchdog_thread(void*)
       timeout.tv_sec++;
     }
 
-    Dmsg1(1900, "pthread_cond_timedwait %d\n", timeout.tv_sec - tv.tv_sec);
+    Dmsg1(1900, "pthread_cond_timedwait {}\n", timeout.tv_sec - tv.tv_sec);
     /* Note, this unlocks mutex during the sleep */
     lock_mutex(timer_mutex);
     pthread_cond_timedwait(&timer, &timer_mutex, &timeout);

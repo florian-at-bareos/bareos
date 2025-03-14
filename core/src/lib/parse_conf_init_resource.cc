@@ -52,7 +52,7 @@ static void CheckIfItemDefaultBitIsSet(ResourceItem* item)
 
 void ConfigurationParser::SetResourceDefaultsParserPass1(ResourceItem* item)
 {
-  Dmsg3(900, "Item=%s def=%s defval=%s\n", item->name,
+  Dmsg3(900, "Item={} def={} defval={}\n", item->name,
         (item->flags & CFG_ITEM_DEFAULT) ? "yes" : "no",
         (item->default_value) ? item->default_value : "None");
 
@@ -131,7 +131,7 @@ void ConfigurationParser::SetResourceDefaultsParserPass1(ResourceItem* item)
 
 void ConfigurationParser::SetResourceDefaultsParserPass2(ResourceItem* item)
 {
-  Dmsg3(900, "Item=%s def=%s defval=%s\n", item->name,
+  Dmsg3(900, "Item={} def={} defval={}\n", item->name,
         (item->flags & CFG_ITEM_DEFAULT) ? "yes" : "no",
         (item->default_value) ? item->default_value : "None");
 

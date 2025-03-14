@@ -234,7 +234,7 @@ static var_rc_t lookup_counter_var(var_t*,
   for (counter = NULL; (counter = (CounterResource*)my_config->GetNextRes(
                             R_COUNTER, (BareosResource*)counter));) {
     if (bstrcmp(counter->resource_name_, buf.c_str())) {
-      Dmsg2(100, "Counter=%s val=%d\n", buf.c_str(), counter->CurrentValue);
+      Dmsg2(100, "Counter={} val={}\n", buf.c_str(), counter->CurrentValue);
       // -1 => return size of array
       if (var_index == -1) {
         Mmsg(buf, "%d", counter->CurrentValue);
@@ -262,7 +262,7 @@ static var_rc_t lookup_counter_var(var_t*,
           cr.MinValue = counter->MinValue;
           cr.MaxValue = counter->MaxValue;
           cr.CurrentValue = counter->CurrentValue;
-          Dmsg1(100, "New value=%d\n", cr.CurrentValue);
+          Dmsg1(100, "New value={}\n", cr.CurrentValue);
           if (counter->WrapCounter) {
             bstrncpy(cr.WrapCounter, counter->WrapCounter->resource_name_,
                      sizeof(cr.WrapCounter));
@@ -316,7 +316,7 @@ static var_rc_t lookup_var(var_t* ctx,
   buf.check_size(var_len + 1);
   PmMemcpy(buf, var_ptr, var_len);
   (buf.c_str())[var_len] = 0;
-  Dmsg1(100, "Var=%s\n", buf.c_str());
+  Dmsg1(100, "Var={}\n", buf.c_str());
 
   if ((val = getenv(buf.c_str())) == NULL) {
     return VAR_ERR_UNDEFINED_VARIABLE;
@@ -330,7 +330,7 @@ static var_rc_t lookup_var(var_t* ctx,
     if (*p == '|') { count++; }
   }
 
-  Dmsg3(100, "For %s, reqest index=%d have=%d\n", buf.c_str(), var_index,
+  Dmsg3(100, "For {}, reqest index={} have={}\n", buf.c_str(), var_index,
         count);
 
   // -1 => return size of array
@@ -368,7 +368,7 @@ static var_rc_t lookup_var(var_t* ctx,
   }
 
   buf.check_size(p - val);
-  Dmsg2(100, "val=%s len=%d\n", val, p - val);
+  Dmsg2(100, "val={} len={}\n", val, p - val);
 
   // Make a copy of item, and pass it back
   v = (char*)malloc(p - val + 1);
@@ -377,7 +377,7 @@ static var_rc_t lookup_var(var_t* ctx,
   *val_ptr = v;
   *val_len = p - val;
   *val_size = p - val + 1;
-  Dmsg1(100, "v=%s\n", v);
+  Dmsg1(100, "v={}\n", v);
 
   return VAR_OK;
 }
@@ -415,17 +415,17 @@ static var_rc_t operate_var(var_t*,
     buf.check_size(val_len + 1);
     PmMemcpy(buf, arg_ptr, val_len);
     (buf.c_str())[val_len] = 0;
-    Dmsg1(100, "Arg=%s\n", buf.c_str());
+    Dmsg1(100, "Arg={}\n", buf.c_str());
 
     PmMemcpy(buf, val_ptr, val_len);
     (buf.c_str())[val_len] = 0;
-    Dmsg1(100, "Val=%s\n", buf.c_str());
+    Dmsg1(100, "Val={}\n", buf.c_str());
 
     ResLocker _{my_config};
     for (counter = NULL; (counter = (CounterResource*)my_config->GetNextRes(
                               R_COUNTER, (BareosResource*)counter));) {
       if (bstrcmp(counter->resource_name_, buf.c_str())) {
-        Dmsg2(100, "counter=%s val=%s\n", counter->resource_name_, buf.c_str());
+        Dmsg2(100, "counter={} val={}\n", counter->resource_name_, buf.c_str());
         break;
       }
     }

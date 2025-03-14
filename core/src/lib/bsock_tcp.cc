@@ -163,7 +163,7 @@ bool BareosSocketTCP::connect(JobControlRecord* jcr,
        i -= retry_interval) {
     BErrNo be;
     if (fatal || (jcr && jcr->IsJobCanceled())) { goto bail_out; }
-    Dmsg4(100, "Unable to connect to %s on %s:%d. ERR=%s\n", name, host, port,
+    Dmsg4(100, "Unable to connect to {} on {}:{}. ERR={}\n", name, host, port,
           be.bstrerror());
     if (i < 0) {
       i = 60 * 5; /* complain again in 5 minutes */
@@ -196,7 +196,7 @@ void BareosSocketTCP::FinInit(JobControlRecord* jcr,
                               int port,
                               struct sockaddr* lclient_addr)
 {
-  Dmsg3(100, "who=%s host=%s port=%d\n", who, host, port);
+  Dmsg3(100, "who={} host={} port={}\n", who, host, port);
   SetWho(strdup(who));
   SetHost(strdup(host));
   SetPort(port);
@@ -233,7 +233,7 @@ bool BareosSocketTCP::open(JobControlRecord* jcr,
     Qmsg2(jcr, M_ERROR, 0,
           T_("BnetHost2IpAddrs() for host \"%s\" failed: ERR=%s\n"), host,
           errstr);
-    Dmsg2(100, "BnetHost2IpAddrs() for host %s failed: ERR=%s\n", host, errstr);
+    Dmsg2(100, "BnetHost2IpAddrs() for host {} failed: ERR={}\n", host, errstr);
     *fatal = 1;
     return false;
   }
@@ -264,7 +264,7 @@ bool BareosSocketTCP::open(JobControlRecord* jcr,
     ipaddr->SetPortNet(htons(port));
     char allbuf[256 * 10];
     char curbuf[256];
-    Dmsg2(100, "Current %s All %s\n",
+    Dmsg2(100, "Current {} All {}\n",
           ipaddr->build_address_str(curbuf, sizeof(curbuf)),
           BuildAddressesString(addr_list, allbuf, sizeof(allbuf)));
     /* Open a TCP socket */
@@ -346,7 +346,7 @@ bool BareosSocketTCP::open(JobControlRecord* jcr,
   if (setsockopt(sockfd, SOL_TCP, TCP_ULP, "tls", sizeof("tls")) < 0) {
     BErrNo be;
     Dmsg1(250,
-          "Cannot set TCP_ULP on socket: ERR=%s.\n"
+          "Cannot set TCP_ULP on socket: ERR={}.\n"
           "Is the tls module not loaded?  kTLS will not work without it.",
           be.bstrerror());
   }
@@ -747,7 +747,7 @@ bool BareosSocketTCP::SetBufferSize(uint32_t size, int rw)
       Qmsg1(get_jcr(), M_ERROR, 0, T_("sockopt error: %s\n"), be.bstrerror());
       dbuf_size -= TAPE_BSIZE;
     }
-    Dmsg1(200, "set network buffer size=%d\n", dbuf_size);
+    Dmsg1(200, "set network buffer size={}\n", dbuf_size);
     if (dbuf_size != start_size) {
       Qmsg1(get_jcr(), M_WARNING, 0,
             T_("Warning network buffer = %d bytes not max size.\n"), dbuf_size);
@@ -768,7 +768,7 @@ bool BareosSocketTCP::SetBufferSize(uint32_t size, int rw)
       Qmsg1(get_jcr(), M_ERROR, 0, T_("sockopt error: %s\n"), be.bstrerror());
       dbuf_size -= TAPE_BSIZE;
     }
-    Dmsg1(900, "set network buffer size=%d\n", dbuf_size);
+    Dmsg1(900, "set network buffer size={}\n", dbuf_size);
     if (dbuf_size != start_size) {
       Qmsg1(get_jcr(), M_WARNING, 0,
             T_("Warning network buffer = %d bytes not max size.\n"), dbuf_size);
@@ -1042,7 +1042,7 @@ int32_t BareosSocketTCP::write_nbytes(char* ptr, int32_t nbytes)
       b_errno = errno;
       Qmsg1(jcr(), M_FATAL, 0, T_("Attr spool write error. ERR=%s\n"),
             be.bstrerror());
-      Dmsg2(400, "nwritten=%d nbytes=%d.\n", nwritten, nbytes);
+      Dmsg2(400, "nwritten={} nbytes={}.\n", nwritten, nbytes);
       errno = b_errno;
       return -1;
     }

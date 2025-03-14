@@ -95,7 +95,7 @@ int CreateFile(JobControlRecord* jcr,
   }
 
   new_mode = attr->statp.st_mode;
-  Dmsg3(200, "type=%d newmode=%04o file=%s\n", attr->type, (new_mode & ~S_IFMT),
+  Dmsg3(200, "type={} newmode={:04o} file={}\n", attr->type, (new_mode & ~S_IFMT),
         attr->ofname);
   parent_mode = S_IWUSR | S_IXUSR | new_mode;
   gid = attr->statp.st_gid;
@@ -124,7 +124,7 @@ int CreateFile(JobControlRecord* jcr,
   }
 #endif
 
-  Dmsg2(400, "Replace=%c %d\n", (char)replace, replace);
+  Dmsg2(400, "Replace={:c} {}\n", (char)replace, replace);
   if (lstat(attr->ofname, &mstatp) == 0) {
     exists = true;
     switch (replace) {
@@ -170,7 +170,7 @@ int CreateFile(JobControlRecord* jcr,
        * restore data, or we may blow away a partition definition. */
       if (exists && attr->type != FT_RAW && attr->type != FT_FIFO) {
         /* Get rid of old copy */
-        Dmsg1(400, "unlink %s\n", attr->ofname);
+        Dmsg1(400, "unlink {}\n", attr->ofname);
         if (SecureErase(jcr, attr->ofname) == -1) {
           BErrNo be;
 
@@ -197,13 +197,13 @@ int CreateFile(JobControlRecord* jcr,
         attr->ofname[pnl] = 0; /* Terminate path */
 
         if (!PathAlreadySeen(jcr, attr->ofname, pnl)) {
-          Dmsg1(400, "Make path %s\n", attr->ofname);
+          Dmsg1(400, "Make path {}\n", attr->ofname);
           /* If we need to make the directory, ensure that it is with
            * execute bit set (i.e. parent_mode), and preserve what already
            * exists. Normally, this should do nothing. */
           if (!makepath(attr, attr->ofname, parent_mode, parent_mode, uid, gid,
                         1)) {
-            Dmsg1(10, "Could not make path. %s\n", attr->ofname);
+            Dmsg1(10, "Could not make path. {}\n", attr->ofname);
             attr->ofname[pnl] = savechr; /* restore full name */
             return CF_ERROR;
           }
@@ -215,7 +215,7 @@ int CreateFile(JobControlRecord* jcr,
       switch (attr->type) {
         case FT_REGE:
         case FT_REG:
-          Dmsg1(100, "Create=%s\n", attr->ofname);
+          Dmsg1(100, "Create={}\n", attr->ofname);
           flags = O_WRONLY | O_CREAT | O_TRUNC | O_BINARY; /*  O_NOFOLLOW; */
           if (IS_CTG(attr->statp.st_mode)) {
             flags |= O_CTG; /* set contiguous bit if needed */
@@ -233,7 +233,7 @@ int CreateFile(JobControlRecord* jcr,
             be.SetErrno(bfd->BErrNo);
             Qmsg2(jcr, M_ERROR, 0, T_("Could not create %s: ERR=%s\n"),
                   attr->ofname, be.bstrerror());
-            Dmsg2(100, "Could not create %s: ERR=%s\n", attr->ofname,
+            Dmsg2(100, "Could not create {}: ERR={}\n", attr->ofname,
                   be.bstrerror());
 
             return CF_ERROR;
@@ -249,7 +249,7 @@ int CreateFile(JobControlRecord* jcr,
 
           isOnRoot = bstrcmp(attr->fname, attr->ofname) ? 1 : 0;
           if (S_ISFIFO(attr->statp.st_mode)) {
-            Dmsg1(400, "Restore fifo: %s\n", attr->ofname);
+            Dmsg1(400, "Restore fifo: {}\n", attr->ofname);
             if (mkfifo(attr->ofname, attr->statp.st_mode) != 0
                 && errno != EEXIST) {
               BErrNo be;
@@ -258,14 +258,14 @@ int CreateFile(JobControlRecord* jcr,
               return CF_ERROR;
             }
           } else if (S_ISSOCK(attr->statp.st_mode)) {
-            Dmsg1(200, "Skipping restore of socket: %s\n", attr->ofname);
+            Dmsg1(200, "Skipping restore of socket: {}\n", attr->ofname);
 #  ifdef S_IFDOOR /* Solaris high speed RPC mechanism */
           } else if (S_ISDOOR(attr->statp.st_mode)) {
-            Dmsg1(200, "Skipping restore of door file: %s\n", attr->ofname);
+            Dmsg1(200, "Skipping restore of door file: {}\n", attr->ofname);
 #  endif
 #  ifdef S_IFPORT /* Solaris event port for handling AIO */
           } else if (S_ISPORT(attr->statp.st_mode)) {
-            Dmsg1(200, "Skipping restore of event port file: %s\n",
+            Dmsg1(200, "Skipping restore of event port file: {}\n",
                   attr->ofname);
 #  endif
           } else if ((S_ISBLK(attr->statp.st_mode)
@@ -279,10 +279,10 @@ int CreateFile(JobControlRecord* jcr,
             return CF_ERROR;
           } else if (S_ISBLK(attr->statp.st_mode)
                      || S_ISCHR(attr->statp.st_mode)) {
-            Dmsg1(400, "Restoring a device as a file: %s\n", attr->ofname);
+            Dmsg1(400, "Restoring a device as a file: {}\n", attr->ofname);
             flags = O_WRONLY | O_CREAT | O_TRUNC | O_BINARY;
           } else {
-            Dmsg1(400, "Restore node: %s\n", attr->ofname);
+            Dmsg1(400, "Restore node: {}\n", attr->ofname);
             if (mknod(attr->ofname, attr->statp.st_mode, attr->statp.st_rdev)
                     != 0
                 && errno != EEXIST) {
@@ -299,7 +299,7 @@ int CreateFile(JobControlRecord* jcr,
            * FIFO, so we open it write-only. */
           if (attr->type == FT_RAW || attr->type == FT_FIFO) {
             btimer_t* tid;
-            Dmsg1(400, "FT_RAW|FT_FIFO %s\n", attr->ofname);
+            Dmsg1(400, "FT_RAW|FT_FIFO {}\n", attr->ofname);
             // Timeout open() in 60 seconds
             if (attr->type == FT_FIFO) {
               Dmsg0(400, "Set FIFO timer\n");
@@ -311,13 +311,13 @@ int CreateFile(JobControlRecord* jcr,
               Qmsg1(jcr, M_ERROR, 0, T_("bpkt already open filedes=%d\n"),
                     bfd->filedes);
             }
-            Dmsg2(400, "open %s flags=%08o\n", attr->ofname, flags);
+            Dmsg2(400, "open {} flags={:08o}\n", attr->ofname, flags);
             if ((bopen(bfd, attr->ofname, flags, 0, 0)) < 0) {
               BErrNo be;
               be.SetErrno(bfd->BErrNo);
               Qmsg2(jcr, M_ERROR, 0, T_("Could not open %s: ERR=%s\n"),
                     attr->ofname, be.bstrerror());
-              Dmsg2(400, "Could not open %s: ERR=%s\n", attr->ofname,
+              Dmsg2(400, "Could not open {}: ERR={}\n", attr->ofname,
                     be.bstrerror());
               StopThreadTimer(tid);
               return CF_ERROR;
@@ -325,11 +325,11 @@ int CreateFile(JobControlRecord* jcr,
             StopThreadTimer(tid);
             return CF_EXTRACT;
           }
-          Dmsg1(400, "FT_SPEC %s\n", attr->ofname);
+          Dmsg1(400, "FT_SPEC {}\n", attr->ofname);
           return CF_CREATED;
 
         case FT_LNKSAVED: /* Hard linked, file already saved */
-          Dmsg2(130, "Hard link %s => %s\n", attr->ofname, attr->olname);
+          Dmsg2(130, "Hard link {} => {}\n", attr->ofname, attr->olname);
           if (link(attr->olname, attr->ofname) != 0) {
             BErrNo be;
 #  ifdef HAVE_CHFLAGS
@@ -352,7 +352,7 @@ int CreateFile(JobControlRecord* jcr,
                   Qmsg3(jcr, M_ERROR, 0,
                         T_("Could not hard link %s -> %s: ERR=%s\n"),
                         attr->ofname, attr->olname, be.bstrerror());
-                  Dmsg3(200, "Could not hard link %s -> %s: ERR=%s\n",
+                  Dmsg3(200, "Could not hard link {} -> {}: ERR={}\n",
                         attr->ofname, attr->olname, be.bstrerror());
                   return CF_ERROR;
 #  ifdef HAVE_CHFLAGS
@@ -380,7 +380,7 @@ int CreateFile(JobControlRecord* jcr,
           return CF_CREATED;
         case FT_LNK:
           // Unix/Linux symlink handling
-          Dmsg2(130, "FT_LNK should restore: %s -> %s\n", attr->ofname,
+          Dmsg2(130, "FT_LNK should restore: {} -> {}\n", attr->ofname,
                 attr->olname);
           if (symlink(attr->olname, attr->ofname) != 0 && errno != EEXIST) {
             BErrNo be;
@@ -396,7 +396,7 @@ int CreateFile(JobControlRecord* jcr,
            * - File Symlinks
            * - Volume Mount Points
            * - Junctions */
-          Dmsg2(130, "FT_LNK should restore: %s -> %s\n", attr->ofname,
+          Dmsg2(130, "FT_LNK should restore: {} -> {}\n", attr->ofname,
                 attr->olname);
           if (attr->statp.st_rdev & FILE_ATTRIBUTE_VOLUME_MOUNT_POINT) {
             // We do not restore volume mount points
@@ -413,12 +413,12 @@ int CreateFile(JobControlRecord* jcr,
           }
           return CF_CREATED;
         case FT_LNKSAVED: {
-          Dmsg2(130, "Hard link %s => %s\n", attr->ofname, attr->olname);
+          Dmsg2(130, "Hard link {} => {}\n", attr->ofname, attr->olname);
           if (win32_link(attr->olname, attr->ofname) != 0) {
             BErrNo be;
             Qmsg3(jcr, M_ERROR, 0, T_("Could not hard link %s -> %s: ERR=%s\n"),
                   attr->ofname, attr->olname, be.bstrerror());
-            Dmsg3(200, "Could not hard link %s -> %s: ERR=%s\n", attr->ofname,
+            Dmsg3(200, "Could not hard link {} -> {}: ERR={}\n", attr->ofname,
                   attr->olname, be.bstrerror());
             return CF_ERROR;
           }
@@ -435,7 +435,7 @@ int CreateFile(JobControlRecord* jcr,
       [[fallthrough]];
     case FT_DIRBEGIN:
     case FT_DIREND:
-      Dmsg2(200, "Make dir mode=%04o dir=%s\n", (new_mode & ~S_IFMT),
+      Dmsg2(200, "Make dir mode={:04o} dir={}\n", (new_mode & ~S_IFMT),
             attr->ofname);
       if (!makepath(attr, attr->ofname, new_mode, parent_mode, uid, gid, 0)) {
         return CF_ERROR;
