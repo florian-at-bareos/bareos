@@ -127,7 +127,7 @@ bool MessagesResource::AddToExistingChain(MessageDestinationCode dest_code,
 
   if (pos != dest_chain_.rend()) {
     MessageDestinationInfo* d = *pos;
-    Dmsg4(850, "add to existing d=%p msgtype=%d destcode=%d where=%s\n", d,
+    Dmsg4(850, "add to existing d={:p} msgtype={} destcode={} where={}\n", d,
           msg_type, dest_code, NSTDPRNT(where));
     SetBit(msg_type, d->msg_types_);
     SetBit(msg_type, send_msg_types_);
@@ -155,8 +155,8 @@ void MessagesResource::AddToNewChain(MessageDestinationCode dest_code,
   dest_chain_.push_back(d);
 
   Dmsg6(850,
-        "add new d=%p msgtype=%d destcode=%d where=%s mailcmd=%s "
-        "timestampformat=%s\n",
+        "add new d={:p} msgtype={} destcode={} where={} mailcmd={} "
+        "timestampformat={}\n",
         d, msg_type, dest_code, NSTDPRNT(where), NSTDPRNT(d->mail_cmd_),
         NSTDPRNT(d->timestamp_format_));
 }
@@ -180,10 +180,10 @@ void MessagesResource::RemoveMessageDestination(
     const std::string& where)
 {
   for (MessageDestinationInfo* d : dest_chain_) {
-    Dmsg2(850, "Remove_msg_dest d=%p where=%s\n", d, NSTDPRNT(d->where_));
+    Dmsg2(850, "Remove_msg_dest d={:p} where={}\n", d, NSTDPRNT(d->where_));
     if (BitIsSet(msg_type, d->msg_types_) && (dest_code == d->dest_code_)
         && ((where.empty() && d->where_.empty()) || (where == d->where_))) {
-      Dmsg3(850, "Found for remove d=%p msgtype=%d destcode=%d\n", d, msg_type,
+      Dmsg3(850, "Found for remove d={:p} msgtype={} destcode={}\n", d, msg_type,
             dest_code);
       ClearBit(msg_type, d->msg_types_);
       Dmsg0(850, "Return RemoveMessageDestination\n");

@@ -269,7 +269,7 @@ static bool SetupDCR(JobControlRecord* jcr,
     return false;
   }
 
-  Dmsg1(100, "Start append data. res=%d\n", dev->NumReserved());
+  Dmsg1(100, "Start append data. res={}\n", dev->NumReserved());
 
   if (!AcquireDeviceForAppend(jcr->sd_impl->dcr)) {
     jcr->setJobStatusWithPriorityCheck(JS_ErrorTerminated);
@@ -289,7 +289,7 @@ static bool SetupDCR(JobControlRecord* jcr,
     Pmsg0(000, T_("NULL Volume name. This shouldn't happen!!!\n"));
     return false;
   }
-  Dmsg1(50, "Begin append device=%s\n", dev->print_name());
+  Dmsg1(50, "Begin append device={}\n", dev->print_name());
 
   if (!BeginDataSpool(jcr->sd_impl->dcr)) {
     jcr->setJobStatusWithPriorityCheck(JS_ErrorTerminated);
@@ -451,7 +451,7 @@ bool DoAppendData(JobControlRecord* jcr, BareosSocket* bs, const char* what)
       break;
     }
 
-    Dmsg2(890, "<filed: Header FilInx=%d stream=%d\n", file_index, stream);
+    Dmsg2(890, "<filed: Header FilInx={} stream={}\n", file_index, stream);
 
     /* We make sure the file_index is advancing sequentially.
      * An incomplete job can start the file_index at any number.
@@ -534,7 +534,7 @@ bool DoAppendData(JobControlRecord* jcr, BareosSocket* bs, const char* what)
       jcr->sd_impl->dcr->rec->data
           = content2.data.addr(); /* use message buffer */
 
-      Dmsg4(850, "before writ_rec FI=%d SessId=%d Strm=%s len=%d\n",
+      Dmsg4(850, "before writ_rec FI={} SessId={} Strm={} len={}\n",
             jcr->sd_impl->dcr->rec->FileIndex,
             jcr->sd_impl->dcr->rec->VolSessionId,
             stream_to_ascii(buf1, jcr->sd_impl->dcr->rec->Stream,
@@ -543,7 +543,7 @@ bool DoAppendData(JobControlRecord* jcr, BareosSocket* bs, const char* what)
 
       ok = jcr->sd_impl->dcr->WriteRecord();
       if (!ok) {
-        Dmsg2(90, "Got WriteBlockToDev error on device %s. %s\n",
+        Dmsg2(90, "Got WriteBlockToDev error on device {}. {}\n",
               jcr->sd_impl->dcr->dev->print_name(),
               jcr->sd_impl->dcr->dev->bstrerror());
         break;
@@ -582,14 +582,14 @@ bool DoAppendData(JobControlRecord* jcr, BareosSocket* bs, const char* what)
 
       Dmsg0(650, "Enter bnet_get\n");
     }
-    Dmsg2(650, "End read loop with %s. Stat=%d\n", what, n);
+    Dmsg2(650, "End read loop with {}. Stat={}\n", what, n);
 
     // Restore the original data pointer.
     if (rec_data) { jcr->sd_impl->dcr->rec->data = rec_data; }
 
     if (auto* error = handler.error()) {
       if (!jcr->IsJobCanceled()) {
-        Dmsg2(350, "Network read error from %s. ERR=%s\n", what, error);
+        Dmsg2(350, "Network read error from {}. ERR={}\n", what, error);
         Jmsg2(jcr, M_FATAL, 0, T_("Network error reading from %s. ERR=%s\n"),
               what, error);
       }
@@ -620,7 +620,7 @@ bool DoAppendData(JobControlRecord* jcr, BareosSocket* bs, const char* what)
   }
 
   if (jcr->sd_impl->dcr) {
-    Dmsg1(200, "Write EOS label JobStatus=%c\n", jcr->getJobStatus());
+    Dmsg1(200, "Write EOS label JobStatus={:c}\n", jcr->getJobStatus());
 
     /* Check if we can still write. This may not be the case
      * if we are at the end of the tape or we got a fatal I/O error. */
@@ -675,7 +675,7 @@ bool DoAppendData(JobControlRecord* jcr, BareosSocket* bs, const char* what)
     Jmsg(jcr, M_INFO, 0,
          "Because no backup data was received, no device was reserved. As such "
          "no Session Labels were written for this job.\n");
-    Dmsg0(50, "No data for job %d => no data written.\n", jcr->JobId);
+    Dmsg0(50, "No data for job {} => no data written.\n", jcr->JobId);
   }
 
   if (!DeleteNullJobmediaRecords(jcr)) {
@@ -701,7 +701,7 @@ bool DoAppendData(JobControlRecord* jcr, BareosSocket* bs, const char* what)
 
   jcr->sendJobStatus(); /* update director */
 
-  Dmsg1(100, "return from DoAppendData() ok=%d\n", ok);
+  Dmsg1(100, "return from DoAppendData() ok={}\n", ok);
   return ok;
 }
 

@@ -209,19 +209,19 @@ static std::string_view TrimLeft(std::string_view input)
 
 static std::optional<modifier_parse_result> GetModifier(const char* input)
 {
-  Dmsg2(900, "parsing \"%s\"\n", input);
+  Dmsg2(900, "parsing \"{}\"\n", input);
   char* num_end;
   errno = 0;
   // strtod takes care of leading space
   auto number = strtod(input, &num_end);
   if (number == 0 && errno != 0) {
-    Dmsg0(900, "parse error: \"%s\" ERR=%s\n", input, strerror(errno));
+    Dmsg0(900, "parse error: \"{}\" ERR={}\n", input, strerror(errno));
     return std::nullopt;
   }
 
   if (num_end == input) {
     // we do not accept empty inputs (but strtod does!)
-    Dmsg0(900, "parse error: \"%s\" ERR=no number\n", input);
+    Dmsg0(900, "parse error: \"{}\" ERR=no number\n", input);
     return std::nullopt;
   }
 
@@ -236,7 +236,7 @@ static std::optional<modifier_parse_result> GetModifier(const char* input)
 
   const char* rest_input = mod.data() + (mod.end() - mod.begin());
 
-  Dmsg2(900, "num=%lf mod=\"%.*s\" rest=\"%s\"\n", number, (int)mod.size(),
+  Dmsg2(900, "num={} mod=\"{:.{}}\" rest=\"{}\"\n", number, (int)mod.size(),
         mod.data(), rest_input);
   // empty mod is ok, so no need to check!
   return modifier_parse_result{number, mod, rest_input};
@@ -279,7 +279,7 @@ static std::pair<std::uint64_t, const char*> parse_number_with_mod(
         }
       }
       if (!found) {
-        Dmsg1(900, "Unknown modifier: \"%.*s\"\n", modifier.size(),
+        Dmsg1(900, "Unknown modifier: \"{:.{}}\"\n", modifier.size(),
               modifier.data());
         return {total, str};
       }

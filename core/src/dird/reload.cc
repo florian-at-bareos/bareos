@@ -151,7 +151,7 @@ bool CheckResources()
         if (IsSameStorageDaemon(store, nstore) && nstore->collectstats) {
           nstore->collectstats = false;
           Dmsg1(200,
-                T_("Disabling collectstats for storage \"%s\""
+                T_("Disabling collectstats for storage \"{}\""
                    " as other storage already collects from this SD.\n"),
                 nstore->resource_name_);
         }

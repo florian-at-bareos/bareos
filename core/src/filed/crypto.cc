@@ -127,7 +127,7 @@ bool CryptoSessionSend(JobControlRecord* jcr, BareosSocket* sd)
   POOLMEM* msgsave;
 
   /** Send our header */
-  Dmsg2(100, "Send hdr fi=%ld stream=%d\n", jcr->JobFiles,
+  Dmsg2(100, "Send hdr fi={} stream={}\n", jcr->JobFiles,
         STREAM_ENCRYPTED_SESSION_DATA);
   sd->fsend("%ld %d 0", jcr->JobFiles, STREAM_ENCRYPTED_SESSION_DATA);
 
@@ -136,7 +136,7 @@ bool CryptoSessionSend(JobControlRecord* jcr, BareosSocket* sd)
   sd->message_length = jcr->fd_impl->crypto.pki_session_encoded_size;
   jcr->JobBytes += sd->message_length;
 
-  Dmsg1(100, "Send data len=%d\n", sd->message_length);
+  Dmsg1(100, "Send data len={}\n", sd->message_length);
   sd->send();
   sd->msg = msgsave;
   sd->signal(BNET_EOD);
@@ -196,7 +196,7 @@ bool VerifySignature(JobControlRecord* jcr, r_ctx& rctx)
           if ((err
                = CryptoSignVerify(sig, keypair, jcr->fd_impl->crypto.digest))
               != CRYPTO_ERROR_NONE) {
-            Dmsg1(50, "Bad signature on %s\n", jcr->fd_impl->last_fname);
+            Dmsg1(50, "Bad signature on {}\n", jcr->fd_impl->last_fname);
             Jmsg2(jcr, M_ERROR, 0,
                   T_("Signature validation failed for file %s: ERR=%s\n"),
                   jcr->fd_impl->last_fname, crypto_strerror(err));
@@ -223,7 +223,7 @@ bool VerifySignature(JobControlRecord* jcr, r_ctx& rctx)
           // Verify the signature
           if ((err = CryptoSignVerify(sig, keypair, digest))
               != CRYPTO_ERROR_NONE) {
-            Dmsg1(50, "Bad signature on %s\n", jcr->fd_impl->last_fname);
+            Dmsg1(50, "Bad signature on {}\n", jcr->fd_impl->last_fname);
             Jmsg2(jcr, M_ERROR, 0,
                   T_("Signature validation failed for file %s: ERR=%s\n"),
                   jcr->fd_impl->last_fname, crypto_strerror(err));
@@ -233,7 +233,7 @@ bool VerifySignature(JobControlRecord* jcr, r_ctx& rctx)
         }
 
         // Valid signature
-        Dmsg1(50, "Signature good on %s\n", jcr->fd_impl->last_fname);
+        Dmsg1(50, "Signature good on {}\n", jcr->fd_impl->last_fname);
         CryptoDigestFree(digest);
         return true;
 
@@ -253,7 +253,7 @@ bool VerifySignature(JobControlRecord* jcr, r_ctx& rctx)
   }
 
   // No signer
-  Dmsg1(50, "Could not find a valid public key for signature on %s\n",
+  Dmsg1(50, "Could not find a valid public key for signature on {}\n",
         jcr->fd_impl->last_fname);
 
 bail_out:
@@ -293,7 +293,7 @@ again:
           cipher_ctx->buf_len, decrypted_len, jcr->fd_impl->last_fname);
   }
 
-  Dmsg2(130, "Flush decrypt len=%d buf_len=%d\n", decrypted_len,
+  Dmsg2(130, "Flush decrypt len={} buf_len={}\n", decrypted_len,
         cipher_ctx->buf_len);
   // If nothing new was decrypted, and our output buffer is empty, return
   if (decrypted_len == 0 && cipher_ctx->buf_len == 0) { return true; }
@@ -301,7 +301,7 @@ again:
   cipher_ctx->buf_len += decrypted_len;
 
   UnserCryptoPacketLen(cipher_ctx);
-  Dmsg1(500, "Crypto unser block size=%d\n",
+  Dmsg1(500, "Crypto unser block size={}\n",
         cipher_ctx->packet_len - CRYPTO_LEN_SIZE);
   wsize = cipher_ctx->packet_len - CRYPTO_LEN_SIZE;
   // Decrypted, possibly decompressed output here.
@@ -309,7 +309,7 @@ again:
   cipher_ctx->buf_len -= cipher_ctx->packet_len;
   Dmsg2(
       130,
-      "Encryption writing full block, %u bytes, remaining %u bytes in buffer\n",
+      "Encryption writing full block, {} bytes, remaining {} bytes in buffer\n",
       wsize, cipher_ctx->buf_len);
 
   if (BitIsSet(FO_SPARSE, flags) || BitIsSet(FO_OFFSETS, flags)) {
@@ -328,12 +328,12 @@ again:
     return false;
   }
   jcr->JobBytes += wsize;
-  Dmsg2(130, "Flush write %u bytes, JobBytes=%s\n", wsize,
+  Dmsg2(130, "Flush write {} bytes, JobBytes={}\n", wsize,
         edit_uint64(jcr->JobBytes, ec1));
 
   // Move any remaining data to start of buffer
   if (cipher_ctx->buf_len > 0) {
-    Dmsg1(130, "Moving %u buffered bytes to start of buffer\n",
+    Dmsg1(130, "Moving {} buffered bytes to start of buffer\n",
           cipher_ctx->buf_len);
     memmove(cipher_ctx->buf, &cipher_ctx->buf[cipher_ctx->packet_len],
             cipher_ctx->buf_len);
@@ -472,7 +472,7 @@ bool EncryptData(b_ctx* bctx, bool* need_more_data)
 
   SerBegin(packet_len, sizeof(uint32_t));
   ser_uint32(bctx->cipher_input_len); /* store data len in begin of buffer */
-  Dmsg1(20, "Encrypt len=%d\n", bctx->cipher_input_len);
+  Dmsg1(20, "Encrypt len={}\n", bctx->cipher_input_len);
 
   if (!CryptoCipherUpdate(bctx->cipher_ctx, packet_len, sizeof(packet_len),
                           (uint8_t*)bctx->jcr->fd_impl->crypto.crypto_buf,
@@ -493,7 +493,7 @@ bool EncryptData(b_ctx* bctx, bool* need_more_data)
       goto bail_out;
     }
 
-    Dmsg2(400, "encrypted len=%d unencrypted len=%d\n", bctx->encrypted_len,
+    Dmsg2(400, "encrypted len={} unencrypted len={}\n", bctx->encrypted_len,
           bctx->jcr->store_bsock->message_length);
 
     bctx->jcr->store_bsock->message_length
@@ -543,7 +543,7 @@ bool DecryptData(JobControlRecord* jcr,
     return true;
   }
 
-  Dmsg2(200, "decrypted len=%d encrypted len=%d\n", decrypted_len, *length);
+  Dmsg2(200, "decrypted len={} encrypted len={}\n", decrypted_len, *length);
 
   cipher_ctx->buf_len += decrypted_len;
   *data = cipher_ctx->buf;
@@ -553,7 +553,7 @@ bool DecryptData(JobControlRecord* jcr,
    * as long as Bareos's block size is not significantly smaller than the
    * encryption block size (extremely unlikely!) */
   UnserCryptoPacketLen(cipher_ctx);
-  Dmsg1(500, "Crypto unser block size=%d\n",
+  Dmsg1(500, "Crypto unser block size={}\n",
         cipher_ctx->packet_len - CRYPTO_LEN_SIZE);
 
   if (cipher_ctx->packet_len == 0
@@ -569,7 +569,7 @@ bool DecryptData(JobControlRecord* jcr,
   cipher_ctx->buf_len -= cipher_ctx->packet_len;
   Dmsg2(
       130,
-      "Encryption writing full block, %u bytes, remaining %u bytes in buffer\n",
+      "Encryption writing full block, {} bytes, remaining {} bytes in buffer\n",
       *length, cipher_ctx->buf_len);
 
   return true;

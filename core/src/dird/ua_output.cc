@@ -212,7 +212,7 @@ static void ShowAll(UaContext* ua, bool hide_sensitive_data, bool verbose)
  */
 bool show_cmd(UaContext* ua, const char*)
 {
-  Dmsg1(20, "show: %s\n", ua->UA_sock->msg);
+  Dmsg1(20, "show: {}\n", ua->UA_sock->msg);
 
   /* When the console has no access to the configure cmd then any show cmd
    * will suppress all sensitive information like for instance passwords. */
@@ -355,11 +355,11 @@ static int GetJobidFromCmdline(UaContext* ua)
 
   if (const char* jobname = GetArgValue(ua, NT_("ujobid"))) {
     bstrncpy(jr.Job, jobname, MAX_NAME_LENGTH);
-    Dmsg1(200, "GetJobidFromCmdline: Selecting ujobid %s from cmdline.\n",
+    Dmsg1(200, "GetJobidFromCmdline: Selecting ujobid {} from cmdline.\n",
           jr.Job);
   } else if (const char* jobid = GetArgValue(ua, NT_("jobid"))) {
     jr.JobId = str_to_int64(jobid);
-    Dmsg1(200, "GetJobidFromCmdline: Selecting jobid %d from cmdline.\n",
+    Dmsg1(200, "GetJobidFromCmdline: Selecting jobid {} from cmdline.\n",
           jr.JobId);
   } else {
     Dmsg0(200, "GetJobidFromCmdline: No jobid specified on cmdline.\n");
@@ -371,11 +371,11 @@ static int GetJobidFromCmdline(UaContext* ua)
     return -1;
   }
 
-  Dmsg1(200, "GetJobidFromCmdline: Found job record with jobid %d.\n",
+  Dmsg1(200, "GetJobidFromCmdline: Found job record with jobid {}.\n",
         jr.JobId);
 
   if (!ua->AclAccessOk(Job_ACL, jr.Name, true)) {
-    Dmsg1(200, "GetJobidFromCmdline: No access to Job %s\n", jr.Name);
+    Dmsg1(200, "GetJobidFromCmdline: No access to Job {}\n", jr.Name);
     return -1;
   }
 
@@ -385,13 +385,13 @@ static int GetJobidFromCmdline(UaContext* ua)
     if (!ua->db->GetClientRecord(ua->jcr, &cr)) {
       Dmsg1(
           200,
-          "GetJobidFromCmdline: Failed to get client record for ClientId %d\n",
+          "GetJobidFromCmdline: Failed to get client record for ClientId {}\n",
           jr.ClientId);
       return -1;
     }
 
     if (!ua->AclAccessOk(Client_ACL, cr.Name, true)) {
-      Dmsg1(200, "GetJobidFromCmdline: No access to Client %s\n", cr.Name);
+      Dmsg1(200, "GetJobidFromCmdline: No access to Client {}\n", cr.Name);
       return -1;
     }
   }
@@ -457,7 +457,7 @@ static void SetQueryRange(std::string& query_range,
     try {
       jr->limit = std::stoull(limit);
     } catch (...) {
-      Dmsg1(50, "Could not convert %s to limit value.\n", limit);
+      Dmsg1(50, "Could not convert {} to limit value.\n", limit);
       jr->limit = 0;
     }
     ua->send->AddLimitFilterTuple(jr->limit);
@@ -468,7 +468,7 @@ static void SetQueryRange(std::string& query_range,
       try {
         jr->offset = std::stoull(offset);
       } catch (...) {
-        Dmsg1(50, "Could not convert %s to offset value.\n", offset);
+        Dmsg1(50, "Could not convert {} to offset value.\n", offset);
         jr->offset = 0;
       }
       ua->send->AddOffsetFilterTuple(jr->offset);
@@ -732,7 +732,7 @@ static bool DoListCmd(UaContext* ua, const char* cmd, e_list_type llist)
 {
   if (!OpenClientDb(ua, true)) { return true; }
 
-  Dmsg1(20, "list: %s\n", cmd);
+  Dmsg1(20, "list: {}\n", cmd);
 
   if (ua->argc <= 1) {
     ua->ErrorMsg(T_("%s command requires a keyword\n"), NPRT(ua->argk[0]));
@@ -1403,7 +1403,7 @@ of_filter_state filterit(void* ctx, void* data, of_filter_tuple* tuple)
         if (!ua->AclAccessOk(tuple->u.acl_filter.acltype,
                              row[tuple->u.acl_filter.column], false)) {
           Dmsg2(200,
-                "filterit: Filter on acl_type %d value %s, suppress output\n",
+                "filterit: Filter on acl_type {} value {}, suppress output\n",
                 tuple->u.acl_filter.acltype, row[tuple->u.acl_filter.column]);
           retval = OF_FILTER_STATE_SUPPRESS;
         }
@@ -1418,7 +1418,7 @@ of_filter_state filterit(void* ctx, void* data, of_filter_tuple* tuple)
                                        row[tuple->u.res_filter.column],
                                        false)) {
           Dmsg2(200,
-                "filterit: Filter on resource_type %d value %s, suppress "
+                "filterit: Filter on resource_type {} value {}, suppress "
                 "output\n",
                 tuple->u.res_filter.restype, row[tuple->u.res_filter.column]);
           retval = OF_FILTER_STATE_SUPPRESS;
@@ -1444,7 +1444,7 @@ of_filter_state filterit(void* ctx, void* data, of_filter_tuple* tuple)
           client = ua->GetClientResWithName(row[tuple->u.res_filter.column],
                                             false, false);
           if (!client || client->enabled != enabled) {
-            Dmsg2(200, "filterit: Filter on Client, %s is not %sabled\n",
+            Dmsg2(200, "filterit: Filter on Client, {} is not {}abled\n",
                   row[tuple->u.res_filter.column], (enabled) ? "En" : "Dis");
             retval = OF_FILTER_STATE_SUPPRESS;
           }
@@ -1456,7 +1456,7 @@ of_filter_state filterit(void* ctx, void* data, of_filter_tuple* tuple)
           job = ua->GetJobResWithName(row[tuple->u.res_filter.column], false,
                                       false);
           if (!job || job->enabled != enabled) {
-            Dmsg2(200, "filterit: Filter on Job, %s is not %sabled\n",
+            Dmsg2(200, "filterit: Filter on Job, {} is not {}abled\n",
                   row[tuple->u.res_filter.column], (enabled) ? "En" : "Dis");
             retval = OF_FILTER_STATE_SUPPRESS;
           }
@@ -1468,7 +1468,7 @@ of_filter_state filterit(void* ctx, void* data, of_filter_tuple* tuple)
           store = ua->GetStoreResWithName(row[tuple->u.res_filter.column],
                                           false, false);
           if (!store || store->enabled != enabled) {
-            Dmsg2(200, "filterit: Filter on Storage, %s is not %sabled\n",
+            Dmsg2(200, "filterit: Filter on Storage, {} is not {}abled\n",
                   row[tuple->u.res_filter.column], (enabled) ? "En" : "Dis");
             retval = OF_FILTER_STATE_SUPPRESS;
           }
@@ -1480,7 +1480,7 @@ of_filter_state filterit(void* ctx, void* data, of_filter_tuple* tuple)
           schedule = ua->GetScheduleResWithName(row[tuple->u.res_filter.column],
                                                 false, false);
           if (!schedule || schedule->enabled != enabled) {
-            Dmsg2(200, "filterit: Filter on Schedule, %s is not %sabled\n",
+            Dmsg2(200, "filterit: Filter on Schedule, {} is not {}abled\n",
                   row[tuple->u.res_filter.column], (enabled) ? "En" : "Dis");
             retval = OF_FILTER_STATE_SUPPRESS;
           }

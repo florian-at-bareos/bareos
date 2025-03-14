@@ -64,7 +64,7 @@ static bRC PyLoadModule(PluginContext* plugin_ctx, const void* value)
   /* Try to load the Python module by name. */
   if (plugin_priv_ctx->module_name) {
     Dmsg(plugin_ctx, debuglevel,
-         LOGPREFIX "Trying to load module with name %s\n",
+         LOGPREFIX "Trying to load module with name {}\n",
          plugin_priv_ctx->module_name);
     pName = PyUnicode_FromString(plugin_priv_ctx->module_name);
     plugin_priv_ctx->pModule = PyImport_Import(pName);
@@ -72,13 +72,13 @@ static bRC PyLoadModule(PluginContext* plugin_ctx, const void* value)
 
     if (!plugin_priv_ctx->pModule) {
       Dmsg(plugin_ctx, debuglevel,
-           LOGPREFIX "Failed to load module with name %s\n",
+           LOGPREFIX "Failed to load module with name {}\n",
            plugin_priv_ctx->module_name);
       goto bail_out;
     }
 
     Dmsg(plugin_ctx, debuglevel,
-         LOGPREFIX "Successfully loaded module with name %s\n",
+         LOGPREFIX "Successfully loaded module with name {}\n",
          plugin_priv_ctx->module_name);
 
     /* Get the Python dictionary for lookups in the Python namespace.  */

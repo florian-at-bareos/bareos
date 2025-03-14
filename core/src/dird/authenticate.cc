@@ -74,7 +74,7 @@ bool AuthenticateWithStorageDaemon(BareosSocket* sd,
 
   sd->InitBnetDump(my_config->CreateOwnQualifiedNameForNetworkDump());
   if (!sd->fsend(hello, dirname)) {
-    Dmsg1(debuglevel, T_("Error sending Hello to Storage daemon. ERR=%s\n"),
+    Dmsg1(debuglevel, T_("Error sending Hello to Storage daemon. ERR={}\n"),
           BnetStrerror(sd));
     Jmsg(jcr, M_FATAL, 0, T_("Error sending Hello to Storage daemon. ERR=%s\n"),
          BnetStrerror(sd));
@@ -87,7 +87,7 @@ bool AuthenticateWithStorageDaemon(BareosSocket* sd,
       store->password_, store);
   if (!auth_success) {
     Dmsg2(debuglevel,
-          "Director unable to authenticate with Storage daemon at \"%s:%d\"\n",
+          "Director unable to authenticate with Storage daemon at \"{}:{}\"\n",
           sd->host(), sd->port());
     Jmsg(jcr, M_FATAL, 0,
          T_("Director unable to authenticate with Storage daemon at \"%s:%d\". "
@@ -100,7 +100,7 @@ bool AuthenticateWithStorageDaemon(BareosSocket* sd,
     return false;
   }
 
-  Dmsg1(116, ">stored: %s", sd->msg);
+  Dmsg1(116, ">stored: {}", sd->msg);
   if (sd->recv() <= 0) {
     Jmsg3(jcr, M_FATAL, 0,
           T_("dir<stored: \"%s:%s\" bad response to Hello command: ERR=%s\n"),
@@ -108,7 +108,7 @@ bool AuthenticateWithStorageDaemon(BareosSocket* sd,
     return false;
   }
 
-  Dmsg1(110, "<stored: %s", sd->msg);
+  Dmsg1(110, "<stored: {}", sd->msg);
   if (!bstrncmp(sd->msg, OKhello, sizeof(OKhello))) {
     Dmsg0(debuglevel, T_("Storage daemon rejected Hello command\n"));
     Jmsg2(jcr, M_FATAL, 0,
@@ -157,7 +157,7 @@ bool AuthenticateWithFileDaemon(JobControlRecord* jcr)
          fd->host(), fd->port(), fd->bstrerror());
     return false;
   }
-  Dmsg1(debuglevel, "Sent: %s", fd->msg);
+  Dmsg1(debuglevel, "Sent: {}", fd->msg);
 
   bool auth_success;
   auth_success = fd->AuthenticateOutboundConnection(
@@ -174,10 +174,10 @@ bool AuthenticateWithFileDaemon(JobControlRecord* jcr)
     return false;
   }
 
-  Dmsg1(116, ">filed: %s", fd->msg);
+  Dmsg1(116, ">filed: {}", fd->msg);
   if (fd->recv() <= 0) {
     Dmsg1(debuglevel,
-          T_("Bad response from File daemon to Hello command: ERR=%s\n"),
+          T_("Bad response from File daemon to Hello command: ERR={}\n"),
           BnetStrerror(fd));
     Jmsg(jcr, M_FATAL, 0,
          T_("Bad response from File daemon at \"%s:%d\" to Hello command: "
@@ -186,7 +186,7 @@ bool AuthenticateWithFileDaemon(JobControlRecord* jcr)
     return false;
   }
 
-  Dmsg1(110, "<filed: %s", fd->msg);
+  Dmsg1(110, "<filed: {}", fd->msg);
   jcr->dir_impl->FDVersion = 0;
   if (!bstrncmp(fd->msg, FDOKhello, sizeof(FDOKhello))
       && sscanf(fd->msg, FDOKnewHello, &jcr->dir_impl->FDVersion) != 1) {

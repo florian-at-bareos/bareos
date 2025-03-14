@@ -693,7 +693,7 @@ static inline bool CheckForNewStorage(JobControlRecord* jcr,
 
     // Note the next storage name
     bstrncpy(info.storage, ua->argv[0], MAX_NAME_LENGTH);
-    Dmsg1(5, "Change storage to %s\n", info.storage);
+    Dmsg1(5, "Change storage to {}\n", info.storage);
     return true;
   }
 
@@ -710,7 +710,7 @@ bool SendBootstrapFile(JobControlRecord* jcr,
   UaContext* ua = info.ua;
   FILE* bs = info.bs;
 
-  Dmsg1(400, "SendBootstrapFile: %s\n", jcr->RestoreBootstrap);
+  Dmsg1(400, "SendBootstrapFile: {}\n", jcr->RestoreBootstrap);
   if (!jcr->RestoreBootstrap) { return false; }
 
   sock->fsend(bootstrap);

@@ -78,13 +78,13 @@ int UnpackAttributesRecord(JobControlRecord* jcr,
    *    Data_stream
    * */
   attr->stream = stream;
-  Dmsg1(debuglevel, "Attr: %s\n", rec);
+  Dmsg1(debuglevel, "Attr: {}\n", rec);
   if (sscanf(rec, "%d %d", &attr->file_index, &attr->type) != 2) {
     Jmsg(jcr, M_FATAL, 0, T_("Error scanning attributes: %s\n"), rec);
-    Dmsg1(debuglevel, "\nError scanning attributes. %s\n", rec);
+    Dmsg1(debuglevel, "\nError scanning attributes. {}\n", rec);
     return 0;
   }
-  Dmsg2(debuglevel, "Got Attr: FilInx=%d type=%d\n", attr->file_index,
+  Dmsg2(debuglevel, "Got Attr: FilInx={} type={}\n", attr->file_index,
         attr->type);
   /* Note AR_DATA_STREAM should never be set since it is encoded
    *  at the end of the attributes. */
@@ -135,8 +135,8 @@ int UnpackAttributesRecord(JobControlRecord* jcr,
     }
   }
   Dmsg8(debuglevel,
-        "unpack_attr FI=%d Type=%d fname=%s attr=%s lname=%s attrEx=%s "
-        "datastr=%d delta_seq=%d\n",
+        "unpack_attr FI={} Type={} fname={} attr={} lname={} attrEx={} "
+        "datastr={} delta_seq={}\n",
         attr->file_index, attr->type, attr->fname, attr->attr, attr->lname,
         attr->attrEx, attr->data_stream, attr->delta_seq);
   *attr->ofname = 0;
@@ -322,6 +322,6 @@ void PrintLsOutput(JobControlRecord* jcr, Attributes* attr)
 {
   PoolMem resultbuffer(PM_MESSAGE);
   attr_to_ls_output(resultbuffer, jcr, attr);
-  Dmsg1(debuglevel, "%s", resultbuffer.c_str());
+  Dmsg1(debuglevel, "{}", resultbuffer.c_str());
   Jmsg(jcr, M_RESTORED, 1, "%s", resultbuffer.c_str());
 }

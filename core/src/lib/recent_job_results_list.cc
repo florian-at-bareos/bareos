@@ -54,7 +54,7 @@ bool RecentJobResultsList::ImportFromFile(std::ifstream& file)
   try {
     file.read(reinterpret_cast<char*>(&num), sizeof(num));
 
-    Dmsg1(100, "Read num_items=%d\n", num);
+    Dmsg1(100, "Read num_items={}\n", num);
     if (num > 4 * max_count_recent_job_results) { /* sanity check */
       return false;
     }
@@ -73,11 +73,11 @@ bool RecentJobResultsList::ImportFromFile(std::ifstream& file)
     }
   } catch (const std::system_error& e) {
     BErrNo be;
-    Dmsg3(010, "Could not open or read state file. ERR=%s - %s\n",
+    Dmsg3(010, "Could not open or read state file. ERR={} - {}\n",
           be.bstrerror(), e.code().message().c_str());
     return false;
   } catch (const std::exception& e) {
-    Dmsg0(100, "Could not open or read file. Some error occurred: %s\n",
+    Dmsg0(100, "Could not open or read file. Some error occurred: {}\n",
           e.what());
     return false;
   }
@@ -106,11 +106,11 @@ bool RecentJobResultsList::ExportToFile(std::ofstream& file)
       }
     } catch (const std::system_error& e) {
       BErrNo be;
-      Dmsg3(010, "Could not write state file. ERR=%s - %s\n", be.bstrerror(),
+      Dmsg3(010, "Could not write state file. ERR={} - {}\n", be.bstrerror(),
             e.code().message().c_str());
       return false;
     } catch (const std::exception& e) {
-      Dmsg0(100, "Could not write file. Some error occurred: %s\n", e.what());
+      Dmsg0(100, "Could not write file. Some error occurred: {}\n", e.what());
       return false;
     }
   }

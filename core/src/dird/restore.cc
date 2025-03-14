@@ -180,7 +180,7 @@ static inline bool DoNativeRestoreBootstrap(JobControlRecord* jcr)
       fd = jcr->file_bsock;
 
       if (!SendSecureEraseReqToFd(jcr)) {
-        Dmsg1(500, "Unexpected %s secure erase\n", "client");
+        Dmsg1(500, "Unexpected {} secure erase\n", "client");
       }
 
       // Check if the file daemon supports passive client mode.
@@ -230,7 +230,7 @@ static inline bool DoNativeRestoreBootstrap(JobControlRecord* jcr)
                                               : TlsPolicy::kBnetTlsNone;
       }
 
-      Dmsg1(200, "Tls Policy for active client is: %d\n", tls_policy);
+      Dmsg1(200, "Tls Policy for active client is: {}\n", tls_policy);
 
       connection_target_address = StorageAddressToContact(client, store);
 
@@ -238,7 +238,7 @@ static inline bool DoNativeRestoreBootstrap(JobControlRecord* jcr)
                 tls_policy, jcr->sd_auth_key);
       memset(jcr->sd_auth_key, 0, strlen(jcr->sd_auth_key));
 
-      Dmsg1(6, "dird>filed: %s", fd->msg);
+      Dmsg1(6, "dird>filed: {}", fd->msg);
       if (!response(jcr, fd, OKstore, "Storage", DISPLAY_ERROR)) {
         goto bail_out;
       }
@@ -248,7 +248,7 @@ static inline bool DoNativeRestoreBootstrap(JobControlRecord* jcr)
       fd->fsend(setauthorizationcmd, jcr->sd_auth_key);
       memset(jcr->sd_auth_key, 0, strlen(jcr->sd_auth_key));
 
-      Dmsg1(6, "dird>filed: %s", fd->msg);
+      Dmsg1(6, "dird>filed: {}", fd->msg);
       if (!response(jcr, fd, OKAuthorization, "Setauthorization",
                     DISPLAY_ERROR)) {
         goto bail_out;
@@ -264,7 +264,7 @@ static inline bool DoNativeRestoreBootstrap(JobControlRecord* jcr)
                                                : TlsPolicy::kBnetTlsNone;
       }
 
-      Dmsg1(200, "Tls Policy for passive client is: %d\n", tls_policy);
+      Dmsg1(200, "Tls Policy for passive client is: {}\n", tls_policy);
 
       connection_target_address = ClientAddressToContact(client, store);
       // Tell the SD to connect to the FD.
@@ -382,7 +382,7 @@ bool DoNativeRestore(JobControlRecord* jcr)
   }
   Dmsg0(20, "Updated job start record\n");
 
-  Dmsg1(20, "RestoreJobId=%d\n", jcr->dir_impl->res.job->RestoreJobId);
+  Dmsg1(20, "RestoreJobId={}\n", jcr->dir_impl->res.job->RestoreJobId);
 
   if (!jcr->RestoreBootstrap) {
     Jmsg(jcr, M_FATAL, 0,

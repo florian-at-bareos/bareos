@@ -163,7 +163,7 @@ void CopyWstorage(JobControlRecord* jcr,
     jcr->dir_impl->res.write_storage_list
         = new alist<StorageResource*>(10, not_owned_by_alist);
     for (auto* st : storage) {
-      Dmsg1(100, "write_storage_list=%s\n", st->resource_name_);
+      Dmsg1(100, "write_storage_list={}\n", st->resource_name_);
       jcr->dir_impl->res.write_storage_list->append(st);
     }
     if (!jcr->dir_impl->res.wstore_source) {
@@ -173,7 +173,7 @@ void CopyWstorage(JobControlRecord* jcr,
     if (jcr->dir_impl->res.write_storage_list) {
       jcr->dir_impl->res.write_storage
           = (StorageResource*)jcr->dir_impl->res.write_storage_list->first();
-      Dmsg2(100, "write_storage=%s where=%s\n",
+      Dmsg2(100, "write_storage={} where={}\n",
             jcr->dir_impl->res.write_storage->resource_name_,
             jcr->dir_impl->res.wstore_source);
     }
@@ -197,7 +197,7 @@ void SetWstorage(JobControlRecord* jcr, UnifiedStorageResource* store)
     jcr->dir_impl->res.wstore_source = GetPoolMemory(PM_MESSAGE);
   }
   PmStrcpy(jcr->dir_impl->res.wstore_source, store->store_source);
-  Dmsg2(50, "write_storage=%s where=%s\n",
+  Dmsg2(50, "write_storage={} where={}\n",
         jcr->dir_impl->res.write_storage->resource_name_,
         jcr->dir_impl->res.wstore_source);
   for (auto* storage : jcr->dir_impl->res.write_storage_list) {
@@ -241,7 +241,7 @@ void SetPairedStorage(JobControlRecord* jcr)
           for (auto* store :
                jcr->dir_impl->res.paired_read_write_storage_list) {
             if (store->paired_storage) {
-              Dmsg1(100, "write_storage_list=%s\n",
+              Dmsg1(100, "write_storage_list={}\n",
                     store->paired_storage->resource_name_);
               jcr->dir_impl->res.write_storage_list->append(
                   store->paired_storage);
@@ -316,7 +316,7 @@ void SetPairedStorage(JobControlRecord* jcr)
           for (auto* store :
                jcr->dir_impl->res.paired_read_write_storage_list) {
             if (store->paired_storage) {
-              Dmsg1(100, "read_storage_list=%s\n",
+              Dmsg1(100, "read_storage_list={}\n",
                     store->paired_storage->resource_name_);
               jcr->dir_impl->res.read_storage_list->append(
                   store->paired_storage);
@@ -753,7 +753,7 @@ vol_list_t* vol_is_loaded_in_drive(StorageResource*,
   while (vl) {
     switch (vl->slot_type) {
       case slot_type_t::kSlotTypeDrive:
-        Dmsg2(100, "Checking drive %hd for loaded volume == %hd\n",
+        Dmsg2(100, "Checking drive {} for loaded volume == {}\n",
               vl->bareos_slot_number, vl->currently_loaded_slot_number);
         if (vl->currently_loaded_slot_number == slot) { return vl; }
         break;
@@ -794,7 +794,7 @@ void StorageFreeVolList(StorageResource* store, changer_vol_list_t* vol_list)
 {
   const std::lock_guard lock{store->runtime_storage_status->changer_lock};
 
-  Dmsg1(100, "Freeing volume list at %p\n", vol_list);
+  Dmsg1(100, "Freeing volume list at {:p}\n", vol_list);
 
   FreeVolList(vol_list);
 
@@ -813,7 +813,7 @@ void InvalidateVolList(StorageResource* store)
 {
   const std::lock_guard lock{store->runtime_storage_status->changer_lock};
   if (store->runtime_storage_status->vol_list) {
-    Dmsg1(100, "Invalidating volume list at %p\n",
+    Dmsg1(100, "Invalidating volume list at {:p}\n",
           store->runtime_storage_status->vol_list);
 
     /* If the volume list is unreferenced we can destroy it otherwise we just

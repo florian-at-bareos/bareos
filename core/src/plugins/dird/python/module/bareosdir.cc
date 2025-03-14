@@ -260,7 +260,7 @@ static PyObject* PyBareosGetValue(PyObject*, PyObject* args)
     }
     default:
       Dmsg(plugin_ctx, debuglevel,
-           LOGPREFIX "PyBareosGetValue unknown variable requested %d\n", var);
+           LOGPREFIX "PyBareosGetValue unknown variable requested {}\n", var);
       break;
   }
 
@@ -312,7 +312,7 @@ static PyObject* PyBareosSetValue(PyObject*, PyObject* args)
     }
     default:
       Dmsg(plugin_ctx, debuglevel,
-           LOGPREFIX "PyBareosSetValue unknown variable requested %d\n", var);
+           LOGPREFIX "PyBareosSetValue unknown variable requested {}\n", var);
       break;
   }
 
@@ -336,7 +336,7 @@ static PyObject* PyBareosDebugMessage(PyObject*, PyObject* args)
   }
   RETURN_RUNTIME_ERROR_IF_BFUNC_OR_BAREOS_PLUGIN_CTX_UNSET()
 
-  if (dbgmsg) { Dmsg(plugin_ctx, level, LOGPREFIX "%s", dbgmsg); }
+  if (dbgmsg) { Dmsg(plugin_ctx, level, LOGPREFIX "{}", dbgmsg); }
 
   Py_RETURN_NONE;
 }
@@ -390,7 +390,7 @@ static PyObject* PyBareosRegisterEvents(PyObject*, PyObject* args)
 
     if (event >= bDirEventJobStart && event <= bDirEventGetScratch) {
       Dmsg(plugin_ctx, debuglevel,
-           LOGPREFIX "PyBareosRegisterEvents registering event %d\n", event);
+           LOGPREFIX "PyBareosRegisterEvents registering event {}\n", event);
       retval
           = bareos_core_functions->registerBareosEvents(plugin_ctx, 1, event);
 
@@ -432,7 +432,7 @@ static PyObject* PyBareosUnRegisterEvents(PyObject*, PyObject* args)
 
     if (event >= bDirEventJobStart && event <= bDirEventGetScratch) {
       Dmsg(plugin_ctx, debuglevel,
-           "PyBareosUnRegisterEvents: registering event %d\n", event);
+           "PyBareosUnRegisterEvents: registering event {}\n", event);
       retval
           = bareos_core_functions->unregisterBareosEvents(plugin_ctx, 1, event);
 

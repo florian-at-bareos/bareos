@@ -198,7 +198,7 @@ static inline bool reRunJob(UaContext* ua, JobId_t JobId, bool yes, utime_t now)
 
   if (yes) { PmStrcat(ua->cmd, " yes"); }
 
-  Dmsg1(100, "rerun cmdline=%s\n", ua->cmd);
+  Dmsg1(100, "rerun cmdline={}\n", ua->cmd);
 
   ParseUaArgs(ua);
   return RunCmd(ua, ua->cmd);
@@ -481,17 +481,17 @@ try_again:
   if (ua->cmd[0] == 0 || bstrncasecmp(ua->cmd, NT_("yes"), strlen(ua->cmd))
       || bstrncasecmp(ua->cmd, T_("yes"), strlen(ua->cmd))) {
     JobId_t JobId;
-    Dmsg1(800, "Calling RunJob job=%x\n", jcr->dir_impl->res.job);
+    Dmsg1(800, "Calling RunJob job={:x}\n", jcr->dir_impl->res.job);
 
   start_job:
-    Dmsg3(100, "JobId=%u using pool %s priority=%d\n", (int)jcr->JobId,
+    Dmsg3(100, "JobId={} using pool {} priority={}\n", (int)jcr->JobId,
           jcr->dir_impl->res.pool->resource_name_, jcr->JobPriority);
     Dmsg1(900, "Running a job; its spool_data = %d\n",
           jcr->dir_impl->spool_data);
 
     JobId = RunJob(jcr);
 
-    Dmsg4(100, "JobId=%u NewJobId=%d using pool %s priority=%d\n",
+    Dmsg4(100, "JobId={} NewJobId={} using pool {} priority={}\n",
           (int)jcr->JobId, JobId, jcr->dir_impl->res.pool->resource_name_,
           jcr->JobPriority);
 
@@ -670,7 +670,7 @@ int ModifyJobParameters(UaContext* ua, JobControlRecord* jcr, RunContext& rc)
             jcr->dir_impl->res.pool = rc.pool;
             rc.level_override = false;
             rc.pool_override = true;
-            Dmsg1(100, "Set new pool=%s\n",
+            Dmsg1(100, "Set new pool={}\n",
                   jcr->dir_impl->res.pool->resource_name_);
             goto try_again;
           }
@@ -708,7 +708,7 @@ int ModifyJobParameters(UaContext* ua, JobControlRecord* jcr, RunContext& rc)
           rc.next_pool = select_pool_resource(ua);
           if (rc.next_pool) {
             jcr->dir_impl->res.next_pool = rc.next_pool;
-            Dmsg1(100, "Set new next_pool=%s\n",
+            Dmsg1(100, "Set new next_pool={}\n",
                   jcr->dir_impl->res.next_pool->resource_name_);
             goto try_again;
           }
@@ -1229,7 +1229,7 @@ static bool DisplayJobParameters(UaContext* ua,
   char dt[MAX_TIME_LENGTH];
   const char* verify_list = rc.verify_list;
 
-  Dmsg1(800, "JobType=%c\n", jcr->getJobType());
+  Dmsg1(800, "JobType={:c}\n", jcr->getJobType());
   switch (jcr->getJobType()) {
     case JT_ADMIN:
       if (ua->api) {
@@ -1503,7 +1503,7 @@ static bool DisplayJobParameters(UaContext* ua,
         }
       }
       jcr->setJobLevel(L_FULL); /* default level */
-      Dmsg1(800, "JobId to restore=%d\n", jcr->dir_impl->RestoreJobId);
+      Dmsg1(800, "JobId to restore={}\n", jcr->dir_impl->RestoreJobId);
       if (jcr->dir_impl->RestoreJobId == 0) {
         /* RegexWhere is take before RestoreWhere */
         if (jcr->RegexWhere || (job->RegexWhere && !jcr->where)) {
@@ -1801,7 +1801,7 @@ static bool ScanCommandLineArguments(UaContext* ua, RunContext& rc)
   char* consolidate_job_name = nullptr;
 
   for (i = 1; i < ua->argc; i++) {
-    Dmsg2(800, "Doing arg %d = %s\n", i, ua->argk[i]);
+    Dmsg2(800, "Doing arg {} = {}\n", i, ua->argk[i]);
     kw_ok = false;
 
     // Keep looking until we find a good keyword
@@ -1812,7 +1812,7 @@ static bool ScanCommandLineArguments(UaContext* ua, RunContext& rc)
           ua->SendMsg(T_("Value missing for keyword %s\n"), ua->argk[i]);
           return false;
         }
-        Dmsg1(800, "Got keyword=%s\n", NPRT(kw[j]));
+        Dmsg1(800, "Got keyword={}\n", NPRT(kw[j]));
         switch (j) {
           case 0: /* job */
             if (rc.job_name) {
@@ -2084,12 +2084,12 @@ static bool ScanCommandLineArguments(UaContext* ua, RunContext& rc)
 
     // End of keyword for loop -- if not found, we got a bogus keyword
     if (!kw_ok) {
-      Dmsg1(800, "%s not found\n", ua->argk[i]);
+      Dmsg1(800, "{} not found\n", ua->argk[i]);
       /* Special case for Job Name, it can be the first
        * keyword that has no value. */
       if (!rc.job_name && !ua->argv[i]) {
         rc.job_name = ua->argk[i]; /* use keyword as job name */
-        Dmsg1(800, "Set jobname=%s\n", rc.job_name);
+        Dmsg1(800, "Set jobname={}\n", rc.job_name);
       } else {
         ua->SendMsg(T_("Invalid keyword: %s\n"), ua->argk[i]);
         return false;
@@ -2108,7 +2108,7 @@ static bool ScanCommandLineArguments(UaContext* ua, RunContext& rc)
       return false;
     }
   }
-  Dmsg1(800, "Using catalog=%s\n", NPRT(rc.catalog_name));
+  Dmsg1(800, "Using catalog={}\n", NPRT(rc.catalog_name));
 
   if (rc.job_name) {
     /* Find Job */
@@ -2119,7 +2119,7 @@ static bool ScanCommandLineArguments(UaContext* ua, RunContext& rc)
       }
       rc.job = select_job_resource(ua);
     } else {
-      Dmsg1(800, "Found job=%s\n", rc.job_name);
+      Dmsg1(800, "Found job={}\n", rc.job_name);
     }
   } else if (!rc.job) {
     ua->SendMsg(T_("A job name must be specified.\n"));
@@ -2139,7 +2139,7 @@ static bool ScanCommandLineArguments(UaContext* ua, RunContext& rc)
     rc.pool = rc.job->pool; /* use default */
   }
   if (!rc.pool) { return false; }
-  Dmsg1(100, "Using pool %s\n", rc.pool->resource_name_);
+  Dmsg1(100, "Using pool {}\n", rc.pool->resource_name_);
 
   if (rc.next_pool_name) {
     rc.next_pool = ua->GetPoolResWithName(rc.next_pool_name);
@@ -2153,7 +2153,7 @@ static bool ScanCommandLineArguments(UaContext* ua, RunContext& rc)
     rc.next_pool = rc.pool->NextPool; /* use default */
   }
   if (rc.next_pool) {
-    Dmsg1(100, "Using next pool %s\n", rc.next_pool->resource_name_);
+    Dmsg1(100, "Using next pool {}\n", rc.next_pool->resource_name_);
   }
 
   if (rc.StoreName) {
@@ -2186,7 +2186,7 @@ static bool ScanCommandLineArguments(UaContext* ua, RunContext& rc)
                      rc.store->store->resource_name_);
         return false;
       }
-      Dmsg1(800, "Using storage=%s\n", rc.store->store->resource_name_);
+      Dmsg1(800, "Using storage={}\n", rc.store->store->resource_name_);
       break;
   }
 
@@ -2223,7 +2223,7 @@ static bool ScanCommandLineArguments(UaContext* ua, RunContext& rc)
                    rc.client->resource_name_);
       return false;
     } else {
-      Dmsg1(800, "Using client=%s\n", rc.client->resource_name_);
+      Dmsg1(800, "Using client={}\n", rc.client->resource_name_);
     }
   }
 
@@ -2247,7 +2247,7 @@ static bool ScanCommandLineArguments(UaContext* ua, RunContext& rc)
                    rc.client->resource_name_);
       return false;
     } else {
-      Dmsg1(800, "Using restore client=%s\n", rc.client->resource_name_);
+      Dmsg1(800, "Using restore client={}\n", rc.client->resource_name_);
     }
   }
 

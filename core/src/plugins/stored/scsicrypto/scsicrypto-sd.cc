@@ -129,7 +129,7 @@ loadPlugin(PluginApiDefinition* lbareos_plugin_interface_version,
   bareos_core_functions
       = lbareos_core_functions; /* set Bareos funct pointers */
   bareos_plugin_interface_version = lbareos_plugin_interface_version;
-  Dmsg2(debuglevel, "scsicrypto-sd: Loaded: size=%d version=%d\n",
+  Dmsg2(debuglevel, "scsicrypto-sd: Loaded: size={} version={}\n",
         bareos_core_functions->size, bareos_core_functions->version);
   *plugin_information = &pluginInfo; /* return pointer to our info */
   *plugin_functions = &pluginFuncs;  /* return pointer to our functions */
@@ -156,7 +156,7 @@ static bRC newPlugin(PluginContext* ctx)
   int JobId = 0;
 
   bareos_core_functions->getBareosValue(ctx, bsdVarJobId, (void*)&JobId);
-  Dmsg1(debuglevel, "scsicrypto-sd: newPlugin JobId=%d\n", JobId);
+  Dmsg1(debuglevel, "scsicrypto-sd: newPlugin JobId={}\n", JobId);
 
   /* Only register plugin events we are interested in.
    *
@@ -197,7 +197,7 @@ static bRC freePlugin(PluginContext* ctx)
   int JobId = 0;
 
   bareos_core_functions->getBareosValue(ctx, bsdVarJobId, (void*)&JobId);
-  Dmsg1(debuglevel, "scsicrypto-sd: freePlugin JobId=%d\n", JobId);
+  Dmsg1(debuglevel, "scsicrypto-sd: freePlugin JobId={}\n", JobId);
 
   return bRC_OK;
 }
@@ -205,7 +205,7 @@ static bRC freePlugin(PluginContext* ctx)
 // Return some plugin value (none defined)
 static bRC getPluginValue(PluginContext*, pVariable var, void*)
 {
-  Dmsg1(debuglevel, "scsicrypto-sd: getPluginValue var=%d\n", var);
+  Dmsg1(debuglevel, "scsicrypto-sd: getPluginValue var={}\n", var);
 
   return bRC_OK;
 }
@@ -213,7 +213,7 @@ static bRC getPluginValue(PluginContext*, pVariable var, void*)
 // Set a plugin value (none defined)
 static bRC setPluginValue(PluginContext*, pVariable var, void*)
 {
-  Dmsg1(debuglevel, "scsicrypto-sd: setPluginValue var=%d\n", var);
+  Dmsg1(debuglevel, "scsicrypto-sd: setPluginValue var={}\n", var);
 
   return bRC_OK;
 }
@@ -235,7 +235,7 @@ static bRC handlePluginEvent(PluginContext*, bSdEvent* event, void* value)
     case bSdEventVolumeStatus:
       return send_volume_encryption_status(value);
     default:
-      Dmsg1(debuglevel, "scsicrypto-sd: Unknown event %d\n", event->eventType);
+      Dmsg1(debuglevel, "scsicrypto-sd: Unknown event {}\n", event->eventType);
       return bRC_Error;
   }
 
@@ -356,7 +356,7 @@ static bRC do_set_scsi_encryption_key(void* value)
     }
   }
 
-  Dmsg1(debuglevel, "scsicrypto-sd: Loading new crypto key %s\n", VolEncrKey);
+  Dmsg1(debuglevel, "scsicrypto-sd: Loading new crypto key {}\n", VolEncrKey);
 
   lock_mutex(crypto_operation_mutex);
   if (SetScsiEncryptionKey(dev->fd, dev->archive_device_string, VolEncrKey)) {

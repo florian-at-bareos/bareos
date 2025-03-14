@@ -196,7 +196,7 @@ char* VSSClient::GetShadowPath(const char* szFilePath)
     return shadow_path;
   } else {
     Dmsg4(50,
-          "Could not find shadow volume for volume '%s' (path = '%s'; input = "
+          "Could not find shadow volume for volume '{}' (path = '{}'; input = "
           "'%s').\n"
           "Falling back to live system!\n",
           volume.c_str(), path.c_str(), szFilePath);

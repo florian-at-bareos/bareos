@@ -84,13 +84,13 @@ std::vector<std::wstring> get_win32_volumes(findFILESET* fileset)
             needed >= mountpoint.size()) {
           mountpoint.resize(needed + 1, '\0');
         } else if (needed == 0) {
-          Dmsg1(100, "Could not query the full path length of %s\n", fname);
+          Dmsg1(100, "Could not query the full path length of {}\n", fname);
           continue;
         }
 
         if (!GetVolumePathNameW(wname.c_str(), mountpoint.data(),
                                 mountpoint.capacity())) {
-          Dmsg1(100, "Could not find a mounted volume on %s\n", fname);
+          Dmsg1(100, "Could not find a mounted volume on {}\n", fname);
           continue;
         } else {
           mountpoint.resize(wcslen(mountpoint.c_str()));
@@ -98,7 +98,7 @@ std::vector<std::wstring> get_win32_volumes(findFILESET* fileset)
         std::array<wchar_t, 50> volume;
         if (!GetVolumeNameForVolumeMountPointW(mountpoint.c_str(),
                                                volume.data(), volume.size())) {
-          Dmsg1(100, "Could not find the volume name for %s\n",
+          Dmsg1(100, "Could not find the volume name for {}\n",
                 FromUtf16(mountpoint.c_str()).c_str());
           continue;
         }
@@ -157,7 +157,7 @@ bool expand_win32_fileset(findFILESET* fileset)
   for (i = 0; i < fileset->include_list.size(); i++) {
     incexe = (findIncludeExcludeItem*)fileset->include_list.get(i);
     foreach_dlist (node, &incexe->name_list) {
-      Dmsg1(100, "Checking %s\n", node->c_str());
+      Dmsg1(100, "Checking {}\n", node->c_str());
       if (bstrcmp(node->c_str(), "/")) {
         // Request for auto expansion but no support for it.
         if (!p_GetLogicalDriveStringsA) { return false; }
@@ -174,7 +174,7 @@ bool expand_win32_fileset(findFILESET* fileset)
              * processed item. */
             if (WantedDriveType(bp, incexe)) {
               if (*(bp + 2) == '\\') { *(bp + 2) = '/'; /* 'x:\' -> 'x:/' */ }
-              Dmsg1(100, "adding drive %s\n", bp);
+              Dmsg1(100, "adding drive {}\n", bp);
               incexe->name_list.append(new_dlistString(bp));
             }
             if ((bp = strchr(bp, '\0'))) { bp++; }
@@ -327,7 +327,7 @@ bool exclude_win32_not_to_backup_registry_entries(JobControlRecord* jcr,
         if (retCode == ERROR_SUCCESS) {
           DWORD dwLen;
 
-          Dmsg2(100, "(%d) \"%s\" : \n", i + 1, achValue.c_str());
+          Dmsg2(100, "({}) \"{}\" : \n", i + 1, achValue.c_str());
 
           dwLen = dwKeyEn.size();
           retCode = RegQueryValueEx(hKey, achValue.c_str(), 0, NULL,
@@ -344,7 +344,7 @@ bool exclude_win32_not_to_backup_registry_entries(JobControlRecord* jcr,
 
               ExpandEnvironmentStrings(lpValue, expandedKey.c_str(),
                                        expandedKey.size());
-              Dmsg1(100, "        \"%s\"\n", expandedKey.c_str());
+              Dmsg1(100, "        \"{}\"\n", expandedKey.c_str());
 
               /* Never add single character entries. Probably known buggy DRM
                * Entry in Windows XP / 2003 */
@@ -386,7 +386,7 @@ bool exclude_win32_not_to_backup_registry_entries(JobControlRecord* jcr,
                   }
                 }
                 *d = '\0';
-                Dmsg1(100, "    ->  \"%s\"\n", destination.c_str());
+                Dmsg1(100, "    ->  \"{}\"\n", destination.c_str());
                 fo->wild.append(strdup(destination.c_str()));
                 wild_count++;
               }
@@ -444,7 +444,7 @@ static DWORD WINAPI receive_efs_data(PBYTE pbData,
 
   if (save_data) {
     if (save_data->data_len > *ulLength) {
-      Dmsg2(100, "Restore of data bigger then allowed EFS buffer %d vs %d\n",
+      Dmsg2(100, "Restore of data bigger then allowed EFS buffer {} vs {}\n",
             save_data->data_len, *ulLength);
       *ulLength = 0;
     } else {

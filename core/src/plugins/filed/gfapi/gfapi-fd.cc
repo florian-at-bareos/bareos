@@ -460,7 +460,7 @@ static bRC handlePluginEvent(PluginContext* ctx, bEvent* event, void* value)
       break;
     default:
       Jmsg(ctx, M_FATAL, "gfapi-fd: unknown event=%d\n", event->eventType);
-      Dmsg(ctx, debuglevel, "gfapi-fd: unknown event=%d\n", event->eventType);
+      Dmsg(ctx, debuglevel, "gfapi-fd: unknown event={}\n", event->eventType);
       retval = bRC_Error;
       break;
   }
@@ -536,13 +536,13 @@ static bRC get_next_file_to_backup(PluginContext* ctx)
 
       // Strip the newline.
       StripTrailingJunk(p_ctx->next_filename);
-      Dmsg(ctx, debuglevel, "gfapi-fd: Processing glusterfind entry %s\n",
+      Dmsg(ctx, debuglevel, "gfapi-fd: Processing glusterfind entry {}\n",
            p_ctx->next_filename);
 
       // Lookup mapping to see what type of entry we are processing.
       gf_mapping = find_glustermap_eventtype(p_ctx->next_filename);
       if (!gf_mapping) {
-        Dmsg(ctx, debuglevel, "gfapi-fd: Unknown glusterfind entry %s\n",
+        Dmsg(ctx, debuglevel, "gfapi-fd: Unknown glusterfind entry {}\n",
              p_ctx->next_filename);
         continue;
       }
@@ -588,7 +588,7 @@ static bRC get_next_file_to_backup(PluginContext* ctx)
         default:
           Jmsg(ctx, M_ERROR, "Unrecognized glusterfind entry %s\n",
                p_ctx->next_filename);
-          Dmsg(ctx, debuglevel, "gfapi-fd: Skipping glusterfind entry %s\n",
+          Dmsg(ctx, debuglevel, "gfapi-fd: Skipping glusterfind entry {}\n",
                p_ctx->next_filename);
           continue;
       }
@@ -597,7 +597,7 @@ static bRC get_next_file_to_backup(PluginContext* ctx)
       if (p_ctx->basedir
           && !bstrncmp(p_ctx->basedir, p_ctx->next_filename,
                        strlen(p_ctx->basedir))) {
-        Dmsg(ctx, debuglevel, "gfapi-fd: next file %s not under basedir %d\n",
+        Dmsg(ctx, debuglevel, "gfapi-fd: next file {} not under basedir {}\n",
              p_ctx->next_filename, p_ctx->basedir);
         continue;
       }
@@ -621,7 +621,7 @@ static bRC get_next_file_to_backup(PluginContext* ctx)
             continue;
           default:
             Dmsg(ctx, debuglevel,
-                 "gfapi-fd: glfs_stat(%s) failed: %s errno: %d\n",
+                 "gfapi-fd: glfs_stat({}) failed: {} errno: {}\n",
                  p_ctx->next_filename, be.bstrerror(), errno);
             Jmsg(ctx, M_FATAL, "gfapi-fd: glfs_stat(%s) failed: %s\n",
                  p_ctx->next_filename, be.bstrerror());
@@ -654,7 +654,7 @@ static bRC get_next_file_to_backup(PluginContext* ctx)
 
         PmStrcpy(p_ctx->next_filename, p_ctx->cwd);
 
-        Dmsg(ctx, debuglevel, "gfapi-fd: next file to backup %s\n",
+        Dmsg(ctx, debuglevel, "gfapi-fd: next file to backup {}\n",
              p_ctx->next_filename);
 
         return bRC_More;
@@ -725,7 +725,7 @@ static bRC get_next_file_to_backup(PluginContext* ctx)
 
     if (bareos_core_functions->AcceptFile(ctx, &sp) == bRC_Skip) {
       Dmsg(ctx, debuglevel,
-           "gfapi-fd: file %s skipped due to current fileset settings\n",
+           "gfapi-fd: file {} skipped due to current fileset settings\n",
            p_ctx->next_filename);
       continue;
     }
@@ -734,7 +734,7 @@ static bRC get_next_file_to_backup(PluginContext* ctx)
     break;
   }
 
-  Dmsg(ctx, debuglevel, "gfapi-fd: next file to backup %s\n",
+  Dmsg(ctx, debuglevel, "gfapi-fd: next file to backup {}\n",
        p_ctx->next_filename);
 
   return bRC_More;
@@ -856,7 +856,7 @@ static bRC startBackupFile(PluginContext* ctx, save_pkt* sp)
          * would be useless. */
         if (sp->type == FT_DIRBEGIN) {
           Dmsg(ctx, debuglevel,
-               "gfapi-fd: skip checkChanges() for %s because sp->type is "
+               "gfapi-fd: skip checkChanges() for {} because sp->type is "
                "FT_DIRBEGIN\n",
                p_ctx->next_filename);
           sp->type = FT_DIRNOCHG;
@@ -867,7 +867,7 @@ static bRC startBackupFile(PluginContext* ctx, save_pkt* sp)
          * useless. */
         if (sp->type == FT_NOOPEN) {
           Dmsg(ctx, debuglevel,
-               "gfapi-fd: skip checkChanges() for %s because sp->type is "
+               "gfapi-fd: skip checkChanges() for {} because sp->type is "
                "FT_NOOPEN\n",
                p_ctx->next_filename);
           break;
@@ -876,7 +876,7 @@ static bRC startBackupFile(PluginContext* ctx, save_pkt* sp)
         switch (bareos_core_functions->checkChanges(ctx, sp)) {
           case bRC_Seen:
             Dmsg(ctx, debuglevel,
-                 "gfapi-fd: skipping %s checkChanges returns bRC_Seen\n",
+                 "gfapi-fd: skipping {} checkChanges returns bRC_Seen\n",
                  p_ctx->next_filename);
             switch (sp->type) {
               case FT_DIRBEGIN:
@@ -994,7 +994,7 @@ static bRC parse_plugin_definition(PluginContext* ctx, void* value)
   if (!bp) {
     Jmsg(ctx, M_FATAL, "gfapi-fd: Illegal plugin definition %s\n",
          plugin_definition);
-    Dmsg(ctx, debuglevel, "gfapi-fd: Illegal plugin definition %s\n",
+    Dmsg(ctx, debuglevel, "gfapi-fd: Illegal plugin definition {}\n",
          plugin_definition);
     goto bail_out;
   }
@@ -1015,7 +1015,7 @@ static bRC parse_plugin_definition(PluginContext* ctx, void* value)
     if (!argument_value) {
       Jmsg(ctx, M_FATAL, "gfapi-fd: Illegal argument %s without value\n",
            argument);
-      Dmsg(ctx, debuglevel, "gfapi-fd: Illegal argument %s without value\n",
+      Dmsg(ctx, debuglevel, "gfapi-fd: Illegal argument {} without value\n",
            argument);
       goto bail_out;
     }
@@ -1073,7 +1073,7 @@ static bRC parse_plugin_definition(PluginContext* ctx, void* value)
            "gfapi-fd: Illegal argument %s with value %s in plugin definition\n",
            argument, argument_value);
       Dmsg(ctx, debuglevel,
-           "gfapi-fd: Illegal argument %s with value %s in plugin definition\n",
+           "gfapi-fd: Illegal argument {} with value {} in plugin definition\n",
            argument, argument_value);
       goto bail_out;
     }
@@ -1391,7 +1391,7 @@ static bRC setup_backup(PluginContext* ctx, void* value)
         == (FILE*)NULL) {
       Jmsg(ctx, M_FATAL, "Failed to open %s for reading files to backup\n",
            p_ctx->gf_file_list);
-      Dmsg(ctx, debuglevel, "Failed to open %s for reading files to backup\n",
+      Dmsg(ctx, debuglevel, "Failed to open {} for reading files to backup\n",
            p_ctx->gf_file_list);
       goto bail_out;
     }
@@ -1629,7 +1629,7 @@ static bRC createFile(PluginContext* ctx, restore_pkt* rp)
   if (!p_ctx) { return bRC_Error; }
 
   // See if the file already exists.
-  Dmsg(ctx, 400, "gfapi-fd: Replace=%c %d\n", (char)rp->replace, rp->replace);
+  Dmsg(ctx, 400, "gfapi-fd: Replace={:c} {}\n", (char)rp->replace, rp->replace);
   status = glfs_lstat(p_ctx->glfs, rp->ofname, &st);
   if (status == 0) {
     exists = true;
@@ -1674,7 +1674,7 @@ static bRC createFile(PluginContext* ctx, restore_pkt* rp)
     case FT_REG:  /* Regular file */
       // See if file already exists then we need to unlink it.
       if (exists) {
-        Dmsg(ctx, 400, "gfapi-fd: unlink %s\n", rp->ofname);
+        Dmsg(ctx, 400, "gfapi-fd: unlink {}\n", rp->ofname);
         status = glfs_unlink(p_ctx->glfs, rp->ofname);
         if (status != 0) {
           BErrNo be;

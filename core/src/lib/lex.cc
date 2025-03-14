@@ -174,7 +174,7 @@ LEX* LexCloseFile(LEX* lf)
   LEX* of;
 
   if (lf == NULL) { Emsg0(M_ABORT, 0, T_("Close of NULL file\n")); }
-  Dmsg1(debuglevel, "Close lex file: %s\n", lf->fname);
+  Dmsg1(debuglevel, "Close lex file: {}\n", lf->fname);
 
   of = lf->next;
   if (lf->bpipe) {
@@ -183,7 +183,7 @@ LEX* LexCloseFile(LEX* lf)
   } else {
     fclose(lf->fd);
   }
-  Dmsg1(debuglevel, "Close cfg file %s\n", lf->fname);
+  Dmsg1(debuglevel, "Close cfg file {}\n", lf->fname);
   free(lf->fname);
   FreeMemory(lf->line);
   FreeMemory(lf->str);
@@ -192,7 +192,7 @@ LEX* LexCloseFile(LEX* lf)
     of->options = lf->options;              /* preserve options */
     of->error_counter += lf->error_counter; /* summarize the errors */
     memcpy(lf, of, sizeof(LEX));
-    Dmsg1(debuglevel, "Restart scan of cfg file %s\n", of->fname);
+    Dmsg1(debuglevel, "Restart scan of cfg file {}\n", of->fname);
   } else {
     of = lf;
     lf = NULL;
@@ -211,7 +211,7 @@ static inline LEX* lex_add(LEX* lf,
 {
   LEX* nf;
 
-  Dmsg1(100, "open config file: %s\n", filename);
+  Dmsg1(100, "open config file: {}\n", filename);
   nf = (LEX*)malloc(sizeof(LEX));
   if (lf) {
     memcpy(nf, lf, sizeof(LEX));
@@ -292,7 +292,7 @@ LEX* lex_open_file(LEX* lf,
     glob_t fileglob;
     char* filename_expanded = NULL;
 
-    Dmsg1(500, "Trying glob match with %s\n", filename);
+    Dmsg1(500, "Trying glob match with {}\n", filename);
 
     /* Flag GLOB_NOMAGIC is a GNU extension, therefore manually check if string
      * is a wildcard string. */
@@ -304,7 +304,7 @@ LEX* lex_open_file(LEX* lf,
     if ((globrc == GLOB_NOMATCH) && (IsWildcardString(filename))) {
       /* fname is a wildcard string, but no matching files have been found.
        * Ignore this include statement and continue. */
-      Dmsg1(500, "glob => nothing found for wildcard %s\n", filename);
+      Dmsg1(500, "glob => nothing found for wildcard {}\n", filename);
       return lf;
     } else if (globrc != 0) {
       // glob() error has occurred. Giving up.
@@ -312,7 +312,7 @@ LEX* lex_open_file(LEX* lf,
       return NULL;
     }
 
-    Dmsg2(100, "glob %s: %i files\n", filename, fileglob.gl_pathc);
+    Dmsg2(100, "glob {}: {} files\n", filename, fileglob.gl_pathc);
     for (size_t i = 0; i < fileglob.gl_pathc; i++) {
       filename_expanded = fileglob.gl_pathv[i];
       if ((fd = fopen(filename_expanded, "rb")) == NULL) {
@@ -323,7 +323,7 @@ LEX* lex_open_file(LEX* lf,
     }
     globfree(&fileglob);
 #else
-    Dmsg1(500, "Trying open file %s\n", filename);
+    Dmsg1(500, "Trying open file {}\n", filename);
     if ((fd = fopen(filename, "rb")) == NULL) { return NULL; }
     lf = lex_add(lf, filename, fd, bpipe, ScanError, scan_warning);
 #endif
@@ -357,7 +357,7 @@ int LexGetChar(LEX* lf)
     }
     lf->line_no++;
     lf->col_no = 0;
-    Dmsg2(1000, "fget line=%d %s", lf->line_no, lf->line);
+    Dmsg2(1000, "fget line={} {}", lf->line_no, lf->line);
   }
 
   lf->ch = (uint8_t)lf->line[lf->col_no];
@@ -369,7 +369,7 @@ int LexGetChar(LEX* lf)
   } else {
     lf->col_no++;
   }
-  Dmsg2(debuglevel, "LexGetChar: %c %d\n", lf->ch, lf->ch);
+  Dmsg2(debuglevel, "LexGetChar: {:c} {}\n", lf->ch, lf->ch);
 
   return lf->ch;
 }
@@ -584,7 +584,7 @@ int LexGetToken(LEX* lf, int expect)
     ch = LexGetChar(lf);
     switch (lf->state) {
       case lex_none:
-        Dmsg2(debuglevel, "Lex state lex_none ch=%d,%x\n", ch, ch);
+        Dmsg2(debuglevel, "Lex state lex_none ch={},{:x}\n", ch, ch);
         if (B_ISSPACE(ch)) break;
         if (B_ISALPHA(ch)) {
           if (lf->options & LOPT_NO_IDENT || lf->options & LOPT_STRING) {
@@ -687,7 +687,7 @@ int LexGetToken(LEX* lf, int expect)
         }
         break;
       case lex_comment:
-        Dmsg1(debuglevel, "Lex state lex_comment ch=%x\n", ch);
+        Dmsg1(debuglevel, "Lex state lex_comment ch={:x}\n", ch);
         if (ch == L_EOL) {
           lf->state = lex_none;
           if (expect != BCT_SKIP_EOL) { token = BCT_EOL; }
@@ -696,7 +696,7 @@ int LexGetToken(LEX* lf, int expect)
         }
         break;
       case lex_number:
-        Dmsg2(debuglevel, "Lex state lex_number ch=%x %c\n", ch, ch);
+        Dmsg2(debuglevel, "Lex state lex_number ch={:x} {:c}\n", ch, ch);
         if (ch == L_EOF) {
           token = BCT_ERROR;
           break;
@@ -721,10 +721,10 @@ int LexGetToken(LEX* lf, int expect)
           token = BCT_ERROR;
           break;
         }
-        Dmsg1(debuglevel, "Lex state lex_ip_addr ch=%x\n", ch);
+        Dmsg1(debuglevel, "Lex state lex_ip_addr ch={:x}\n", ch);
         break;
       case lex_string:
-        Dmsg1(debuglevel, "Lex state lex_string ch=%x\n", ch);
+        Dmsg1(debuglevel, "Lex state lex_string ch={:x}\n", ch);
         if (ch == L_EOF) {
           token = BCT_ERROR;
           break;
@@ -740,7 +740,7 @@ int LexGetToken(LEX* lf, int expect)
         add_str(lf, ch);
         break;
       case lex_identifier:
-        Dmsg2(debuglevel, "Lex state lex_identifier ch=%x %c\n", ch, ch);
+        Dmsg2(debuglevel, "Lex state lex_identifier ch={:x} {:c}\n", ch, ch);
         if (B_ISALPHA(ch)) {
           add_str(lf, ch);
           break;
@@ -764,7 +764,7 @@ int LexGetToken(LEX* lf, int expect)
         add_str(lf, ch);
         break;
       case lex_quoted_string:
-        Dmsg2(debuglevel, "Lex state lex_quoted_string ch=%x %c\n", ch, ch);
+        Dmsg2(debuglevel, "Lex state lex_quoted_string ch={:x} {:c}\n", ch, ch);
         if (ch == L_EOF) {
           token = BCT_ERROR;
           break;
@@ -890,10 +890,10 @@ int LexGetToken(LEX* lf, int expect)
         }
         break;
     }
-    Dmsg4(debuglevel, "ch=%d state=%s token=%s %c\n", ch,
+    Dmsg4(debuglevel, "ch={} state={} token={} {:c}\n", ch,
           lex_state_to_str(lf->state), lex_tok_to_str(token), ch);
   }
-  Dmsg2(debuglevel, "lex returning: line %d token: %s\n", lf->line_no,
+  Dmsg2(debuglevel, "lex returning: line {} token: {}\n", lf->line_no,
         lex_tok_to_str(token));
   lf->token = token;
 
@@ -970,7 +970,7 @@ int LexGetToken(LEX* lf, int expect)
       break;
 
     case BCT_INT64:
-      Dmsg2(debuglevel, "int64=:%s: %f\n", lf->str, strtod(lf->str, NULL));
+      Dmsg2(debuglevel, "int64=:{}: {}\n", lf->str, strtod(lf->str, NULL));
       if (token != BCT_NUMBER || !Is_a_number(lf->str)) {
         scan_err2(lf, T_("expected an integer number, got %s: %s"),
                   lex_tok_to_str(token), lf->str);

@@ -148,7 +148,7 @@ static AuthenticationResult AuthenticateWithStorageDaemon(
   sd->InitBnetDump(my_config->CreateOwnQualifiedNameForNetworkDump());
 
   if (!sd->fsend(SDFDhello, dirname)) {
-    Dmsg1(debuglevel, T_("Error sending Hello to Storage daemon. ERR=%s\n"),
+    Dmsg1(debuglevel, T_("Error sending Hello to Storage daemon. ERR={}\n"),
           BnetStrerror(sd));
     Jmsg(jcr, M_FATAL, 0, T_("Error sending Hello to Storage daemon. ERR=%s\n"),
          BnetStrerror(sd));
@@ -160,7 +160,7 @@ static AuthenticationResult AuthenticateWithStorageDaemon(
       store->password, store);
   if (!auth_success) {
     Dmsg2(debuglevel,
-          "Director unable to authenticate with Storage daemon at \"%s:%d\"\n",
+          "Director unable to authenticate with Storage daemon at \"{}:{}\"\n",
           sd->host(), sd->port());
     Jmsg(jcr, M_FATAL, 0,
          T_("Director unable to authenticate with Storage daemon at \"%s:%d\". "
@@ -173,7 +173,7 @@ static AuthenticationResult AuthenticateWithStorageDaemon(
     return AuthenticationResult::kCramMd5HandshakeFailed;
   }
 
-  Dmsg1(116, ">stored: %s", sd->msg);
+  Dmsg1(116, ">stored: {}", sd->msg);
   if (sd->recv() <= 0) {
     Jmsg3(jcr, M_FATAL, 0,
           T_("dir<stored: \"%s:%s\" bad response to Hello command: ERR=%s\n"),
@@ -181,7 +181,7 @@ static AuthenticationResult AuthenticateWithStorageDaemon(
     return AuthenticationResult::kDaemonResponseFailed;
   }
 
-  Dmsg1(110, "<stored: %s", sd->msg);
+  Dmsg1(110, "<stored: {}", sd->msg);
   if (!bstrncmp(sd->msg, SDOKhello, sizeof(SDOKhello))) {
     Dmsg0(debuglevel, T_("Storage daemon rejected Hello command\n"));
     Jmsg2(jcr, M_FATAL, 0,
@@ -229,14 +229,14 @@ static AuthenticationResult AuthenticateWithFileDaemon(JobControlRecord* jcr,
          fd->host(), fd->port(), fd->bstrerror());
     return AuthenticationResult::kSendHelloMessageFailed;
   }
-  Dmsg1(debuglevel, "Sent: %s", fd->msg);
+  Dmsg1(debuglevel, "Sent: {}", fd->msg);
 
   bool auth_success = fd->AuthenticateOutboundConnection(
       jcr, my_config->CreateOwnQualifiedNameForNetworkDump(), dirname,
       client->password, client);
 
   if (!auth_success) {
-    Dmsg2(debuglevel, "Unable to authenticate with File daemon at \"%s:%d\"\n",
+    Dmsg2(debuglevel, "Unable to authenticate with File daemon at \"{}:{}\"\n",
           fd->host(), fd->port());
     Jmsg(jcr, M_FATAL, 0,
          T_("Unable to authenticate with File daemon at \"%s:%d\". Possible "
@@ -249,10 +249,10 @@ static AuthenticationResult AuthenticateWithFileDaemon(JobControlRecord* jcr,
     return AuthenticationResult::kCramMd5HandshakeFailed;
   }
 
-  Dmsg1(116, ">filed: %s", fd->msg);
+  Dmsg1(116, ">filed: {}", fd->msg);
   if (fd->recv() <= 0) {
     Dmsg1(debuglevel,
-          T_("Bad response from File daemon to Hello command: ERR=%s\n"),
+          T_("Bad response from File daemon to Hello command: ERR={}\n"),
           BnetStrerror(fd));
     Jmsg(jcr, M_FATAL, 0,
          T_("Bad response from File daemon at \"%s:%d\" to Hello command: "
@@ -261,7 +261,7 @@ static AuthenticationResult AuthenticateWithFileDaemon(JobControlRecord* jcr,
     return AuthenticationResult::kDaemonResponseFailed;
   }
 
-  Dmsg1(110, "<filed: %s", fd->msg);
+  Dmsg1(110, "<filed: {}", fd->msg);
   if (strncmp(fd->msg, FDOKhello, sizeof(FDOKhello) - 1) != 0) {
     Jmsg(jcr, M_FATAL, 0, T_("File daemon rejected Hello command\n"));
     return AuthenticationResult::kRejectedByDaemon;

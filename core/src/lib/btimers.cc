@@ -66,7 +66,7 @@ btimer_t* StartChildTimer(JobControlRecord* jcr, pid_t pid, uint32_t wait)
   wid->wd->interval = wait;
   RegisterWatchdog(wid->wd);
 
-  Dmsg3(debuglevel, "Start child timer %p, pid %d for %d secs.\n", wid, pid,
+  Dmsg3(debuglevel, "Start child timer {:p}, pid {} for {} secs.\n", wid, pid,
         wait);
   return wid;
 }
@@ -78,7 +78,7 @@ void StopChildTimer(btimer_t* wid)
     Dmsg0(debuglevel, "StopChildTimer called with NULL btimer_id\n");
     return;
   }
-  Dmsg2(debuglevel, "Stop child timer %p pid %d\n", wid, wid->pid);
+  Dmsg2(debuglevel, "Stop child timer {:p} pid {}\n", wid, wid->pid);
   StopBtimer(wid);
 }
 
@@ -100,7 +100,7 @@ static void CallbackChildTimer(watchdog_t* self)
     /* First kill attempt; try killing it softly (kill -SONG) first */
     wid->killed = true;
 
-    Dmsg2(debuglevel, "watchdog %p term PID %d\n", self, wid->pid);
+    Dmsg2(debuglevel, "watchdog {:p} term PID {}\n", self, wid->pid);
 
     /* Kill -TERM the specified PID, and reschedule a -KILL for 5 seconds
      * later. (Warning: this should let dvd-writepart enough time to term
@@ -111,7 +111,7 @@ static void CallbackChildTimer(watchdog_t* self)
     self->interval = 5;
   } else {
     /* This is the second call - Terminate with prejudice. */
-    Dmsg2(debuglevel, "watchdog %p kill PID %d\n", self, wid->pid);
+    Dmsg2(debuglevel, "watchdog {:p} kill PID {}\n", self, wid->pid);
 
     kill(wid->pid, SIGKILL);
 
@@ -135,7 +135,7 @@ btimer_t* StartThreadTimer(JobControlRecord* jcr, pthread_t tid, uint32_t wait)
 
   wid = btimer_start_common();
   if (wid == NULL) {
-    Dmsg1(debuglevel, "StartThreadTimer return NULL from common. wait=%d.\n",
+    Dmsg1(debuglevel, "StartThreadTimer return NULL from common. wait={}.\n",
           wait);
     return NULL;
   }
@@ -148,7 +148,7 @@ btimer_t* StartThreadTimer(JobControlRecord* jcr, pthread_t tid, uint32_t wait)
   wid->wd->interval = wait;
   RegisterWatchdog(wid->wd);
 
-  Dmsg3(debuglevel, "Start thread timer %p tid %s for %d secs.\n", wid,
+  Dmsg3(debuglevel, "Start thread timer {:p} tid {} for {} secs.\n", wid,
         edit_pthread(tid, ed1, sizeof(ed1)), wait);
 
   return wid;
@@ -182,7 +182,7 @@ btimer_t* StartBsockTimer(BareosSocket* bsock, uint32_t wait)
   wid->wd->interval = wait;
   RegisterWatchdog(wid->wd);
 
-  Dmsg4(debuglevel, "Start bsock timer %p tid=%s for %d secs at %d\n", wid,
+  Dmsg4(debuglevel, "Start bsock timer {:p} tid={} for {} secs at {}\n", wid,
         edit_pthread(wid->tid, ed1, sizeof(ed1)), wait, time(NULL));
 
   return wid;
@@ -198,7 +198,7 @@ void StopBsockTimer(btimer_t* wid)
     return;
   }
 
-  Dmsg3(debuglevel, "Stop bsock timer %p tid=%s at %d.\n", wid,
+  Dmsg3(debuglevel, "Stop bsock timer {:p} tid={} at {}.\n", wid,
         edit_pthread(wid->tid, ed1, sizeof(ed1)), time(NULL));
   StopBtimer(wid);
 }
@@ -214,7 +214,7 @@ void StopThreadTimer(btimer_t* wid)
     return;
   }
 
-  Dmsg2(debuglevel, "Stop thread timer %p tid=%s.\n", wid,
+  Dmsg2(debuglevel, "Stop thread timer {:p} tid={}.\n", wid,
         edit_pthread(wid->tid, ed1, sizeof(ed1)));
   StopBtimer(wid);
 }
@@ -224,11 +224,11 @@ static void CallbackThreadTimer(watchdog_t* self)
   char ed1[50];
   btimer_t* wid = (btimer_t*)self->data;
 
-  Dmsg4(debuglevel, "thread timer %p kill %s tid=%p at %d.\n", self,
+  Dmsg4(debuglevel, "thread timer {:p} kill {} tid={:p} at {}.\n", self,
         wid->type == TYPE_BSOCK ? "bsock" : "thread",
         edit_pthread(wid->tid, ed1, sizeof(ed1)), time(NULL));
   if (wid->jcr) {
-    Dmsg2(debuglevel, "killed JobId=%u Job=%s\n", wid->jcr->JobId,
+    Dmsg2(debuglevel, "killed JobId={} Job={}\n", wid->jcr->JobId,
           wid->jcr->Job);
   }
 

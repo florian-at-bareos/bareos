@@ -158,7 +158,7 @@ bool GetTapealertFlags(int fd, const char* device_name, uint64_t* flags)
       if (ta_param->parameter_value) {
         for (int j = 0; tapealert_mappings[j].alert_msg; j++) {
           if (result_index == tapealert_mappings[j].flag) {
-            Dmsg2(100, "TapeAlert [%d] set ==> %s\n", result_index,
+            Dmsg2(100, "TapeAlert [{}] set ==> {}\n", result_index,
                   tapealert_mappings[j].alert_msg);
             SetBit(result_index, (char*)flags);
           }

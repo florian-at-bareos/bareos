@@ -174,7 +174,7 @@ bool ConfigurationParser::ParseConfig()
     Jmsg0(nullptr, M_CONFIG_ERROR, 0, T_("Failed to find config filename.\n"));
   }
   used_config_path_ = config_path.c_str();
-  Dmsg1(100, "config file = %s\n", used_config_path_.c_str());
+  Dmsg1(100, "config file = {}\n", used_config_path_.c_str());
   bool success = ParseConfigFile(config_path.c_str(), nullptr, scan_error_,
                                  scan_warning_);
   if (success && ParseConfigReadyCb_) { ParseConfigReadyCb_(*this); }
@@ -219,7 +219,7 @@ bool ConfigurationParser::ParseConfigFile(const char* config_file_name,
   ConfigParserStateMachine state_machine(config_file_name, caller_ctx,
                                          scan_error, scan_warning, *this);
 
-  Dmsg1(900, "Enter ParseConfigFile(%s)\n", config_file_name);
+  Dmsg1(900, "Enter ParseConfigFile({})\n", config_file_name);
 
   do {
     if (!state_machine.InitParserPass()) { return false; }
@@ -264,7 +264,7 @@ bool ConfigurationParser::AppendToResourcesChain(BareosResource* new_resource,
   if (!config_resources_container_->configuration_resources_[rindex]) {
     config_resources_container_->configuration_resources_[rindex]
         = new_resource;
-    Dmsg3(900, "Inserting first %s res: %s index=%d\n", ResToStr(rcode),
+    Dmsg3(900, "Inserting first {} res: {} index={}\n", ResToStr(rcode),
           new_resource->resource_name_, rindex);
   } else {  // append
     BareosResource* last = nullptr;
@@ -282,7 +282,7 @@ bool ConfigurationParser::AppendToResourcesChain(BareosResource* new_resource,
       current = last->next_;
     } while (current);
     last->next_ = new_resource;
-    Dmsg3(900, T_("Inserting %s res: %s index=%d\n"), ResToStr(rcode),
+    Dmsg3(900, T_("Inserting {} res: {} index={}\n"), ResToStr(rcode),
           new_resource->resource_name_, rindex);
   }
   return true;
@@ -549,12 +549,12 @@ bool ConfigurationParser::RemoveResource(int rcode, const char* name)
     if (bstrcmp(res->resource_name_, name)) {
       if (!last) {
         Dmsg2(900,
-              T_("removing resource %s, name=%s (first resource in list)\n"),
+              T_("removing resource {}, name={} (first resource in list)\n"),
               ResToStr(rcode), name);
         config_resources_container_->configuration_resources_[rindex]
             = res->next_;
       } else {
-        Dmsg2(900, T_("removing resource %s, name=%s\n"), ResToStr(rcode),
+        Dmsg2(900, T_("removing resource {}, name={}\n"), ResToStr(rcode),
               name);
         last->next_ = res->next_;
       }

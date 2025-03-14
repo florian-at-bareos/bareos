@@ -120,7 +120,7 @@ const char* Device::mode_to_str(DeviceMode mode)
 Device* FactoryCreateDevice(JobControlRecord* jcr,
                             DeviceResource* device_resource)
 {
-  Dmsg1(400, "max_block_size in device_resource res is %u\n",
+  Dmsg1(400, "max_block_size in device_resource res is {}\n",
         device_resource->max_block_size);
 
   if (!ImplementationFactory<Device>::IsRegistered(
@@ -167,7 +167,7 @@ static void InitiateDevice(JobControlRecord* jcr, Device* dev)
 
   Mmsg(dev->prt_name, "\"%s\" (%s)", dev->device_resource->resource_name_,
        dev->device_resource->archive_device_string);
-  Dmsg1(400, "Allocate dev=%s\n", dev->print_name());
+  Dmsg1(400, "Allocate dev={}\n", dev->print_name());
   CopySetBits(CAP_MAX, dev->device_resource->cap_bits, dev->capabilities);
 
 
@@ -294,10 +294,10 @@ static void InitiateDevice(JobControlRecord* jcr, Device* dev)
 
   dev->ClearOpened();
   dev->attached_dcrs.clear();
-  Dmsg2(100, "FactoryCreateDevice: tape=%d archive_device_string=%s\n",
+  Dmsg2(100, "FactoryCreateDevice: tape={} archive_device_string={}\n",
         dev->IsTape(), dev->archive_device_string);
   dev->initiated = true;
-  Dmsg3(100, "dev=%s dev_max_bs=%u max_bs=%u\n", dev->archive_device_string,
+  Dmsg3(100, "dev={} dev_max_bs={} max_bs={}\n", dev->archive_device_string,
         dev->device_resource->max_block_size, dev->max_block_size);
 }
 
@@ -374,8 +374,8 @@ void Device::SetBlocksizes(DeviceControlRecord* dcr)
   uint32_t max_bs;
 
   Dmsg4(100,
-        "Device %s has dev->device->max_block_size of %u and "
-        "dev->max_block_size of %u, dcr->VolMaxBlocksize is %u\n",
+        "Device {} has dev->device->max_block_size of {} and "
+        "dev->max_block_size of {}, dcr->VolMaxBlocksize is {}\n",
         dev->print_name(), dev->device_resource->max_block_size,
         dev->max_block_size, dcr->VolMaxBlocksize);
   if (dcr->VolMaxBlocksize != 0) {
@@ -384,8 +384,8 @@ void Device::SetBlocksizes(DeviceControlRecord* dcr)
   } else if (dev->device_resource->max_block_size != 0) {
     Dmsg2(100,
           "setting dev->max_block_size to "
-          "dev->device_resource->max_block_size=%u "
-          "on device %s because dcr->VolMaxBlocksize is 0\n",
+          "dev->device_resource->max_block_size={} "
+          "on device {} because dcr->VolMaxBlocksize is 0\n",
           dev->device_resource->max_block_size, dev->print_name());
     dev->min_block_size = dev->device_resource->min_block_size;
     dev->max_block_size = dev->device_resource->max_block_size;
@@ -423,7 +423,7 @@ void Device::SetBlocksizes(DeviceControlRecord* dcr)
          dev->print_name());
   }
 
-  Dmsg3(100, "set minblocksize to %d, maxblocksize to %d on device %s\n",
+  Dmsg3(100, "set minblocksize to {}, maxblocksize to {} on device {}\n",
         dev->min_block_size, dev->max_block_size, dev->print_name());
 
   /* If blocklen is not dev->max_block_size create a new block with the right
@@ -431,12 +431,12 @@ void Device::SetBlocksizes(DeviceControlRecord* dcr)
    * DEFAULT_BLOCK_SIZE) */
   if (dcr->block) {
     if (dcr->block->buf_len != dev->max_block_size) {
-      Dmsg2(100, "created new block of buf_len: %u on device %s\n",
+      Dmsg2(100, "created new block of buf_len: {} on device {}\n",
             dev->max_block_size, dev->print_name());
       FreeBlock(dcr->block);
       dcr->block = new_block(dev);
       Dmsg2(100,
-            "created new block of buf_len: %u on device %s, freeing block\n",
+            "created new block of buf_len: {} on device {}, freeing block\n",
             dcr->block->buf_len, dev->print_name());
     }
   }
@@ -451,8 +451,8 @@ void Device::SetLabelBlocksize(DeviceControlRecord* dcr)
 {
   Device* dev = this;
   Dmsg3(100,
-        "setting minblocksize to %u, "
-        "maxblocksize to label_block_size=%u, on device %s\n",
+        "setting minblocksize to {}, "
+        "maxblocksize to label_block_size={}, on device {}\n",
         dev->device_resource->label_block_size,
         dev->device_resource->label_block_size, dev->print_name());
 
@@ -464,7 +464,7 @@ void Device::SetLabelBlocksize(DeviceControlRecord* dcr)
     if (dcr->block->buf_len != dev->max_block_size) {
       FreeBlock(dcr->block);
       dcr->block = new_block(dev);
-      Dmsg2(100, "created new block of buf_len: %u on device %s\n",
+      Dmsg2(100, "created new block of buf_len: {} on device {}\n",
             dcr->block->buf_len, dev->print_name());
     }
   }
@@ -507,7 +507,7 @@ bool Device::open(DeviceControlRecord* dcr, DeviceMode omode)
     VolCatInfo = dcr->VolCatInfo; /* structure assign */
   }
 
-  Dmsg4(100, "open dev: type=%d archive_device_string=%s vol=%s mode=%s\n",
+  Dmsg4(100, "open dev: type={} archive_device_string={} vol={} mode={}\n",
         device_type.c_str(), print_name(), getVolCatName(), mode_to_str(omode));
 
   ClearBit(ST_LABEL, state);
@@ -525,13 +525,13 @@ bool Device::open(DeviceControlRecord* dcr, DeviceMode omode)
     return false;
   }
 
-  Dmsg1(100, "call OpenDevice mode=%s\n", mode_to_str(omode));
+  Dmsg1(100, "call OpenDevice mode={}\n", mode_to_str(omode));
   OpenDevice(dcr, omode);
 
   // Reset any important state info
   CopySetBits(ST_MAX, preserve, state);
 
-  Dmsg2(100, "preserve=%08o fd=%d\n", preserve, fd);
+  Dmsg2(100, "preserve={:08o} fd={}\n", preserve, fd);
 
   return fd >= 0;
 }
@@ -590,7 +590,7 @@ void Device::OpenDevice(DeviceControlRecord* dcr, DeviceMode omode)
   open_mode = omode;
   set_mode(omode);
 
-  Dmsg3(100, "open archive: mode=%s open(%s, %08o, 0640)\n", mode_to_str(omode),
+  Dmsg3(100, "open archive: mode={} open({}, {:08o}, 0640)\n", mode_to_str(omode),
         archive_name.c_str(), oflags);
 
   if ((fd = d_open(archive_name.c_str(), oflags, 0640)) < 0) {
@@ -602,7 +602,7 @@ void Device::OpenDevice(DeviceControlRecord* dcr, DeviceMode omode)
       Mmsg2(errmsg, T_("Could not open: %s, ERR=%s\n"), archive_name.c_str(),
             be.bstrerror());
     }
-    Dmsg1(100, "open failed: %s", errmsg);
+    Dmsg1(100, "open failed: {}", errmsg);
   }
 
   if (fd >= 0) {
@@ -611,7 +611,7 @@ void Device::OpenDevice(DeviceControlRecord* dcr, DeviceMode omode)
     file_addr = 0;
   }
 
-  Dmsg1(100, "open dev: disk fd=%d opened\n", fd);
+  Dmsg1(100, "open dev: disk fd={} opened\n", fd);
 }
 
 /**
@@ -622,7 +622,7 @@ void Device::OpenDevice(DeviceControlRecord* dcr, DeviceMode omode)
  */
 bool Device::rewind(DeviceControlRecord* dcr)
 {
-  Dmsg3(400, "rewind res=%d fd=%d %s\n", NumReserved(), fd, print_name());
+  Dmsg3(400, "rewind res={} fd={} {}\n", NumReserved(), fd, print_name());
 
   // Remove EOF/EOT flags
   ClearBit(ST_EOT, state);
@@ -705,7 +705,7 @@ bool Device::eod(DeviceControlRecord* dcr)
   file_addr = 0;
 
   pos = d_lseek(dcr, (boffset_t)0, SEEK_END);
-  Dmsg1(200, "====== Seek to %lld\n", pos);
+  Dmsg1(200, "====== Seek to {}\n", pos);
 
   if (pos >= 0) {
     UpdatePos(dcr);
@@ -843,7 +843,7 @@ bool Device::Reposition(DeviceControlRecord* dcr,
     } break;
     case SeekMode::BYTES: {
       boffset_t pos = (((boffset_t)rfile) << 32) | rblock;
-      Dmsg1(100, "===== lseek to %d\n", (int)pos);
+      Dmsg1(100, "===== lseek to {}\n", (int)pos);
       if (d_lseek(dcr, pos, SEEK_SET) == (boffset_t)-1) {
         BErrNo be;
         dev_errno = errno;
@@ -876,7 +876,7 @@ void Device::SetUnload()
 // Clear volume header.
 void Device::ClearVolhdr()
 {
-  Dmsg1(100, "Clear volhdr vol=%s\n", VolHdr.VolumeName);
+  Dmsg1(100, "Clear volhdr vol={}\n", VolHdr.VolumeName);
   VolHdr = Volume_Label{};
   setVolCatInfo(false);
 }
@@ -888,10 +888,10 @@ bool Device::close(DeviceControlRecord* dcr)
 
   bool retval = true;
   int status;
-  Dmsg1(100, "close_dev %s\n", print_name());
+  Dmsg1(100, "close_dev {}\n", print_name());
 
   if (!IsOpen()) {
-    Dmsg2(100, "device %s already closed vol=%s\n", print_name(),
+    Dmsg2(100, "device {} already closed vol={}\n", print_name(),
           VolHdr.VolumeName);
     goto bail_out; /* already closed */
   }
@@ -1023,7 +1023,7 @@ void Device::EditMountCodes(PoolMem& omsg, const char* imsg)
   PoolMem archive_name(PM_FNAME);
 
   omsg.c_str()[0] = 0;
-  Dmsg1(800, "EditMountCodes: %s\n", imsg);
+  Dmsg1(800, "EditMountCodes: {}\n", imsg);
   for (p = imsg; *p; p++) {
     if (*p == '%') {
       switch (*++p) {
@@ -1048,9 +1048,9 @@ void Device::EditMountCodes(PoolMem& omsg, const char* imsg)
       add[1] = 0;
       str = add;
     }
-    Dmsg1(1900, "add_str %s\n", str);
+    Dmsg1(1900, "add_str {}\n", str);
     PmStrcat(omsg, (char*)str);
-    Dmsg1(1800, "omsg=%s\n", omsg.c_str());
+    Dmsg1(1800, "omsg={}\n", omsg.c_str());
   }
 }
 
@@ -1111,7 +1111,7 @@ const char* Device::name() const { return device_resource->resource_name_; }
 
 Device::~Device()
 {
-  Dmsg1(900, "term dev: %s\n", print_name());
+  Dmsg1(900, "term dev: {}\n", print_name());
 
   if (archive_device_string) {
     FreeMemory(archive_device_string);

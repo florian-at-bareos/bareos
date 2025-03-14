@@ -176,10 +176,10 @@ static int MatchFileregex(BootStrapRecord* bsr,
     if (UnpackAttributesRecord(jcr, rec->Stream, rec->data, rec->data_len,
                                bsr->attr)) {
       if (regexec(bsr->fileregex_re, bsr->attr->fname, 0, NULL, 0) == 0) {
-        Dmsg2(dbglevel, "Matched pattern, fname=%s FI=%d\n", bsr->attr->fname,
+        Dmsg2(dbglevel, "Matched pattern, fname={} FI={}\n", bsr->attr->fname,
               rec->FileIndex);
       } else {
-        Dmsg2(dbglevel, "Didn't match, skipping fname=%s FI=%d\n",
+        Dmsg2(dbglevel, "Didn't match, skipping fname={} FI={}\n",
               bsr->attr->fname, rec->FileIndex);
         bsr->skip_file = true;
       }
@@ -236,11 +236,11 @@ BootStrapRecord* find_next_bsr(BootStrapRecord* root_bsr, Device* dev)
   }
   if (!root_bsr->use_positioning || !root_bsr->Reposition
       || !dev->HasCap(CAP_POSITIONBLOCKS)) {
-    Dmsg2(dbglevel, "No nxt_bsr use_pos=%d repos=%d\n",
+    Dmsg2(dbglevel, "No nxt_bsr use_pos={} repos={}\n",
           root_bsr->use_positioning, root_bsr->Reposition);
     return NULL;
   }
-  Dmsg2(dbglevel, "use_pos=%d repos=%d\n", root_bsr->use_positioning,
+  Dmsg2(dbglevel, "use_pos={} repos={}\n", root_bsr->use_positioning,
         root_bsr->Reposition);
   root_bsr->mount_next_volume = false;
   /* Walk through all bsrs to find the next one to use => smallest file,block */
@@ -366,18 +366,18 @@ static BootStrapRecord* find_smallest_volfile(BootStrapRecord* found_bsr,
 bool IsThisBsrDone(BootStrapRecord*, DeviceRecord* rec)
 {
   BootStrapRecord* rbsr = rec->bsr;
-  Dmsg1(dbglevel, "match_set %d\n", rbsr != NULL);
+  Dmsg1(dbglevel, "match_set {}\n", rbsr != NULL);
   if (!rbsr) { return false; }
   rec->bsr = NULL;
   rbsr->found++;
   if (rbsr->count && rbsr->found >= rbsr->count) {
     rbsr->done = true;
     rbsr->root->Reposition = true;
-    Dmsg2(dbglevel, "is_end_this_bsr set Reposition=1 count=%d found=%d\n",
+    Dmsg2(dbglevel, "is_end_this_bsr set Reposition=1 count={} found={}\n",
           rbsr->count, rbsr->found);
     return true;
   }
-  Dmsg2(dbglevel, "is_end_this_bsr not done count=%d found=%d\n", rbsr->count,
+  Dmsg2(dbglevel, "is_end_this_bsr not done count={} found={}\n", rbsr->count,
         rbsr->found);
   return false;
 }
@@ -401,16 +401,16 @@ static int MatchAll(BootStrapRecord* bsr,
     goto no_match;
   }
   if (!MatchVolume(bsr, bsr->volume, volrec, 1)) {
-    Dmsg2(dbglevel, "bsr fail bsr_vol=%s != rec read_vol=%s\n",
+    Dmsg2(dbglevel, "bsr fail bsr_vol={} != rec read_vol={}\n",
           bsr->volume->VolumeName, volrec->VolumeName);
     goto no_match;
   }
-  Dmsg2(dbglevel, "OK bsr match bsr_vol=%s read_vol=%s\n",
+  Dmsg2(dbglevel, "OK bsr match bsr_vol={} read_vol={}\n",
         bsr->volume->VolumeName, volrec->VolumeName);
 
   if (!MatchVolfile(bsr, bsr->volfile, rec, 1)) {
     if (bsr->volfile) {
-      Dmsg3(dbglevel, "Fail on file=%u. bsr=%u,%u\n", rec->File,
+      Dmsg3(dbglevel, "Fail on file={}. bsr={},{}\n", rec->File,
             bsr->volfile->sfile, bsr->volfile->efile);
     }
     goto no_match;
@@ -418,21 +418,21 @@ static int MatchAll(BootStrapRecord* bsr,
 
   if (!MatchVoladdr(bsr, bsr->voladdr, rec, 1)) {
     if (bsr->voladdr) {
-      Dmsg3(dbglevel, "Fail on Addr=%llu. bsr=%llu,%llu\n",
+      Dmsg3(dbglevel, "Fail on Addr={}. bsr={},{}\n",
             GetRecordAddress(rec), bsr->voladdr->saddr, bsr->voladdr->eaddr);
     }
     goto no_match;
   }
 
   if (!MatchSesstime(bsr, bsr->sesstime, rec, 1)) {
-    Dmsg2(dbglevel, "Fail on sesstime. bsr=%u rec=%u\n",
+    Dmsg2(dbglevel, "Fail on sesstime. bsr={} rec={}\n",
           bsr->sesstime->sesstime, rec->VolSessionTime);
     goto no_match;
   }
 
   /* NOTE!! This test MUST come after the sesstime test */
   if (!MatchSessid(bsr, bsr->sessid, rec)) {
-    Dmsg2(dbglevel, "Fail on sessid. bsr=%u rec=%u\n", bsr->sessid->sessid,
+    Dmsg2(dbglevel, "Fail on sessid. bsr={} rec={}\n", bsr->sessid->sessid,
           rec->VolSessionId);
     goto no_match;
   }
@@ -440,11 +440,11 @@ static int MatchAll(BootStrapRecord* bsr,
   /* NOTE!! This test MUST come after sesstime and sessid tests */
   if (bsr->FileIndex) {
     if (!MatchFindex(bsr, bsr->FileIndex, rec, 1)) {
-      Dmsg3(dbglevel, "Fail on findex=%d. bsr=%d,%d\n", rec->FileIndex,
+      Dmsg3(dbglevel, "Fail on findex={}. bsr={},{}\n", rec->FileIndex,
             bsr->FileIndex->findex, bsr->FileIndex->findex2);
       goto no_match;
     } else {
-      Dmsg3(dbglevel, "match on findex=%d. bsr=%d,%d\n", rec->FileIndex,
+      Dmsg3(dbglevel, "match on findex={}. bsr={},{}\n", rec->FileIndex,
             bsr->FileIndex->findex, bsr->FileIndex->findex2);
     }
   } else {
@@ -452,13 +452,13 @@ static int MatchAll(BootStrapRecord* bsr,
   }
 
   if (!MatchFileregex(bsr, rec, jcr)) {
-    Dmsg1(dbglevel, "Fail on fileregex='%s'\n", bsr->fileregex);
+    Dmsg1(dbglevel, "Fail on fileregex='{}'\n", bsr->fileregex);
     goto no_match;
   }
 
   /* This flag is set by MatchFileregex (and perhaps other tests) */
   if (bsr->skip_file) {
-    Dmsg1(dbglevel, "Skipping findex=%d\n", rec->FileIndex);
+    Dmsg1(dbglevel, "Skipping findex={}\n", rec->FileIndex);
     goto no_match;
   }
 
@@ -522,7 +522,7 @@ static int MatchVolume(BootStrapRecord* bsr,
 {
   if (!volume) { return 0; /* Volume must match */ }
   if (bstrcmp(volume->VolumeName, volrec->VolumeName)) {
-    Dmsg1(dbglevel, "MatchVolume=%s\n", volrec->VolumeName);
+    Dmsg1(dbglevel, "MatchVolume={}\n", volrec->VolumeName);
     return 1;
   }
   if (volume->next) { return MatchVolume(bsr, volume->next, volrec, 1); }
@@ -608,7 +608,7 @@ static int MatchVolfile(BootStrapRecord* bsr,
   if (volfile->done && done) {
     bsr->done = true;
     bsr->root->Reposition = true;
-    Dmsg2(dbglevel, "bsr done from volfile rec=%u volefile=%u\n", rec->File,
+    Dmsg2(dbglevel, "bsr done from volfile rec={} volefile={}\n", rec->File,
           volfile->efile);
   }
   return 0;
@@ -623,8 +623,8 @@ static int MatchVoladdr(BootStrapRecord* bsr,
 
   uint64_t addr = GetRecordAddress(rec);
   Dmsg6(dbglevel,
-        "MatchVoladdr: saddr=%llu eaddr=%llu recaddr=%llu sfile=%u efile=%u "
-        "recfile=%u\n",
+        "MatchVoladdr: saddr={} eaddr={} recaddr={} sfile={} efile={} "
+        "recfile={}\n",
         voladdr->saddr, voladdr->eaddr, addr, voladdr->saddr >> 32,
         voladdr->eaddr >> 32, addr >> 32);
 
@@ -639,7 +639,7 @@ static int MatchVoladdr(BootStrapRecord* bsr,
   if (voladdr->done && done) {
     bsr->done = true;
     bsr->root->Reposition = true;
-    Dmsg2(dbglevel, "bsr done from voladdr rec=%llu voleaddr=%llu\n", addr,
+    Dmsg2(dbglevel, "bsr done from voladdr rec={} voleaddr={}\n", addr,
           voladdr->eaddr);
   }
   return 0;
@@ -709,7 +709,7 @@ static int MatchFindex(BootStrapRecord* bsr,
   if (!findex) { return 1; /* no specification matches all */ }
   if (!findex->done) {
     if (findex->findex <= rec->FileIndex && findex->findex2 >= rec->FileIndex) {
-      Dmsg3(dbglevel, "Match on findex=%d. bsrFIs=%d,%d\n", rec->FileIndex,
+      Dmsg3(dbglevel, "Match on findex={}. bsrFIs={},{}\n", rec->FileIndex,
             findex->findex, findex->findex2);
       return 1;
     }
@@ -721,7 +721,7 @@ static int MatchFindex(BootStrapRecord* bsr,
   if (findex->done && done) {
     bsr->done = true;
     bsr->root->Reposition = true;
-    Dmsg1(dbglevel, "bsr done from findex %d\n", rec->FileIndex);
+    Dmsg1(dbglevel, "bsr done from findex {}\n", rec->FileIndex);
   }
   return 0;
 }
@@ -837,10 +837,10 @@ void CreateRestoreVolumeList(JobControlRecord* jcr)
         vol->start_file = sfile;
         if (AddRestoreVolume(jcr, vol)) {
           jcr->sd_impl->NumReadVolumes++;
-          Dmsg2(400, "Added volume=%s mediatype=%s\n", vol->VolumeName,
+          Dmsg2(400, "Added volume={} mediatype={}\n", vol->VolumeName,
                 vol->MediaType);
         } else {
-          Dmsg1(400, "Duplicate volume %s\n", vol->VolumeName);
+          Dmsg1(400, "Duplicate volume {}\n", vol->VolumeName);
           free((char*)vol);
         }
         sfile = 0; /* start at beginning of second volume */

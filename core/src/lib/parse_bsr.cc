@@ -240,7 +240,7 @@ storagedaemon::BootStrapRecord* parse_bsr(JobControlRecord* jcr, char* fname)
   storagedaemon::BootStrapRecord* root_bsr = new_bsr();
   storagedaemon::BootStrapRecord* bsr = root_bsr;
 
-  Dmsg1(300, "Enter parse_bsf %s\n", fname);
+  Dmsg1(300, "Enter parse_bsf {}\n", fname);
   if ((lc = lex_open_file(lc, fname, s_err, s_warn)) == NULL) {
     BErrNo be;
     Emsg2(M_ERROR_TERM, 0, T_("Cannot open bootstrap file %s: %s\n"), fname,
@@ -248,18 +248,18 @@ storagedaemon::BootStrapRecord* parse_bsr(JobControlRecord* jcr, char* fname)
   }
   lc->caller_ctx = (void*)jcr;
   while ((token = LexGetToken(lc, BCT_ALL)) != BCT_EOF) {
-    Dmsg1(300, "parse got token=%s\n", lex_tok_to_str(token));
+    Dmsg1(300, "parse got token={}\n", lex_tok_to_str(token));
     if (token == BCT_EOL) { continue; }
     for (i = 0; items[i].name; i++) {
       if (Bstrcasecmp(items[i].name, lc->str)) {
         token = LexGetToken(lc, BCT_ALL);
-        Dmsg1(300, "in BCT_IDENT got token=%s\n", lex_tok_to_str(token));
+        Dmsg1(300, "in BCT_IDENT got token={}\n", lex_tok_to_str(token));
         if (token != BCT_EQUALS) {
           scan_err1(lc, "expected an equals, got: %s", lc->str);
           bsr = NULL;
           break;
         }
-        Dmsg1(300, "calling handler for %s\n", items[i].name);
+        Dmsg1(300, "calling handler for {}\n", items[i].name);
         // Call item handler
         bsr = items[i].handler(lc, bsr);
         i = -1;
@@ -267,7 +267,7 @@ storagedaemon::BootStrapRecord* parse_bsr(JobControlRecord* jcr, char* fname)
       }
     }
     if (i >= 0) {
-      Dmsg1(300, "Keyword = %s\n", lc->str);
+      Dmsg1(300, "Keyword = {}\n", lc->str);
       scan_err1(lc, "Keyword %s not found", lc->str);
       bsr = NULL;
       break;

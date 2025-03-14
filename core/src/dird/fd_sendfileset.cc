@@ -53,11 +53,11 @@ static bool SendListItem(JobControlRecord* jcr,
         return false;
       }
       bstrncpy(buf, code, sizeof(buf));
-      Dmsg1(500, "code=%s\n", buf);
+      Dmsg1(500, "code={}\n", buf);
       optlen = strlen(buf);
       while (fgets(buf + optlen, sizeof(buf) - optlen, bpipe->rfd)) {
         fd->message_length = Mmsg(fd->msg, "%s", buf);
-        Dmsg2(500, "Inc/exc len=%d: %s", fd->message_length, fd->msg);
+        Dmsg2(500, "Inc/exc len={}: {}", fd->message_length, fd->msg);
         if (!BnetSend(fd)) {
           Jmsg(jcr, M_FATAL, 0, T_(">filed: write error on socket\n"));
           return false;
@@ -79,7 +79,7 @@ static bool SendListItem(JobControlRecord* jcr,
         return false;
       }
       bstrncpy(buf, code, sizeof(buf));
-      Dmsg1(500, "code=%s\n", buf);
+      Dmsg1(500, "code={}\n", buf);
       optlen = strlen(buf);
       while (fgets(buf + optlen, sizeof(buf) - optlen, ffd)) {
         fd->message_length = Mmsg(fd->msg, "%s", buf);
@@ -97,7 +97,7 @@ static bool SendListItem(JobControlRecord* jcr,
     default:
       PmStrcpy(fd->msg, code);
       fd->message_length = PmStrcat(fd->msg, p);
-      Dmsg1(500, "Inc/Exc name=%s\n", fd->msg);
+      Dmsg1(500, "Inc/Exc name={}\n", fd->msg);
       if (!fd->send()) {
         Jmsg(jcr, M_FATAL, 0, T_(">filed: write error on socket\n"));
         return false;

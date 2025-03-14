@@ -105,7 +105,7 @@ bool DotStatusCmd(UaContext* ua, const char* cmd)
   char ed1[50];
   char* statuscmd = NULL;
 
-  Dmsg2(20, "status=\"%s\" argc=%d\n", cmd, ua->argc);
+  Dmsg2(20, "status=\"{}\" argc={}\n", cmd, ua->argc);
 
   if (ua->argc < 2) {
     ua->SendMsg("1900 Bad .status command, missing arguments.\n");
@@ -150,7 +150,7 @@ bool DotStatusCmd(UaContext* ua, const char* cmd)
     client = get_client_resource(ua);
     if (client) {
       if (ua->argc == 3) { statuscmd = ua->argk[2]; }
-      Dmsg2(200, "Client=%s arg=%s\n", client->resource_name_, NPRT(statuscmd));
+      Dmsg2(200, "Client={} arg={}\n", client->resource_name_, NPRT(statuscmd));
       ClientStatus(ua, client, statuscmd);
     }
   } else if (Bstrcasecmp(ua->argk[1], "storage")) {
@@ -175,7 +175,7 @@ bool StatusCmd(UaContext* ua, const char* cmd)
   int item, i;
   bool autochangers_only;
 
-  Dmsg1(20, "status:%s:\n", cmd);
+  Dmsg1(20, "status:{}:\n", cmd);
 
   for (i = 1; i < ua->argc; i++) {
     if (Bstrcasecmp(ua->argk[i], NT_("all"))) {
@@ -238,7 +238,7 @@ bool StatusCmd(UaContext* ua, const char* cmd)
         < 0) {
       return true;
     }
-    Dmsg1(20, "item=%d\n", item);
+    Dmsg1(20, "item={}\n", item);
     switch (item) {
       case 0: /* Director */
         DoDirectorStatus(ua);
@@ -293,7 +293,7 @@ static void DoAllStatus(UaContext* ua)
     }
     if (!found) {
       unique_store[i++] = store;
-      Dmsg2(40, "Stuffing: %s:%d\n", store->address, store->SDport);
+      Dmsg2(40, "Stuffing: {}:{}\n", store->address, store->SDport);
     }
   }
 
@@ -326,7 +326,7 @@ static void DoAllStatus(UaContext* ua)
     }
     if (!found) {
       unique_client[i++] = client;
-      Dmsg2(40, "Stuffing: %s:%d\n", client->address, client->FDport);
+      Dmsg2(40, "Stuffing: {}:{}\n", client->address, client->FDport);
     }
   }
 
@@ -486,7 +486,7 @@ std::string get_subscription_status_checksum_source_text(UaContext* ua,
   ua->db->ListSqlQuery(ua->jcr, query.c_str(), &output_text, VERT_LIST, false);
   std::string checksum_source
       = salt + "\n" + timestamp + "\n" + subscriptions.c_str();
-  Dmsg1(500, "status_subscription summary=%s\n", checksum_source.c_str());
+  Dmsg1(500, "status_subscription summary={}\n", checksum_source.c_str());
   return checksum_source;
 }
 
@@ -823,7 +823,7 @@ static void PrtRuntime(UaContext* ua, sched_pkt* sp)
   if (sp->job->JobType == JT_BACKUP) {
     jcr->db = NULL;
     ok = CompleteJcrForJob(jcr, sp->job, sp->pool);
-    Dmsg1(250, "Using pool=%s\n", jcr->dir_impl->res.pool->resource_name_);
+    Dmsg1(250, "Using pool={}\n", jcr->dir_impl->res.pool->resource_name_);
     if (jcr->db) { CloseDb = true; /* new db opened, remember to close it */ }
     if (ok) {
       mr.PoolId = jcr->dir_impl->jr.PoolId;
@@ -919,11 +919,11 @@ static void ListScheduledJobs(UaContext* ua)
            .pool = run->pool,
            .store = storage_res.store});
       if (sched.back().store) {
-        Dmsg3(250, "job=%s storage=%s MediaType=%s\n", job->resource_name_,
+        Dmsg3(250, "job={} storage={} MediaType={}\n", job->resource_name_,
               sched.back().store->resource_name_,
               sched.back().store->media_type);
       } else {
-        Dmsg1(250, "job=%s could not get job storage\n", job->resource_name_);
+        Dmsg1(250, "job={} could not get job storage\n", job->resource_name_);
       }
     }
   } /* end for loop over resources */
@@ -1653,7 +1653,7 @@ static void StatusSlots(UaContext* ua, StorageResource* store)
         }
         // Check if user wants us to look at this slot
         if (!BitIsSet(vl1->bareos_slot_number - 1, slot_list)) {
-          Dmsg1(100, "Skipping slot=%hd\n", vl1->bareos_slot_number);
+          Dmsg1(100, "Skipping slot={}\n", vl1->bareos_slot_number);
           continue;
         }
 
@@ -1681,7 +1681,7 @@ static void StatusSlots(UaContext* ua, StorageResource* store)
             MediaDbRecord mr;
             if (vl1->slot_status == slot_status_t::kSlotStatusFull) {
               if (!vl1->VolName) {
-                Dmsg1(100, "No VolName for Slot=%hd.\n",
+                Dmsg1(100, "No VolName for Slot={}.\n",
                       vl1->bareos_slot_number);
                 ua->SendMsg(slot_hformat, vl1->bareos_slot_number,
                             (vl1->slot_type == slot_type_t::kSlotTypeImport)
@@ -1694,7 +1694,7 @@ static void StatusSlots(UaContext* ua, StorageResource* store)
               bstrncpy(mr.VolumeName, vl1->VolName, sizeof(mr.VolumeName));
             } else {
               if (!vl2 || !vl2->VolName) {
-                Dmsg1(100, "No VolName for Slot=%hd.\n",
+                Dmsg1(100, "No VolName for Slot={}.\n",
                       vl1->bareos_slot_number);
                 ua->SendMsg(slot_hformat, vl1->bareos_slot_number,
                             (vl1->slot_type == slot_type_t::kSlotTypeImport)

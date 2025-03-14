@@ -128,7 +128,7 @@ static inline bool trigger_plugin_event(bDirEventType eventType,
   bool stop = false;
 
   if (!IsEventEnabled(ctx, eventType)) {
-    Dmsg1(debuglevel, "Event %d disabled for this plugin.\n", eventType);
+    Dmsg1(debuglevel, "Event {} disabled for this plugin.\n", eventType);
     goto bail_out;
   }
 
@@ -209,7 +209,7 @@ bRC GeneratePluginEvent(JobControlRecord* jcr,
   plugin_ctx_list = jcr->plugin_ctx_list;
   event.eventType = eventType;
 
-  Dmsg2(debuglevel, "dir-plugin_ctx_list=%p JobId=%d\n", plugin_ctx_list,
+  Dmsg2(debuglevel, "dir-plugin_ctx_list={:p} JobId={}\n", plugin_ctx_list,
         jcr->JobId);
 
   // See if we need to trigger the loaded plugins in reverse order.
@@ -289,10 +289,10 @@ void LoadDirPlugins(const char* plugin_dir, alist<const char*>* plugin_names)
   /* Verify that the plugin is acceptable, and print information
    *  about it. */
   foreach_alist_index (i, plugin, dird_plugin_list) {
-    Dmsg1(debuglevel, "Loaded plugin: %s\n", plugin->file);
+    Dmsg1(debuglevel, "Loaded plugin: {}\n", plugin->file);
   }
 
-  Dmsg1(debuglevel, "num plugins=%d\n", dird_plugin_list->size());
+  Dmsg1(debuglevel, "num plugins={}\n", dird_plugin_list->size());
   DbgPluginAddHook(DumpDirPlugin);
   DbgPrintPluginAddHook(DumpDirPlugins);
 }
@@ -320,7 +320,7 @@ static bool IsPluginCompatible(Plugin* plugin)
     Jmsg(NULL, M_ERROR, 0,
          T_("Plugin magic wrong. Plugin=%s wanted=%s got=%s\n"), plugin->file,
          DIR_PLUGIN_MAGIC, info->plugin_magic);
-    Dmsg3(50, "Plugin magic wrong. Plugin=%s wanted=%s got=%s\n", plugin->file,
+    Dmsg3(50, "Plugin magic wrong. Plugin={} wanted={} got={}\n", plugin->file,
           DIR_PLUGIN_MAGIC, info->plugin_magic);
 
     return false;
@@ -329,7 +329,7 @@ static bool IsPluginCompatible(Plugin* plugin)
     Jmsg(NULL, M_ERROR, 0,
          T_("Plugin version incorrect. Plugin=%s wanted=%d got=%d\n"),
          plugin->file, DIR_PLUGIN_INTERFACE_VERSION, info->version);
-    Dmsg3(50, "Plugin version incorrect. Plugin=%s wanted=%d got=%d\n",
+    Dmsg3(50, "Plugin version incorrect. Plugin={} wanted={} got={}\n",
           plugin->file, DIR_PLUGIN_INTERFACE_VERSION, info->version);
     return false;
   }
@@ -338,7 +338,7 @@ static bool IsPluginCompatible(Plugin* plugin)
     Jmsg(NULL, M_ERROR, 0,
          T_("Plugin license incompatible. Plugin=%s license=%s\n"),
          plugin->file, info->plugin_license);
-    Dmsg2(50, "Plugin license incompatible. Plugin=%s license=%s\n",
+    Dmsg2(50, "Plugin license incompatible. Plugin={} license={}\n",
           plugin->file, info->plugin_license);
     return false;
   }
@@ -365,7 +365,7 @@ static inline PluginContext* instantiate_plugin(JobControlRecord* jcr,
   b_ctx->jcr = jcr;
   b_ctx->plugin = plugin;
 
-  Dmsg2(debuglevel, "Instantiate dir-plugin_ctx_list=%p JobId=%d\n",
+  Dmsg2(debuglevel, "Instantiate dir-plugin_ctx_list={:p} JobId={}\n",
         jcr->plugin_ctx_list, jcr->JobId);
 
   ctx = (PluginContext*)malloc(sizeof(PluginContext));
@@ -488,7 +488,7 @@ void NewPlugins(JobControlRecord* jcr)
   if (jcr->IsJobCanceled()) { return; }
 
   num = dird_plugin_list->size();
-  Dmsg1(debuglevel, "dir-plugin-list size=%d\n", num);
+  Dmsg1(debuglevel, "dir-plugin-list size={}\n", num);
   if (num == 0) { return; }
 
   jcr->plugin_ctx_list = new alist<PluginContext*>(10, owned_by_alist);
@@ -503,7 +503,7 @@ void FreePlugins(JobControlRecord* jcr)
 {
   if (!dird_plugin_list || !jcr->plugin_ctx_list) { return; }
 
-  Dmsg2(debuglevel, "Free instance dir-plugin_ctx_list=%p JobId=%d\n",
+  Dmsg2(debuglevel, "Free instance dir-plugin_ctx_list={:p} JobId={}\n",
         jcr->plugin_ctx_list, jcr->JobId);
   for (auto* ctx : jcr->plugin_ctx_list) {
     // Free the plugin instance
@@ -530,7 +530,7 @@ static bRC bareosGetValue(PluginContext* ctx, brDirVariable var, void* value)
   switch (var) { /* General variables, no need of ctx */
     case bDirVarPluginDir:
       *((char**)value) = me->plugin_directory;
-      Dmsg1(debuglevel, "dir-plugin: return bDirVarPluginDir=%s\n",
+      Dmsg1(debuglevel, "dir-plugin: return bDirVarPluginDir={}\n",
             NPRT(*((char**)value)));
       break;
     default:
@@ -544,31 +544,31 @@ static bRC bareosGetValue(PluginContext* ctx, brDirVariable var, void* value)
     switch (var) {
       case bDirVarJobId:
         *((int*)value) = jcr->JobId;
-        Dmsg1(debuglevel, "dir-plugin: return bDirVarJobId=%d\n", jcr->JobId);
+        Dmsg1(debuglevel, "dir-plugin: return bDirVarJobId={}\n", jcr->JobId);
         break;
       case bDirVarJobName:
         *((char**)value) = jcr->Job;
-        Dmsg1(debuglevel, "dir-plugin: return Job name=%s\n",
+        Dmsg1(debuglevel, "dir-plugin: return Job name={}\n",
               NPRT(*((char**)value)));
         break;
       case bDirVarJob:
         *((char**)value) = jcr->dir_impl->res.job->resource_name_;
-        Dmsg1(debuglevel, "dir-plugin: return bDirVarJob=%s\n",
+        Dmsg1(debuglevel, "dir-plugin: return bDirVarJob={}\n",
               NPRT(*((char**)value)));
         break;
       case bDirVarLevel:
         *((int*)value) = jcr->getJobLevel();
-        Dmsg1(debuglevel, "dir-plugin: return bDirVarLevel=%c\n",
+        Dmsg1(debuglevel, "dir-plugin: return bDirVarLevel={:c}\n",
               jcr->getJobLevel());
         break;
       case bDirVarType:
         *((int*)value) = jcr->getJobType();
-        Dmsg1(debuglevel, "dir-plugin: return bDirVarType=%c\n",
+        Dmsg1(debuglevel, "dir-plugin: return bDirVarType={:c}\n",
               jcr->getJobType());
         break;
       case bDirVarClient:
         *((char**)value) = jcr->dir_impl->res.client->resource_name_;
-        Dmsg1(debuglevel, "dir-plugin: return bDirVarClient=%s\n",
+        Dmsg1(debuglevel, "dir-plugin: return bDirVarClient={}\n",
               NPRT(*((char**)value)));
         break;
       case bDirVarNumVols: {
@@ -578,12 +578,12 @@ static bRC bareosGetValue(PluginContext* ctx, brDirVariable var, void* value)
                  sizeof(pr.Name));
         if (!jcr->db->GetPoolRecord(jcr, &pr)) { retval = bRC_Error; }
         *((int*)value) = pr.NumVols;
-        Dmsg1(debuglevel, "dir-plugin: return bDirVarNumVols=%d\n", pr.NumVols);
+        Dmsg1(debuglevel, "dir-plugin: return bDirVarNumVols={}\n", pr.NumVols);
         break;
       }
       case bDirVarPool:
         *((char**)value) = jcr->dir_impl->res.pool->resource_name_;
-        Dmsg1(debuglevel, "dir-plugin: return bDirVarPool=%s\n",
+        Dmsg1(debuglevel, "dir-plugin: return bDirVarPool={}\n",
               NPRT(*((char**)value)));
         break;
       case bDirVarStorage:
@@ -595,7 +595,7 @@ static bRC bareosGetValue(PluginContext* ctx, brDirVariable var, void* value)
           *((char**)value) = NULL;
           retval = bRC_Error;
         }
-        Dmsg1(debuglevel, "dir-plugin: return bDirVarStorage=%s\n",
+        Dmsg1(debuglevel, "dir-plugin: return bDirVarStorage={}\n",
               NPRT(*((char**)value)));
         break;
       case bDirVarWriteStorage:
@@ -605,7 +605,7 @@ static bRC bareosGetValue(PluginContext* ctx, brDirVariable var, void* value)
           *((char**)value) = NULL;
           retval = bRC_Error;
         }
-        Dmsg1(debuglevel, "dir-plugin: return bDirVarWriteStorage=%s\n",
+        Dmsg1(debuglevel, "dir-plugin: return bDirVarWriteStorage={}\n",
               NPRT(*((char**)value)));
         break;
       case bDirVarReadStorage:
@@ -615,12 +615,12 @@ static bRC bareosGetValue(PluginContext* ctx, brDirVariable var, void* value)
           *((char**)value) = NULL;
           retval = bRC_Error;
         }
-        Dmsg1(debuglevel, "dir-plugin: return bDirVarReadStorage=%s\n",
+        Dmsg1(debuglevel, "dir-plugin: return bDirVarReadStorage={}\n",
               NPRT(*((char**)value)));
         break;
       case bDirVarCatalog:
         *((char**)value) = jcr->dir_impl->res.catalog->resource_name_;
-        Dmsg1(debuglevel, "dir-plugin: return bDirVarCatalog=%s\n",
+        Dmsg1(debuglevel, "dir-plugin: return bDirVarCatalog={}\n",
               NPRT(*((char**)value)));
         break;
       case bDirVarMediaType:
@@ -632,22 +632,22 @@ static bRC bareosGetValue(PluginContext* ctx, brDirVariable var, void* value)
           *((char**)value) = NULL;
           retval = bRC_Error;
         }
-        Dmsg1(debuglevel, "dir-plugin: return bDirVarMediaType=%s\n",
+        Dmsg1(debuglevel, "dir-plugin: return bDirVarMediaType={}\n",
               NPRT(*((char**)value)));
         break;
       case bDirVarJobStatus:
         *((int*)value) = jcr->getJobStatus();
-        Dmsg1(debuglevel, "dir-plugin: return bDirVarJobStatus=%c\n",
+        Dmsg1(debuglevel, "dir-plugin: return bDirVarJobStatus={:c}\n",
               jcr->getJobStatus());
         break;
       case bDirVarPriority:
         *((int*)value) = jcr->JobPriority;
-        Dmsg1(debuglevel, "dir-plugin: return bDirVarPriority=%d\n",
+        Dmsg1(debuglevel, "dir-plugin: return bDirVarPriority={}\n",
               jcr->JobPriority);
         break;
       case bDirVarVolumeName:
         *((char**)value) = jcr->VolumeName;
-        Dmsg1(debuglevel, "dir-plugin: return bDirVarVolumeName=%s\n",
+        Dmsg1(debuglevel, "dir-plugin: return bDirVarVolumeName={}\n",
               NPRT(*((char**)value)));
         break;
       case bDirVarCatalogRes:
@@ -655,47 +655,47 @@ static bRC bareosGetValue(PluginContext* ctx, brDirVariable var, void* value)
         break;
       case bDirVarJobErrors:
         *((int*)value) = jcr->JobErrors;
-        Dmsg1(debuglevel, "dir-plugin: return bDirVarErrors=%d\n",
+        Dmsg1(debuglevel, "dir-plugin: return bDirVarErrors={}\n",
               jcr->JobErrors);
         break;
       case bDirVarJobFiles:
         *((int*)value) = jcr->JobFiles;
-        Dmsg1(debuglevel, "dir-plugin: return bDirVarFiles=%d\n",
+        Dmsg1(debuglevel, "dir-plugin: return bDirVarFiles={}\n",
               jcr->JobFiles);
         break;
       case bDirVarSDJobFiles:
         *((int*)value) = jcr->dir_impl->SDJobFiles;
-        Dmsg1(debuglevel, "dir-plugin: return bDirVarSDFiles=%d\n",
+        Dmsg1(debuglevel, "dir-plugin: return bDirVarSDFiles={}\n",
               jcr->dir_impl->SDJobFiles);
         break;
       case bDirVarSDErrors:
         *((int*)value) = jcr->dir_impl->SDErrors;
-        Dmsg1(debuglevel, "dir-plugin: return bDirVarSDErrors=%d\n",
+        Dmsg1(debuglevel, "dir-plugin: return bDirVarSDErrors={}\n",
               jcr->dir_impl->SDErrors);
         break;
       case bDirVarFDJobStatus:
         *((int*)value) = jcr->dir_impl->FDJobStatus;
-        Dmsg1(debuglevel, "dir-plugin: return bDirVarFDJobStatus=%c\n",
+        Dmsg1(debuglevel, "dir-plugin: return bDirVarFDJobStatus={:c}\n",
               jcr->dir_impl->FDJobStatus.load());
         break;
       case bDirVarSDJobStatus:
         *((int*)value) = jcr->dir_impl->SDJobStatus;
-        Dmsg1(debuglevel, "dir-plugin: return bDirVarSDJobStatus=%c\n",
+        Dmsg1(debuglevel, "dir-plugin: return bDirVarSDJobStatus={:c}\n",
               jcr->dir_impl->SDJobStatus.load());
         break;
       case bDirVarLastRate:
         *((int*)value) = jcr->LastRate;
-        Dmsg1(debuglevel, "dir-plugin: return bDirVarLastRate=%d\n",
+        Dmsg1(debuglevel, "dir-plugin: return bDirVarLastRate={}\n",
               jcr->LastRate);
         break;
       case bDirVarJobBytes:
         *((uint64_t*)value) = jcr->JobBytes;
-        Dmsg1(debuglevel, "dir-plugin: return bDirVarJobBytes=%u\n",
+        Dmsg1(debuglevel, "dir-plugin: return bDirVarJobBytes={}\n",
               jcr->JobBytes);
         break;
       case bDirVarReadBytes:
         *((uint64_t*)value) = jcr->ReadBytes;
-        Dmsg1(debuglevel, "dir-plugin: return bDirVarReadBytes=%u\n",
+        Dmsg1(debuglevel, "dir-plugin: return bDirVarReadBytes={}\n",
               jcr->ReadBytes);
         break;
       default:
@@ -715,7 +715,7 @@ static bRC bareosSetValue(PluginContext* ctx, bwDirVariable var, void* value)
   jcr = ((b_plugin_ctx*)ctx->core_private_context)->jcr;
   if (!jcr) { return bRC_Error; }
 
-  Dmsg1(debuglevel, "dir-plugin: bareosSetValue var=%d\n", var);
+  Dmsg1(debuglevel, "dir-plugin: bareosSetValue var={}\n", var);
   switch (var) {
     case bwDirVarVolumeName:
       PmStrcpy(jcr->VolumeName, ((char*)value));
@@ -745,7 +745,7 @@ static bRC bareosRegisterEvents(PluginContext* ctx, int nr_events, ...)
   va_start(args, nr_events);
   for (i = 0; i < nr_events; i++) {
     event = va_arg(args, uint32_t);
-    Dmsg1(debuglevel, "dir-plugin: Plugin registered event=%u\n", event);
+    Dmsg1(debuglevel, "dir-plugin: Plugin registered event={}\n", event);
     SetBit(event, b_ctx->events);
   }
   va_end(args);
@@ -765,7 +765,7 @@ static bRC bareosUnRegisterEvents(PluginContext* ctx, int nr_events, ...)
   va_start(args, nr_events);
   for (i = 0; i < nr_events; i++) {
     event = va_arg(args, uint32_t);
-    Dmsg1(debuglevel, "dir-plugin: Plugin unregistered event=%u\n", event);
+    Dmsg1(debuglevel, "dir-plugin: Plugin unregistered event={}\n", event);
     ClearBit(event, b_ctx->events);
   }
   va_end(args);

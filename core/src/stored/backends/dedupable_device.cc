@@ -130,8 +130,8 @@ int dedup_device::d_open(const char* path, int, int mode)
         dedup::volume::create_new(mode, path, parsed.options.blocksize);
       } catch (const std::exception& ex) {
         Dmsg3(200,
-              "Could not create new volume %s while opening as %s. "
-              "ERR=%s\n",
+              "Could not create new volume {} while opening as {}. "
+              "ERR={}\n",
               path,
               open_mode == (DeviceMode::CREATE_READ_WRITE) ? "CREATE_READ_WRITE"
                                                            : "OPEN_READ_WRITE",
@@ -251,7 +251,7 @@ ssize_t dedup_device::d_write(int dird, const void* data, size_t size)
           auto rsize = std::min(record.size(), records.leftover());
           if (rsize != record.size()) {
             Dmsg2(500,
-                  "Found split record. Record size = %llu, but only %llu bytes "
+                  "Found split record. Record size = {}, but only {} bytes "
                   "available.\n",
                   record.size(), rsize);
           }
@@ -425,7 +425,7 @@ bool dedup_device::Reposition(DeviceControlRecord* dcr,
           T_("Trying to reposition dedup volume when none are open.\n"));
     return false;
   }
-  Dmsg2(10, "file: %u -> %u; block: %u -> %u\n", file, rfile, block_num,
+  Dmsg2(10, "file: {} -> {}; block: %u -> %u\n", file, rfile, block_num,
         rblock);
   block_num = rblock;
   file = rfile;

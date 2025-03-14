@@ -49,7 +49,7 @@ bool PathListAdd(PathList* path_list, uint32_t len, const char* fname)
 
   path_list->insert(item->fname, item);
 
-  Dmsg1(debuglevel, "add fname=<%s>\n", fname);
+  Dmsg1(debuglevel, "add fname=<{}>\n", fname);
 
   return true;
 }
@@ -80,7 +80,7 @@ bool PathListLookup(PathList* path_list, const char* fname)
   CurDir* temp = (CurDir*)path_list->lookup(filename);
   if (temp) { found = true; }
 
-  Dmsg2(debuglevel, "lookup <%s> %s\n", filename, found ? "ok" : "not ok");
+  Dmsg2(debuglevel, "lookup <{}> {}\n", filename, found ? "ok" : "not ok");
 
   return found;
 }

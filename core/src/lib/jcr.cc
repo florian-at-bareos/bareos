@@ -265,7 +265,7 @@ static void RemoveJcr(JobControlRecord* jcr)
 
 static void FreeCommonJcr(JobControlRecord* jcr)
 {
-  Dmsg1(100, "FreeCommonJcr: %p \n", jcr);
+  Dmsg1(100, "FreeCommonJcr: {:p} \n", jcr);
 
   if (!jcr) { Dmsg0(100, "FreeCommonJcr: Invalid jcr\n"); }
 
@@ -347,7 +347,7 @@ static void JcrCleanup(JobControlRecord* jcr)
   DequeueMessages(jcr);
   CallJobEndCallbacks(jcr);
 
-  Dmsg1(debuglevel, "End job=%d\n", jcr->JobId);
+  Dmsg1(debuglevel, "End job={}\n", jcr->JobId);
 
   switch (jcr->getJobType()) {
     case JT_BACKUP:
@@ -389,7 +389,7 @@ static bool RunJcrGarbageCollector(JobControlRecord* jcr)
           jcr->UseCount(), jcr->JobId);
   }
   if (jcr->JobId > 0) {
-    Dmsg3(debuglevel, "Dec FreeJcr jid=%u UseCount=%d Job=%s\n", jcr->JobId,
+    Dmsg3(debuglevel, "Dec FreeJcr jid={} UseCount={} Job={}\n", jcr->JobId,
           jcr->UseCount(), jcr->Job);
   }
   if (jcr->UseCount() > 0) { /* if in use */
@@ -397,7 +397,7 @@ static bool RunJcrGarbageCollector(JobControlRecord* jcr)
     return false;
   }
   if (jcr->JobId > 0) {
-    Dmsg3(debuglevel, "remove jcr jid=%u UseCount=%d Job=%s\n", jcr->JobId,
+    Dmsg3(debuglevel, "remove jcr jid={} UseCount={} Job={}\n", jcr->JobId,
           jcr->UseCount(), jcr->Job);
   }
   RemoveJcr(jcr); /* remove Jcr from chain */
@@ -408,7 +408,7 @@ static bool RunJcrGarbageCollector(JobControlRecord* jcr)
 // Global routine to free a jcr
 void b_free_jcr(const char* file, int line, JobControlRecord* jcr)
 {
-  Dmsg3(debuglevel, "Enter FreeJcr jid=%u from %s:%d\n", jcr->JobId, file,
+  Dmsg3(debuglevel, "Enter FreeJcr jid={} from {}:{}\n", jcr->JobId, file,
         line);
 
   if (RunJcrGarbageCollector(jcr)) {
@@ -436,10 +436,10 @@ void JobControlRecord::MyThreadSendSignal(int sig)
   std::unique_lock l(mutex_);
 
   if (IsKillable() && !pthread_equal(my_thread_id, pthread_self())) {
-    Dmsg1(800, "Send kill to jid=%d\n", JobId);
+    Dmsg1(800, "Send kill to jid={}\n", JobId);
     pthread_kill(my_thread_id, sig);
   } else if (!IsKillable()) {
-    Dmsg1(10, "Warning, can't send kill to jid=%d\n", JobId);
+    Dmsg1(10, "Warning, can't send kill to jid={}\n", JobId);
   }
 }
 
@@ -457,7 +457,7 @@ JobControlRecord* get_jcr_by_id(uint32_t JobId)
   foreach_jcr (jcr) {
     if (jcr->JobId == JobId) {
       jcr->IncUseCount();
-      Dmsg3(debuglevel, "Inc get_jcr jid=%u UseCount=%d Job=%s\n", jcr->JobId,
+      Dmsg3(debuglevel, "Inc get_jcr jid={} UseCount={} Job={}\n", jcr->JobId,
             jcr->UseCount(), jcr->Job);
       break;
     }
@@ -538,7 +538,7 @@ JobControlRecord* get_jcr_by_session(uint32_t SessionId, uint32_t SessionTime)
   foreach_jcr (jcr) {
     if (jcr->VolSessionId == SessionId && jcr->VolSessionTime == SessionTime) {
       jcr->IncUseCount();
-      Dmsg3(debuglevel, "Inc get_jcr jid=%u UseCount=%d Job=%s\n", jcr->JobId,
+      Dmsg3(debuglevel, "Inc get_jcr jid={} UseCount={} Job={}\n", jcr->JobId,
             jcr->UseCount(), jcr->Job);
       break;
     }
@@ -566,7 +566,7 @@ JobControlRecord* get_jcr_by_partial_name(char* Job)
   foreach_jcr (jcr) {
     if (bstrncmp(Job, jcr->Job, len)) {
       jcr->IncUseCount();
-      Dmsg3(debuglevel, "Inc get_jcr jid=%u UseCount=%d Job=%s\n", jcr->JobId,
+      Dmsg3(debuglevel, "Inc get_jcr jid={} UseCount={} Job={}\n", jcr->JobId,
             jcr->UseCount(), jcr->Job);
       break;
     }
@@ -591,7 +591,7 @@ JobControlRecord* get_jcr_by_full_name(char* Job)
   foreach_jcr (jcr) {
     if (bstrcmp(jcr->Job, Job)) {
       jcr->IncUseCount();
-      Dmsg3(debuglevel, "Inc get_jcr jid=%u UseCount=%d Job=%s\n", jcr->JobId,
+      Dmsg3(debuglevel, "Inc get_jcr jid={} UseCount={} Job={}\n", jcr->JobId,
             jcr->UseCount(), jcr->Job);
       break;
     }
@@ -610,7 +610,7 @@ const char* JcrGetAuthenticateKey(const char* unified_job_name)
   foreach_jcr (jcr) {
     if (bstrcmp(jcr->Job, unified_job_name)) {
       auth_key = jcr->sd_auth_key;
-      Dmsg3(debuglevel, "Inc get_jcr jid=%u UseCount=%d Job=%s\n", jcr->JobId,
+      Dmsg3(debuglevel, "Inc get_jcr jid={} UseCount={} Job={}\n", jcr->JobId,
             jcr->UseCount(), jcr->Job);
       break;
     }
@@ -630,7 +630,7 @@ TlsPolicy JcrGetTlsPolicy(const char* unified_job_name)
   foreach_jcr (jcr) {
     if (bstrcmp(jcr->Job, unified_job_name)) {
       policy = jcr->sd_tls_policy;
-      Dmsg4(debuglevel, "Inc get_jcr jid=%u UseCount=%d Job=%s TlsPolicy=%d\n",
+      Dmsg4(debuglevel, "Inc get_jcr jid={} UseCount={} Job={} TlsPolicy={}\n",
             jcr->JobId, jcr->UseCount(), jcr->Job, policy);
       break;
     }
@@ -745,14 +745,14 @@ void JobControlRecord::setJobStatusWithPriorityCheck(int newJobStatus)
 
   priority = GetStatusPriority(newJobStatus);
 
-  Dmsg2(800, "setJobStatus(%s, %c)\n", Job, newJobStatus);
+  Dmsg2(800, "setJobStatus({}, {:c})\n", Job, newJobStatus);
 
   // Update wait_time depending on newJobStatus and oldJobStatus
   UpdateWaitTime(this, newJobStatus);
 
   /* For a set of errors, ... keep the current status
    * so it isn't lost. For all others, set it. */
-  Dmsg2(800, "OnEntry JobStatus=%c newJobstatus=%c\n", oldJobStatus,
+  Dmsg2(800, "OnEntry JobStatus={:c} newJobstatus={:c}\n", oldJobStatus,
         newJobStatus);
 
   /* If status priority is > than proposed new status, change it.
@@ -760,13 +760,13 @@ void JobControlRecord::setJobStatusWithPriorityCheck(int newJobStatus)
    * status. If it is not zero, then we keep the first non-zero "error" that
    * occurred. */
   if (priority > old_priority || (priority == 0 && old_priority == 0)) {
-    Dmsg4(800, "Set new stat. old: %c,%d new: %c,%d\n", oldJobStatus,
+    Dmsg4(800, "Set new stat. old: {:c},{} new: {:c},{}\n", oldJobStatus,
           old_priority, newJobStatus, priority);
     JobStatus_.compare_exchange_strong(oldJobStatus, newJobStatus);
   }
 
   if (oldJobStatus != JobStatus_) {
-    Dmsg2(800, "leave setJobStatus old=%c new=%c\n", oldJobStatus,
+    Dmsg2(800, "leave setJobStatus old={:c} new={:c}\n", oldJobStatus,
           newJobStatus);
     //    GeneratePluginEvent(this, bEventStatusChange, nullptr);
   }
@@ -799,7 +799,7 @@ JobControlRecord* jcr_walk_start()
   if (jcr) {
     jcr->IncUseCount();
     if (jcr->JobId > 0) {
-      Dmsg3(debuglevel, "Inc walk_start jid=%u UseCount=%d Job=%s\n",
+      Dmsg3(debuglevel, "Inc walk_start jid={} UseCount={} Job={}\n",
             jcr->JobId, jcr->UseCount(), jcr->Job);
     }
   }
@@ -817,7 +817,7 @@ JobControlRecord* jcr_walk_next(JobControlRecord* prev_jcr)
   if (jcr) {
     jcr->IncUseCount();
     if (jcr->JobId > 0) {
-      Dmsg3(debuglevel, "Inc walk_next jid=%u UseCount=%d Job=%s\n", jcr->JobId,
+      Dmsg3(debuglevel, "Inc walk_next jid={} UseCount={} Job={}\n", jcr->JobId,
             jcr->UseCount(), jcr->Job);
     }
   }
@@ -831,7 +831,7 @@ void JcrWalkEnd(JobControlRecord* jcr)
 {
   if (jcr) {
     if (jcr->JobId > 0) {
-      Dmsg3(debuglevel, "Free walk_end jid=%u UseCount=%d Job=%s\n", jcr->JobId,
+      Dmsg3(debuglevel, "Free walk_end jid={} UseCount={} Job={}\n", jcr->JobId,
             jcr->UseCount(), jcr->Job);
     }
     FreeJcr(jcr);
@@ -916,7 +916,7 @@ static void JcrTimeoutCheck(watchdog_t* /* self */)
    * blocked for more than specified max time.
    */
   foreach_jcr (jcr) {
-    Dmsg2(debuglevel, "JcrTimeoutCheck JobId=%u jcr=0x%x\n", jcr->JobId, jcr);
+    Dmsg2(debuglevel, "JcrTimeoutCheck JobId={} jcr=0x{:x}\n", jcr->JobId, jcr);
     if (jcr->JobId == 0) { continue; }
     bs = jcr->store_bsock;
     if (bs) {

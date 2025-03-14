@@ -280,7 +280,7 @@ void* HandleDirectorConnection(BareosSocket* dir)
     // Read command
     if ((bnet_stat = dir->recv()) <= 0) { break; /* connection terminated */ }
 
-    Dmsg1(199, "<dird: %s", dir->msg);
+    Dmsg1(199, "<dird: {}", dir->msg);
 
     // Ensure that device initialization is complete
     while (!init_done) { Bmicrosleep(1, 0); }
@@ -289,15 +289,15 @@ void* HandleDirectorConnection(BareosSocket* dir)
     for (i = 0; cmds[i].cmd; i++) {
       if (bstrncmp(cmds[i].cmd, dir->msg, strlen(cmds[i].cmd))) {
         if ((!cmds[i].monitoraccess) && (jcr->sd_impl->director->monitor)) {
-          Dmsg1(100, "Command \"%s\" is invalid.\n", cmds[i].cmd);
+          Dmsg1(100, "Command \"{}\" is invalid.\n", cmds[i].cmd);
           dir->fsend(invalid_cmd);
           dir->signal(BNET_EOD);
           break;
         }
-        Dmsg1(200, "Do command: %s\n", cmds[i].cmd);
+        Dmsg1(200, "Do command: {}\n", cmds[i].cmd);
         if (!cmds[i].func(jcr)) { /* do command */
           quit = true;            /* error, get out */
-          Dmsg1(190, "Command %s requests quit\n", cmds[i].cmd);
+          Dmsg1(190, "Command {} requests quit\n", cmds[i].cmd);
         }
         found = true; /* indicate command found */
         break;
@@ -330,7 +330,7 @@ static bool SecureerasereqCmd(JobControlRecord* jcr)
 {
   BareosSocket* dir = jcr->dir_bsock;
 
-  Dmsg1(220, "Secure Erase Cmd Request: %s\n",
+  Dmsg1(220, "Secure Erase Cmd Request: {}\n",
         (me->secure_erase_cmdline ? me->secure_erase_cmdline : "*None*"));
 
   return dir->fsend(
@@ -378,7 +378,7 @@ static bool SetdebugCmd(JobControlRecord* jcr)
   int32_t level, trace_flag, timestamp_flag;
   int scan;
 
-  Dmsg1(10, "SetdebugCmd: %s\n", dir->msg);
+  Dmsg1(10, "SetdebugCmd: {}\n", dir->msg);
   scan = sscanf(dir->msg, setdebugv1cmd, &level, &trace_flag, &timestamp_flag);
   if (scan != 3) {
     scan = sscanf(dir->msg, setdebugv0cmd, &level, &trace_flag);
@@ -396,12 +396,12 @@ static bool SetdebugCmd(JobControlRecord* jcr)
   SetTrace(trace_flag);
   if (scan == 3) {
     SetTimestamp(timestamp_flag);
-    Dmsg4(50, "level=%d trace=%d timestamp=%d tracefilename=%s\n", level,
+    Dmsg4(50, "level={} trace={} timestamp={} tracefilename={}\n", level,
           GetTrace(), GetTimestamp(), tracefilename.c_str());
     return dir->fsend(OKsetdebugv1, level, GetTrace(), GetTimestamp(),
                       tracefilename.c_str());
   } else {
-    Dmsg3(50, "level=%d trace=%d\n", level, GetTrace(), tracefilename.c_str());
+    Dmsg3(50, "level={} trace={}\n", level, GetTrace(), tracefilename.c_str());
     return dir->fsend(OKsetdebugv0, level, tracefilename.c_str());
   }
 }
@@ -416,7 +416,7 @@ static bool SetdeviceCmd(JobControlRecord* jcr)
 {
   BareosSocket* dir = jcr->dir_bsock;
 
-  Dmsg1(10, "SetdeviceCmd: %s\n", dir->msg);
+  Dmsg1(10, "SetdeviceCmd: {}\n", dir->msg);
 
   std::vector<char> device_name(MAX_SETDEVICE_NAME_LENGTH);
   int autoselect_value = 0;
@@ -482,7 +482,7 @@ static bool CancelCmd(JobControlRecord* cjcr)
   oldStatus = jcr->getJobStatus();
   jcr->setJobStatusWithPriorityCheck(status);
 
-  Dmsg2(800, "Cancel JobId=%d %p\n", jcr->JobId, jcr);
+  Dmsg2(800, "Cancel JobId={} {:p}\n", jcr->JobId, jcr);
   if (!jcr->authenticated
       && (oldStatus == JS_WaitFD || oldStatus == JS_WaitSD)) {
     jcr->sd_impl->job_start_wait.notify_one(); /* wake waiting thread */
@@ -491,12 +491,12 @@ static bool CancelCmd(JobControlRecord* cjcr)
   if (jcr->file_bsock) {
     jcr->file_bsock->SetTerminated();
     jcr->file_bsock->SetTimedOut();
-    Dmsg2(800, "Term bsock jid=%d %p\n", jcr->JobId, jcr);
+    Dmsg2(800, "Term bsock jid={} {:p}\n", jcr->JobId, jcr);
   } else {
     if (oldStatus != JS_WaitSD) {
       // Still waiting for FD to connect, release it
       jcr->sd_impl->job_start_wait.notify_one(); /* wake waiting job */
-      Dmsg2(800, "Signal FD connect jid=%d %p\n", jcr->JobId, jcr);
+      Dmsg2(800, "Signal FD connect jid={} {:p}\n", jcr->JobId, jcr);
     }
   }
 
@@ -504,7 +504,7 @@ static bool CancelCmd(JobControlRecord* cjcr)
   if (jcr->sd_impl->dcr && jcr->sd_impl->dcr->dev
       && jcr->sd_impl->dcr->dev->waiting_for_mount()) {
     pthread_cond_broadcast(&jcr->sd_impl->dcr->dev->wait_next_vol);
-    Dmsg1(100, "JobId=%u broadcast wait_device_release\n",
+    Dmsg1(100, "JobId={} broadcast wait_device_release\n",
           (uint32_t)jcr->JobId);
     ReleaseDeviceCond();
   }
@@ -512,7 +512,7 @@ static bool CancelCmd(JobControlRecord* cjcr)
   if (jcr->sd_impl->read_dcr && jcr->sd_impl->read_dcr->dev
       && jcr->sd_impl->read_dcr->dev->waiting_for_mount()) {
     pthread_cond_broadcast(&jcr->sd_impl->read_dcr->dev->wait_next_vol);
-    Dmsg1(100, "JobId=%u broadcast wait_device_release\n",
+    Dmsg1(100, "JobId={} broadcast wait_device_release\n",
           (uint32_t)jcr->JobId);
     ReleaseDeviceCond();
   }
@@ -641,7 +641,7 @@ static bool DoLabel(JobControlRecord* jcr, bool relabel)
       dev->SetBlocksizes(dcr); /* apply blocksizes from dcr to dev  */
 
       if (!dev->IsOpen() && !dev->IsBusy()) {
-        Dmsg1(400, "Can %slabel. Device is not open\n", relabel ? "re" : "");
+        Dmsg1(400, "Can {}label. Device is not open\n", relabel ? "re" : "");
         LabelVolumeIfOk(dcr, oldname, newname, poolname, slot, relabel);
         dev->close(dcr);
         /* Under certain "safe" conditions, we can steal the lock */
@@ -699,7 +699,7 @@ static void LabelVolumeIfOk(DeviceControlRecord* dcr,
   char ed1[50];
 
   StealDeviceLock(dev, &hold, BST_WRITING_LABEL);
-  Dmsg1(100, "Stole device %s lock, writing label.\n", dev->print_name());
+  Dmsg1(100, "Stole device {} lock, writing label.\n", dev->print_name());
 
   Dmsg0(90, "TryAutoloadDevice - looking for volume_info\n");
   switch (TryAutoloadDevice(dcr->jcr, dcr, slot, volname)) {
@@ -854,7 +854,7 @@ static DeviceControlRecord* FindDevice(JobControlRecord* jcr,
                devname.c_str());
           continue;
         }
-        Dmsg1(20, "Found device %s\n", device_resource->resource_name_);
+        Dmsg1(20, "Found device {}\n", device_resource->resource_name_);
         target_device = device_resource;
         break;
       }
@@ -868,13 +868,13 @@ static DeviceControlRecord* FindDevice(JobControlRecord* jcr,
         // Try each device in this AutoChanger
         if (changer->device_resources) {
           for (auto* device_resource : changer->device_resources) {
-            Dmsg1(100, "Try changer device %s\n",
+            Dmsg1(100, "Try changer device {}\n",
                   device_resource->resource_name_);
             if (!device_resource->dev) {
               device_resource->dev = FactoryCreateDevice(jcr, device_resource);
             }
             if (!device_resource->dev) {
-              Dmsg1(100, "Device %s could not be opened. Skipped\n",
+              Dmsg1(100, "Device {} could not be opened. Skipped\n",
                     devname.c_str());
               Jmsg(jcr, M_WARNING, 0,
                    T_("\n"
@@ -886,12 +886,12 @@ static DeviceControlRecord* FindDevice(JobControlRecord* jcr,
             if ((drive == kInvalidDriveNumber
                  && device_resource->dev->autoselect)
                 || drive == device_resource->dev->drive) {
-              Dmsg1(20, "Found changer device %s\n",
+              Dmsg1(20, "Found changer device {}\n",
                     device_resource->resource_name_);
               target_device = device_resource;
               break;
             }
-            Dmsg3(100, "Device %s drive wrong: want=%hd got=%hd skipping\n",
+            Dmsg3(100, "Device {} drive wrong: want={} got={} skipping\n",
                   devname.c_str(), drive, device_resource->dev->drive);
           }
           if (!target_device) {
@@ -906,7 +906,7 @@ static DeviceControlRecord* FindDevice(JobControlRecord* jcr,
   }
 
   if (target_device) {
-    Dmsg1(100, "Found device %s\n", target_device->resource_name_);
+    Dmsg1(100, "Found device {}\n", target_device->resource_name_);
     dcr = new StorageDaemonDeviceControlRecord;
     SetupNewDcrDevice(jcr, dcr, target_device->dev, blocksizes);
     dcr->SetWillWrite();
@@ -933,14 +933,14 @@ static bool MountCmd(JobControlRecord* jcr)
     ok = sscanf(dir->msg, mountcmd, devname.c_str(), &drive_input) == 2;
   }
 
-  Dmsg3(100, "ok=%d drive=%hd slot=%hd\n", ok, drive_input, slot);
+  Dmsg3(100, "ok={} drive={} slot={}\n", ok, drive_input, slot);
   if (ok) {
     drive_number_t drive = IntToDriveNumber(drive_input);
     dcr = FindDevice(jcr, devname, drive, NULL);
     if (dcr) {
       dev = dcr->dev;
       dev->Lock(); /* Use P to avoid indefinite block */
-      Dmsg2(100, "mount cmd blocked=%d MustUnload=%d\n", dev->blocked(),
+      Dmsg2(100, "mount cmd blocked={} MustUnload={}\n", dev->blocked(),
             dev->MustUnload());
       switch (dev->blocked()) { /* device blocked? */
         case BST_WAITING_FOR_SYSOP:
@@ -951,7 +951,7 @@ static bool MountCmd(JobControlRecord* jcr)
                      (slot > 0) ? T_("Specified slot ignored. ") : "",
                      dev->print_name());
           pthread_cond_broadcast(&dev->wait_next_vol);
-          Dmsg1(100, "JobId=%u broadcast wait_device_release\n",
+          Dmsg1(100, "JobId={} broadcast wait_device_release\n",
                 (uint32_t)dcr->jcr->JobId);
           ReleaseDeviceCond();
           break;
@@ -959,7 +959,7 @@ static bool MountCmd(JobControlRecord* jcr)
         /* In both of these two cases, we (the user) unmounted the Volume */
         case BST_UNMOUNTED_WAITING_FOR_SYSOP:
         case BST_UNMOUNTED:
-          Dmsg2(100, "Unmounted changer=%d slot=%hd\n",
+          Dmsg2(100, "Unmounted changer={} slot={}\n",
                 dev->AttachedToAutochanger(), slot);
           if (dev->AttachedToAutochanger() && slot > 0) {
             TryAutoloadDevice(jcr, dcr, slot, "");
@@ -997,7 +997,7 @@ static bool MountCmd(JobControlRecord* jcr)
                 dev->print_name());
           }
           pthread_cond_broadcast(&dev->wait_next_vol);
-          Dmsg1(100, "JobId=%u broadcast wait_device_release\n",
+          Dmsg1(100, "JobId={} broadcast wait_device_release\n",
                 (uint32_t)dcr->jcr->JobId);
           ReleaseDeviceCond();
           break;
@@ -1013,7 +1013,7 @@ static bool MountCmd(JobControlRecord* jcr)
           break;
 
         case BST_NOT_BLOCKED:
-          Dmsg2(100, "Not blocked changer=%d slot=%hd\n",
+          Dmsg2(100, "Not blocked changer={} slot={}\n",
                 dev->AttachedToAutochanger(), slot);
           if (dev->AttachedToAutochanger() && slot > 0) {
             TryAutoloadDevice(jcr, dcr, slot, "");
@@ -1060,7 +1060,7 @@ static bool MountCmd(JobControlRecord* jcr)
             dir->fsend(T_("3906 File device %s is always mounted.\n"),
                        dev->print_name());
             pthread_cond_broadcast(&dev->wait_next_vol);
-            Dmsg1(100, "JobId=%u broadcast wait_device_release\n",
+            Dmsg1(100, "JobId={} broadcast wait_device_release\n",
                   (uint32_t)dcr->jcr->JobId);
             ReleaseDeviceCond();
           }
@@ -1119,7 +1119,7 @@ static bool UnmountCmd(JobControlRecord* jcr)
                      dev->print_name());
         }
       } else if (dev->blocked() == BST_WAITING_FOR_SYSOP) {
-        Dmsg2(90, "%d waiter dev_block=%d. doing unmount\n", dev->num_waiting,
+        Dmsg2(90, "{} waiter dev_block={}. doing unmount\n", dev->num_waiting,
               dev->blocked());
         if (!UnloadAutochanger(dcr, kInvalidSlotNumber)) {
           /* ***FIXME**** what is this ????  */
@@ -1205,14 +1205,14 @@ static bool ReleaseCmd(JobControlRecord* jcr)
                    dev->print_name());
 
       } else if (dev->blocked() == BST_WAITING_FOR_SYSOP) {
-        Dmsg2(90, "%d waiter dev_block=%d.\n", dev->num_waiting,
+        Dmsg2(90, "{} waiter dev_block={}.\n", dev->num_waiting,
               dev->blocked());
         UnloadAutochanger(dcr, kInvalidSlotNumber);
         dir->fsend(T_("3922 Device \"%s\" waiting for sysop.\n"),
                    dev->print_name());
 
       } else if (dev->blocked() == BST_UNMOUNTED_WAITING_FOR_SYSOP) {
-        Dmsg2(90, "%d waiter dev_block=%d. doing unmount\n", dev->num_waiting,
+        Dmsg2(90, "{} waiter dev_block={}. doing unmount\n", dev->num_waiting,
               dev->blocked());
         dir->fsend(T_("3922 Device \"%s\" waiting for mount.\n"),
                    dev->print_name());
@@ -1264,7 +1264,7 @@ static inline bool GetBootstrapFile(JobControlRecord* jcr, BareosSocket* sock)
   Mmsg(fname, "%s/%s.%s.%d.bootstrap", me->working_directory,
        me->resource_name_, jcr->Job, bsr_uniq);
   unlock_mutex(bsr_mutex);
-  Dmsg1(400, "bootstrap=%s\n", fname);
+  Dmsg1(400, "bootstrap={}\n", fname);
   jcr->RestoreBootstrap = fname;
   bs = fopen(fname, "a+b"); /* create file */
   if (!bs) {
@@ -1275,7 +1275,7 @@ static inline bool GetBootstrapFile(JobControlRecord* jcr, BareosSocket* sock)
   }
   Dmsg0(10, "=== Bootstrap file ===\n");
   while (sock->recv() >= 0) {
-    Dmsg1(10, "%s", sock->msg);
+    Dmsg1(10, "{}", sock->msg);
     fputs(sock->msg, bs);
   }
   fclose(bs);
@@ -1457,7 +1457,7 @@ static void ReadVolumeLabel(JobControlRecord* jcr,
     case VOL_OK:
       /* DO NOT add quotes around the Volume name. It is scanned in the DIR */
       dir->fsend(T_("3001 Volume=%s Slot=%hd\n"), dev->VolHdr.VolumeName, Slot);
-      Dmsg1(100, "Volume: %s\n", dev->VolHdr.VolumeName);
+      Dmsg1(100, "Volume: {}\n", dev->VolHdr.VolumeName);
       break;
     default:
       dir->fsend(
@@ -1544,7 +1544,7 @@ static void SetStorageAuthKeyAndTlsPolicy(JobControlRecord* jcr,
   Dmsg0(5, "set sd auth key\n");
 
   jcr->sd_tls_policy = policy;
-  Dmsg1(5, "set sd ssl_policy to %d\n", policy);
+  Dmsg1(5, "set sd ssl_policy to {}\n", policy);
 }
 
 // Listen for incoming replication session from other SD.
@@ -1596,7 +1596,7 @@ static bool ReplicateCmd(JobControlRecord* jcr)
   std::unique_ptr<BareosSocket> storage_daemon_socket
       = std::make_unique<BareosSocketTCP>();
 
-  Dmsg1(100, "ReplicateCmd: %s", dir->msg);
+  Dmsg1(100, "ReplicateCmd: {}", dir->msg);
   sd_auth_key.check_size(dir->message_length);
 
   if (sscanf(dir->msg, replicatecmd, &JobId, JobName, stored_addr, &stored_port,
@@ -1609,7 +1609,7 @@ static bool ReplicateCmd(JobControlRecord* jcr)
 
   SetStorageAuthKeyAndTlsPolicy(jcr, sd_auth_key.c_str(), tls_policy);
 
-  Dmsg3(110, "Open storage: %s:%d ssl=%d\n", stored_addr, stored_port,
+  Dmsg3(110, "Open storage: {}:{} ssl={}\n", stored_addr, stored_port,
         tls_policy);
 
   storage_daemon_socket->SetSourceAddress(me->SDsrc_addr);
@@ -1632,7 +1632,7 @@ static bool ReplicateCmd(JobControlRecord* jcr)
           T_("Storage daemon"), stored_addr, NULL, stored_port, 1)) {
     Jmsg(jcr, M_FATAL, 0, T_("Failed to connect to Storage daemon: %s:%d\n"),
          stored_addr, stored_port);
-    Dmsg2(100, "Failed to connect to Storage daemon: %s:%d\n", stored_addr,
+    Dmsg2(100, "Failed to connect to Storage daemon: {}:{}\n", stored_addr,
           stored_port);
     connect_state(ReplicateCmdState::kError);
     return false;
@@ -1680,7 +1680,7 @@ static bool ReplicateCmd(JobControlRecord* jcr)
 
 static bool RunCmd(JobControlRecord* jcr)
 {
-  Dmsg1(200, "Run_cmd: %s\n", jcr->dir_bsock->msg);
+  Dmsg1(200, "Run_cmd: {}\n", jcr->dir_bsock->msg);
 
   // If we do not need the FD, we are doing a migrate, copy, or virtual
   // backup.
@@ -1700,7 +1700,7 @@ static bool PassiveCmd(JobControlRecord* jcr)
   BareosSocket* fd; /* file daemon bsock */
   std::string cpy{dir->msg};
 
-  Dmsg1(100, "PassiveClientCmd: %s", cpy.c_str());
+  Dmsg1(100, "PassiveClientCmd: {}", cpy.c_str());
   if (sscanf(cpy.c_str(), passiveclientcmd, filed_addr, &filed_port,
              &tls_policy)
       != 3) {
@@ -1709,7 +1709,7 @@ static bool PassiveCmd(JobControlRecord* jcr)
     goto bail_out;
   }
 
-  Dmsg3(110, "PassiveClientCmd: %s:%d ssl=%d\n", filed_addr, filed_port,
+  Dmsg3(110, "PassiveClientCmd: {}:{} ssl={}\n", filed_addr, filed_port,
         tls_policy);
 
   jcr->passive_client = true;
@@ -1727,7 +1727,7 @@ static bool PassiveCmd(JobControlRecord* jcr)
   if (fd == NULL) {
     Jmsg(jcr, M_FATAL, 0, T_("Failed to connect to File daemon: %s:%d\n"),
          filed_addr, filed_port);
-    Dmsg2(100, "Failed to connect to File daemon: %s:%d\n", filed_addr,
+    Dmsg2(100, "Failed to connect to File daemon: {}:{}\n", filed_addr,
           filed_port);
     goto bail_out;
   }
@@ -1780,7 +1780,7 @@ static bool PluginoptionsCmd(JobControlRecord* jcr)
   char plugin_options[2048];
   std::string cpy{dir->msg};
 
-  Dmsg1(100, "PluginOptionsCmd: %s", cpy.c_str());
+  Dmsg1(100, "PluginOptionsCmd: {}", cpy.c_str());
   if (sscanf(cpy.c_str(), pluginoptionscmd, plugin_options) != 1) {
     PmStrcpy(jcr->errmsg, cpy.c_str());
     Jmsg(jcr, M_FATAL, 0, T_("Bad pluginoptionscmd command: %s"), jcr->errmsg);

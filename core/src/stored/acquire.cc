@@ -103,8 +103,8 @@ bool AcquireDeviceForRead(DeviceControlRecord* dcr)
   Enter(rdebuglevel);
   dev = dcr->dev;
   dev->Lock_read_acquire();
-  Dmsg2(rdebuglevel, "dcr=%p dev=%p\n", dcr, dcr->dev);
-  Dmsg2(rdebuglevel, "MediaType dcr=%s dev=%s\n", dcr->media_type,
+  Dmsg2(rdebuglevel, "dcr={:p} dev={:p}\n", dcr, dcr->dev);
+  Dmsg2(rdebuglevel, "MediaType dcr={} dev={}\n", dcr->media_type,
         dev->device_resource->media_type);
   dev->dblock(BST_DOING_ACQUIRE);
 
@@ -134,7 +134,7 @@ bool AcquireDeviceForRead(DeviceControlRecord* dcr)
   }
   SetDcrFromVol(dcr, vol);
 
-  Dmsg2(rdebuglevel, "Want Vol=%s Slot=%d\n", vol->VolumeName, vol->Slot);
+  Dmsg2(rdebuglevel, "Want Vol={} Slot={}\n", vol->VolumeName, vol->Slot);
 
   /* If the MediaType requested for this volume is not the
    * same as the current drive, we attempt to find the same
@@ -146,7 +146,7 @@ bool AcquireDeviceForRead(DeviceControlRecord* dcr)
    * here to release all important parts of the dcr and re-acquire
    * them such as the block pointer (size may change), but we do
    * not release the dcr. */
-  Dmsg2(rdebuglevel, "MediaType dcr=%s dev=%s\n", dcr->media_type,
+  Dmsg2(rdebuglevel, "MediaType dcr={} dev={}\n", dcr->media_type,
         dev->device_resource->media_type);
   if (dcr->media_type[0]
       && !bstrcmp(dcr->media_type, dev->device_resource->media_type)) {
@@ -158,8 +158,8 @@ bool AcquireDeviceForRead(DeviceControlRecord* dcr)
              "  device=%s\n"),
           dcr->media_type, dev->device_resource->media_type, dev->print_name());
     Dmsg3(rdebuglevel,
-          "Changing read device. Want Media Type=\"%s\" have=\"%s\"\n"
-          "  device=%s\n",
+          "Changing read device. Want Media Type=\"{}\" have=\"{}\"\n"
+          "  device={}\n",
           dcr->media_type, dev->device_resource->media_type, dev->print_name());
 
     dev->dunblock(DEV_UNLOCKED);
@@ -191,7 +191,7 @@ bool AcquireDeviceForRead(DeviceControlRecord* dcr)
       Jmsg(jcr, M_INFO, 0,
            T_("Media Type change.  New read device %s chosen.\n"),
            dev->print_name());
-      Dmsg1(50, "Media Type change.  New read device %s chosen.\n",
+      Dmsg1(50, "Media Type change.  New read device {} chosen.\n",
             dev->print_name());
 
       bstrncpy(dcr->VolumeName, vol->VolumeName, sizeof(dcr->VolumeName));
@@ -206,19 +206,19 @@ bool AcquireDeviceForRead(DeviceControlRecord* dcr)
       Jmsg1(jcr, M_FATAL, 0,
             T_("No suitable device found to read Volume \"%s\"\n"),
             vol->VolumeName);
-      Dmsg1(rdebuglevel, "No suitable device found to read Volume \"%s\"\n",
+      Dmsg1(rdebuglevel, "No suitable device found to read Volume \"{}\"\n",
             vol->VolumeName);
       goto get_out;
     }
   }
-  Dmsg2(rdebuglevel, "MediaType dcr=%s dev=%s\n", dcr->media_type,
+  Dmsg2(rdebuglevel, "MediaType dcr={} dev={}\n", dcr->media_type,
         dev->device_resource->media_type);
 
   dev->ClearUnload();
 
   if (dev->vol && dev->vol->IsSwapping()) {
     dev->vol->SetSlotNumber(vol->Slot);
-    Dmsg3(rdebuglevel, "swapping: slot=%d Vol=%s dev=%s\n", dev->vol->GetSlot(),
+    Dmsg3(rdebuglevel, "swapping: slot={} Vol={} dev={}\n", dev->vol->GetSlot(),
           dev->vol->vol_name, dev->print_name());
   }
 
@@ -229,9 +229,9 @@ bool AcquireDeviceForRead(DeviceControlRecord* dcr)
   // tape_initially_mounted = tape_previously_mounted;
 
   // Volume info is always needed because of VolParts
-  Dmsg1(rdebuglevel, "DirGetVolumeInfo vol=%s\n", dcr->VolumeName);
+  Dmsg1(rdebuglevel, "DirGetVolumeInfo vol={}\n", dcr->VolumeName);
   if (!dcr->DirGetVolumeInfo(GET_VOL_INFO_FOR_READ)) {
-    Dmsg2(rdebuglevel, "dir_get_vol_info failed for vol=%s: %s\n",
+    Dmsg2(rdebuglevel, "dir_get_vol_info failed for vol={}: {}\n",
           dcr->VolumeName, jcr->errmsg);
     Jmsg1(jcr, M_WARNING, 0, "Read acquire: %s", jcr->errmsg);
   }
@@ -263,7 +263,7 @@ bool AcquireDeviceForRead(DeviceControlRecord* dcr)
 
     /* This code ensures that the device is ready for reading. If it is a file,
      * it opens it. If it is a tape, it checks the volume name */
-    Dmsg1(rdebuglevel, "stored: open vol=%s\n", dcr->VolumeName);
+    Dmsg1(rdebuglevel, "stored: open vol={}\n", dcr->VolumeName);
     if (!dev->open(dcr, DeviceMode::OPEN_READ_ONLY)) {
       if (!dev->poll) {
         Jmsg3(jcr, M_WARNING, 0,
@@ -272,7 +272,7 @@ bool AcquireDeviceForRead(DeviceControlRecord* dcr)
       }
       goto default_path;
     }
-    Dmsg1(rdebuglevel, "opened dev %s OK\n", dev->print_name());
+    Dmsg1(rdebuglevel, "opened dev {} OK\n", dev->print_name());
 
     /* See if we are changing the volume in the device.
      * If so we need to force a reread of the tape label. */
@@ -302,7 +302,7 @@ bool AcquireDeviceForRead(DeviceControlRecord* dcr)
         }
         goto default_path;
       case VOL_NAME_ERROR:
-        Dmsg3(rdebuglevel, "Vol name=%s want=%s drv=%s.\n",
+        Dmsg3(rdebuglevel, "Vol name={} want={} drv={}.\n",
               dev->VolHdr.VolumeName, dcr->VolumeName, dev->print_name());
         if (dev->IsVolumeToUnload()) { goto default_path; }
         dev->SetUnload(); /* force unload of unwanted tape */
@@ -328,7 +328,7 @@ bool AcquireDeviceForRead(DeviceControlRecord* dcr)
         // Call autochanger only once unless ask_sysop called
         if (try_autochanger) {
           int status;
-          Dmsg2(rdebuglevel, "calling autoload Vol=%s Slot=%d\n",
+          Dmsg2(rdebuglevel, "calling autoload Vol={} Slot={}\n",
                 dcr->VolumeName, dcr->VolCatInfo.Slot);
           status = AutoloadDevice(dcr, 0, NULL);
           if (status > 0) {
@@ -344,9 +344,9 @@ bool AcquireDeviceForRead(DeviceControlRecord* dcr)
         }
 
         // Volume info is always needed because of VolParts
-        Dmsg1(150, "DirGetVolumeInfo vol=%s\n", dcr->VolumeName);
+        Dmsg1(150, "DirGetVolumeInfo vol={}\n", dcr->VolumeName);
         if (!dcr->DirGetVolumeInfo(GET_VOL_INFO_FOR_READ)) {
-          Dmsg2(150, "dir_get_vol_info failed for vol=%s: %s\n",
+          Dmsg2(150, "dir_get_vol_info failed for vol={}: {}\n",
                 dcr->VolumeName, jcr->errmsg);
           Jmsg1(jcr, M_WARNING, 0, "Read acquire: %s", jcr->errmsg);
         }
@@ -384,8 +384,8 @@ get_out:
     dev->Unlock(); /* dunblock() unlock the device too */
   }
 
-  Dmsg2(rdebuglevel, "dcr=%p dev=%p\n", dcr, dcr->dev);
-  Dmsg2(rdebuglevel, "MediaType dcr=%s dev=%s\n", dcr->media_type,
+  Dmsg2(rdebuglevel, "dcr={:p} dev={:p}\n", dcr, dcr->dev);
+  Dmsg2(rdebuglevel, "MediaType dcr={} dev={}\n", dcr->media_type,
         dev->device_resource->media_type);
 
   dev->Unlock_read_acquire();
@@ -415,14 +415,14 @@ DeviceControlRecord* AcquireDeviceForAppend(DeviceControlRecord* dcr)
 
   dev->Lock_acquire(); /* only one job at a time */
   dev->Lock();
-  Dmsg1(100, "acquire_append device is %s\n", dev->type().c_str());
+  Dmsg1(100, "acquire_append device is {}\n", dev->type().c_str());
 
   // With the reservation system, this should not happen
   if (dev->CanRead()) {
     Jmsg1(jcr, M_FATAL, 0,
           T_("Want to append, but device %s is busy reading.\n"),
           dev->print_name());
-    Dmsg1(200, "Want to append but device %s is busy reading.\n",
+    Dmsg1(200, "Want to append but device {} is busy reading.\n",
           dev->print_name());
     goto get_out;
   }
@@ -434,20 +434,20 @@ DeviceControlRecord* AcquireDeviceForAppend(DeviceControlRecord* dcr)
     dev->rLock(true);
     BlockDevice(dev, BST_DOING_ACQUIRE);
     dev->Unlock();
-    Dmsg1(190, "jid=%u Do mount_next_write_vol\n", (uint32_t)jcr->JobId);
+    Dmsg1(190, "jid={} Do mount_next_write_vol\n", (uint32_t)jcr->JobId);
     if (!dcr->MountNextWriteVolume()) {
       if (!jcr->IsJobCanceled()) {
         /* Reduce "noise" -- don't print if job canceled */
         Jmsg(jcr, M_FATAL, 0, T_("Could not ready device %s for append.\n"),
              dev->print_name());
-        Dmsg1(200, "Could not ready device %s for append.\n",
+        Dmsg1(200, "Could not ready device {} for append.\n",
               dev->print_name());
       }
       dev->Lock();
       UnblockDevice(dev);
       goto get_out;
     }
-    Dmsg2(190, "Output pos=%u:%u\n", dcr->dev->file, dcr->dev->block_num);
+    Dmsg2(190, "Output pos={}:{}\n", dcr->dev->file, dcr->dev->block_num);
     dev->Lock();
     UnblockDevice(dev);
   }
@@ -455,7 +455,7 @@ DeviceControlRecord* AcquireDeviceForAppend(DeviceControlRecord* dcr)
   dev->num_writers++; /* we are now a writer */
   if (jcr->sd_impl->NumWriteVolumes == 0) { jcr->sd_impl->NumWriteVolumes = 1; }
   dev->VolCatInfo.VolCatJobs++; /* increment number of jobs on vol */
-  Dmsg4(100, "=== nwriters=%d nres=%d vcatjob=%d dev=%s\n", dev->num_writers,
+  Dmsg4(100, "=== nwriters={} nres={} vcatjob={} dev={}\n", dev->num_writers,
         dev->NumReserved(), dev->VolCatInfo.VolCatJobs, dev->print_name());
   dcr->DirUpdateVolumeInfo(
       is_labeloperation::False); /* send Volume info to Director */
@@ -514,7 +514,7 @@ bool ReleaseDevice(DeviceControlRecord* dcr)
     dev->SetBlocked(BST_RELEASING);
   }
   LockVolumes();
-  Dmsg1(100, "releasing device %s\n", dev->print_name());
+  Dmsg1(100, "releasing device {}\n", dev->print_name());
 
   // If device is reserved, job never started, so release the reserve here
   dcr->ClearReserved();
@@ -523,7 +523,7 @@ bool ReleaseDevice(DeviceControlRecord* dcr)
     VolumeCatalogInfo* vol = &dev->VolCatInfo;
 
     dev->ClearRead(); /* clear read bit */
-    Dmsg2(150, "dir_update_vol_info. label=%d Vol=%s\n", dev->IsLabeled(),
+    Dmsg2(150, "dir_update_vol_info. label={} Vol={}\n", dev->IsLabeled(),
           vol->VolCatName);
     if (dev->IsLabeled() && vol->VolCatName[0] != 0) {
       dcr->DirUpdateVolumeInfo(
@@ -536,7 +536,7 @@ bool ReleaseDevice(DeviceControlRecord* dcr)
      * positioned correctly, so the job_media_record and update_vol_info have
      * already been done, which means we skip them here. */
     dev->num_writers--;
-    Dmsg1(100, "There are %d writers in ReleaseDevice\n", dev->num_writers);
+    Dmsg1(100, "There are {} writers in ReleaseDevice\n", dev->num_writers);
     if (dcr->VolFirstIndex) {
       // Send a new jobmedia record if we have written to a volume
       // take note that the volume we wrote to is not necessarily the volume
@@ -544,7 +544,7 @@ bool ReleaseDevice(DeviceControlRecord* dcr)
       dcr->DirCreateJobmediaRecord(false);
     }
     if (dev->IsLabeled()) {
-      Dmsg2(200, "dir_create_jobmedia. Release vol=%s dev=%s\n",
+      Dmsg2(200, "dir_create_jobmedia. Release vol={} dev={}\n",
             dev->getVolCatName(), dev->print_name());
       if (!dev->AtWeot() && !dcr->DirCreateJobmediaRecord(false)) {
         Jmsg2(jcr, M_FATAL, 0,
@@ -563,7 +563,7 @@ bool ReleaseDevice(DeviceControlRecord* dcr)
         // Note! do volume update before close, which zaps VolCatInfo
         dcr->DirUpdateVolumeInfo(
             is_labeloperation::False); /* send Volume info to Director */
-        Dmsg2(200, "dir_update_vol_info. Release vol=%s dev=%s\n",
+        Dmsg2(200, "dir_update_vol_info. Release vol={} dev={}\n",
               dev->getVolCatName(), dev->print_name());
       }
       if (dev->num_writers == 0) { /* if not being used */
@@ -578,7 +578,7 @@ bool ReleaseDevice(DeviceControlRecord* dcr)
     VolumeUnused(dcr);
   }
 
-  Dmsg3(100, "%d writers, %d reserve, dev=%s\n", dev->num_writers,
+  Dmsg3(100, "{} writers, {} reserve, dev={}\n", dev->num_writers,
         dev->NumReserved(), dev->print_name());
 
   // If no writers, close if file or !CAP_ALWAYS_OPEN
@@ -620,7 +620,7 @@ bool ReleaseDevice(DeviceControlRecord* dcr)
              alert, be.bstrerror(status));
       }
 
-      Dmsg1(400, "alert status=%d\n", status);
+      Dmsg1(400, "alert status={}\n", status);
       FreePoolMemory(alert);
       FreePoolMemory(line);
     } else {
@@ -633,7 +633,7 @@ bool ReleaseDevice(DeviceControlRecord* dcr)
   }
 
   pthread_cond_broadcast(&dev->wait_next_vol);
-  Dmsg2(100, "JobId=%u broadcast wait_device_release at %s\n",
+  Dmsg2(100, "JobId={} broadcast wait_device_release at {}\n",
         (uint32_t)jcr->JobId,
         bstrftimes(tbuf, sizeof(tbuf), (utime_t)time(NULL)));
   ReleaseDeviceCond();
@@ -653,7 +653,7 @@ bool ReleaseDevice(DeviceControlRecord* dcr)
     FreeDeviceControlRecord(dcr);
   }
 
-  Dmsg2(100, "Device %s released by JobId=%u\n", dev->print_name(),
+  Dmsg2(100, "Device {} released by JobId={}\n", dev->print_name(),
         (uint32_t)jcr->JobId);
 
   return retval;
@@ -727,12 +727,12 @@ static void AttachDcrToDev(DeviceControlRecord* dcr)
   lock_mutex(dcr->mutex_);
   dev = dcr->dev;
   jcr = dcr->jcr;
-  if (jcr) Dmsg1(500, "JobId=%u enter AttachDcrToDev\n", (uint32_t)jcr->JobId);
+  if (jcr) Dmsg1(500, "JobId={} enter AttachDcrToDev\n", (uint32_t)jcr->JobId);
   /* ***FIXME*** return error if dev not initiated */
   if (!dcr->attached_to_dev && dev->initiated && jcr
       && jcr->getJobType() != JT_SYSTEM) {
     dev->Lock();
-    Dmsg4(200, "Attach Jid=%d dcr=%p size=%d dev=%s\n", (uint32_t)jcr->JobId,
+    Dmsg4(200, "Attach Jid={} dcr={:p} size={} dev={}\n", (uint32_t)jcr->JobId,
           dcr, dev->attached_dcrs.size(), dev->print_name());
     dev->attached_dcrs.push_back(dcr); /* attach dcr to device */
     dev->Unlock();
@@ -751,7 +751,7 @@ static void LockedDetachDcrFromDev(DeviceControlRecord* dcr)
   if (dcr->attached_to_dev && dev) {
     dcr->UnreserveDevice();
     dev->Lock();
-    Dmsg4(200, "Detach Jid=%d dcr=%p size=%d to dev=%s\n",
+    Dmsg4(200, "Detach Jid={} dcr={:p} size={} to dev={}\n",
           (uint32_t)dcr->jcr->JobId, dcr, dev->attached_dcrs.size(),
           dev->print_name());
     dcr->attached_to_dev = false;

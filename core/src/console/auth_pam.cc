@@ -82,7 +82,7 @@ bool ConsolePamAuthenticate(FILE* std_in, BareosSocket* UA_sock)
               }
               break;
             default:
-              Dmsg1(100, "Error, unknown pam type %d\n", type);
+              Dmsg1(100, "Error, unknown pam type {}\n", type);
               error = true;
               break;
           } /* switch (type) */

@@ -121,7 +121,7 @@ static bool connect_outbound_to_file_daemon(JobControlRecord* jcr,
   utime_t heart_beat;
 
   if (!IsConnectingToClientAllowed(jcr)) {
-    Dmsg1(120, "Connection to client \"%s\" is not allowed.\n",
+    Dmsg1(120, "Connection to client \"{}\" is not allowed.\n",
           jcr->dir_impl->res.client->resource_name_);
     return false;
   }
@@ -381,9 +381,9 @@ int SendJobInfoToFileDaemon(JobControlRecord* jcr)
     memset(jcr->sd_auth_key, 0, strlen(jcr->sd_auth_key));
   }
 
-  Dmsg1(100, ">filed: %s", fd->msg);
+  Dmsg1(100, ">filed: {}", fd->msg);
   if (BgetDirmsg(fd) > 0) {
-    Dmsg1(110, "<filed: %s", fd->msg);
+    Dmsg1(110, "<filed: {}", fd->msg);
     if (!bstrncmp(fd->msg, OKjob, strlen(OKjob))) {
       Jmsg(jcr, M_FATAL, 0, T_("File daemon \"%s\" rejected Job command: %s\n"),
            jcr->dir_impl->res.client->resource_name_, fd->msg);
@@ -466,7 +466,7 @@ bool SendSecureEraseReqToFd(JobControlRecord* jcr)
           jcr->dir_impl->FDSecureEraseCmd, fd->message_length);
       if (sscanf(fd->msg, OKgetSecureEraseCmd, jcr->dir_impl->FDSecureEraseCmd)
           == 1) {
-        Dmsg1(400, "Got FD Secure Erase Cmd: %s\n",
+        Dmsg1(400, "Got FD Secure Erase Cmd: {}\n",
               jcr->dir_impl->FDSecureEraseCmd);
         break;
       } else {
@@ -538,7 +538,7 @@ bool SendLevelCommand(JobControlRecord* jcr)
       return 0;
   }
 
-  Dmsg1(120, ">filed: %s", fd->msg);
+  Dmsg1(120, ">filed: {}", fd->msg);
 
   if (!response(jcr, fd, OKlevel, "Level", DISPLAY_ERROR)) { return false; }
 
@@ -614,13 +614,13 @@ int SendRunscriptsCommands(JobControlRecord* jcr)
   for (auto* cmd : jcr->dir_impl->res.job->RunScripts) {
     if (!cmd->target.empty()) {
       ehost = edit_job_codes(jcr, ehost, cmd->target.c_str(), "");
-      Dmsg2(200, "dird: runscript %s -> %s\n", cmd->target.c_str(), ehost);
+      Dmsg2(200, "dird: runscript {} -> {}\n", cmd->target.c_str(), ehost);
 
       if (bstrcmp(ehost, jcr->dir_impl->res.client->resource_name_)) {
         PmStrcpy(msg, cmd->command.c_str());
         BashSpaces(msg);
 
-        Dmsg1(120, "dird: sending runscripts to fd '%s'\n",
+        Dmsg1(120, "dird: sending runscripts to fd '{}'\n",
               cmd->command.c_str());
 
         fd->fsend(runscriptcmd, cmd->on_success, cmd->on_failure,
@@ -700,12 +700,12 @@ static int RestoreObjectHandler(void* ctx, int, char** row)
     fd->fsend("restoreobject JobId=%s %s,%s,%s,%s,%s,%s,%s\n", row[0], row[1],
               row[2], row[3], row[4], row[5], row[6], row[9]);
   }
-  Dmsg1(010, "Send obj hdr=%s", fd->msg);
+  Dmsg1(010, "Send obj hdr={}", fd->msg);
 
   fd->message_length = PmStrcpy(fd->msg, row[7]);
   fd->send(); /* send Object name */
 
-  Dmsg1(010, "Send obj: %s\n", fd->msg);
+  Dmsg1(010, "Send obj: {}\n", fd->msg);
 
   jcr->db->UnescapeObject(jcr, row[8],           /* Object  */
                           str_to_uint64(row[1]), /* Object length */
@@ -720,7 +720,7 @@ static int RestoreObjectHandler(void* ctx, int, char** row)
       if (!fd->msg[i]) { fd->msg[i] = ' '; }
     }
 
-    Dmsg1(100, "Send obj: %s\n", fd->msg);
+    Dmsg1(100, "Send obj: {}\n", fd->msg);
   }
 
   return 0;
@@ -881,11 +881,11 @@ int GetAttributesAndPutInCatalog(JobControlRecord* jcr)
     SkipSpaces(&p);
     SkipNonspaces(&p); /* skip Opts_Digest */
     p++;               /* skip space */
-    Dmsg1(debuglevel, "Stream=%d\n", stream);
+    Dmsg1(debuglevel, "Stream={}\n", stream);
     if (stream == STREAM_UNIX_ATTRIBUTES
         || stream == STREAM_UNIX_ATTRIBUTES_EX) {
       if (jcr->cached_attribute) {
-        Dmsg3(debuglevel, "Cached attr. Stream=%d fname=%s\n", ar->Stream,
+        Dmsg3(debuglevel, "Cached attr. Stream={} fname={}\n", ar->Stream,
               ar->fname, ar->attr);
         if (DbLocker _{jcr->db};
             !jcr->db->CreateFileAttributesRecord(jcr, ar)) {
@@ -915,9 +915,9 @@ int GetAttributesAndPutInCatalog(JobControlRecord* jcr)
       ar->DeltaSeq = 0;
       jcr->cached_attribute = true;
 
-      Dmsg2(debuglevel, "dird<filed: stream=%d %s\n", stream,
+      Dmsg2(debuglevel, "dird<filed: stream={} {}\n", stream,
             jcr->dir_impl->fname.c_str());
-      Dmsg1(debuglevel, "dird<filed: attr=%s\n", ar->attr);
+      Dmsg1(debuglevel, "dird<filed: attr={}\n", ar->attr);
       jcr->FileId = ar->FileId;
     } else if (CryptoDigestStreamType(stream) != CRYPTO_DIGEST_NONE) {
       size_t length;
@@ -937,7 +937,7 @@ int GetAttributesAndPutInCatalog(JobControlRecord* jcr)
       length = strlen(Digest.c_str());
       digest.check_size(length * 2 + 1);
       jcr->db->EscapeString(jcr, digest.c_str(), Digest.c_str(), length);
-      Dmsg4(debuglevel, "stream=%d DigestLen=%d Digest=%s type=%d\n", stream,
+      Dmsg4(debuglevel, "stream={} DigestLen={} Digest={} type={}\n", stream,
             strlen(digest.c_str()), digest.c_str(), ar->DigestType);
     }
     jcr->dir_impl->jr.JobFiles = jcr->JobFiles = file_index;
@@ -952,7 +952,7 @@ int GetAttributesAndPutInCatalog(JobControlRecord* jcr)
   }
 
   if (jcr->cached_attribute) {
-    Dmsg3(debuglevel, "Cached attr with digest. Stream=%d fname=%s attr=%s\n",
+    Dmsg3(debuglevel, "Cached attr with digest. Stream={} fname={} attr={}\n",
           ar->Stream, ar->fname, ar->attr);
     if (DbLocker _{jcr->db}; !jcr->db->CreateFileAttributesRecord(jcr, ar)) {
       Jmsg1(jcr, M_FATAL, 0, T_("Attribute create error. %s"),
@@ -1101,7 +1101,7 @@ void* HandleFiledConnection(connection_pool& connections,
 
   if (!AuthenticateFileDaemon(fd, client_name)) { return NULL; }
 
-  Dmsg1(20, "Connected to file daemon %s\n", client_name);
+  Dmsg1(20, "Connected to file daemon {}\n", client_name);
 
   connections.add_authenticated_connection(std::move(conn));
 

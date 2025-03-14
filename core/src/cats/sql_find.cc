@@ -113,7 +113,7 @@ bool BareosDb::FindJobStartTime(JobControlRecord* jcr,
       return false;
     }
   } else {
-    Dmsg1(100, "Submitting: %s\n", cmd);
+    Dmsg1(100, "Submitting: {}\n", cmd);
     Mmsg(cmd, "SELECT StartTime, Job FROM Job WHERE Job.JobId=%s",
          edit_int64(jr->JobId, ed1));
   }
@@ -131,7 +131,7 @@ bool BareosDb::FindJobStartTime(JobControlRecord* jcr,
     SqlFreeResult();
     return false;
   }
-  Dmsg2(100, "Got start time: %s, job: %s\n", row[0], row[1]);
+  Dmsg2(100, "Got start time: {}, job: {}\n", row[0], row[1]);
   PmStrcpy(stime, row[0]);
   bstrncpy(job, row[1], MAX_NAME_LENGTH);
 
@@ -199,7 +199,7 @@ BareosDb::SqlFindResult BareosDb::FindLastJobStartTimeForJobAndClient(
     return SqlFindResult::kEmptyResultSet;
   }
 
-  Dmsg2(100, "Got start time: %s\n", row[0]);
+  Dmsg2(100, "Got start time: {}\n", row[0]);
 
   {
     std::size_t len = strlen(row[0]);
@@ -253,7 +253,7 @@ bool BareosDb::FindLastJobStartTime(JobControlRecord* jcr,
     Mmsg(errmsg, T_("No prior Full backup Job record found.\n"));
     return false;
   }
-  Dmsg1(100, "Got start time: %s\n", row[0]);
+  Dmsg1(100, "Got start time: {}\n", row[0]);
   PmStrcpy(stime, row[0]);
   bstrncpy(job, row[1], MAX_NAME_LENGTH);
 
@@ -320,7 +320,7 @@ bool BareosDb::FindLastJobid(JobControlRecord* jcr,
 
   DbLocker _{this};
   /* Find last full */
-  Dmsg2(100, "JobLevel=%d JobType=%d\n", jr->JobLevel, jr->JobType);
+  Dmsg2(100, "JobLevel={} JobType={}\n", jr->JobLevel, jr->JobType);
   if (jr->JobLevel == L_VERIFY_CATALOG) {
     EscapeString(jcr, esc_jobname, jr->Name, strlen(jr->Name));
     Mmsg(cmd,
@@ -350,7 +350,7 @@ bool BareosDb::FindLastJobid(JobControlRecord* jcr,
     Mmsg1(errmsg, T_("Unknown Job level=%d\n"), jr->JobLevel);
     return false;
   }
-  Dmsg1(100, "Query: %s\n", cmd);
+  Dmsg1(100, "Query: {}\n", cmd);
   if (!QueryDb(jcr, cmd)) { return false; }
   if ((row = SqlFetchRow()) == NULL) {
     Mmsg1(errmsg, T_("No Job found for: %s.\n"), cmd);
@@ -361,7 +361,7 @@ bool BareosDb::FindLastJobid(JobControlRecord* jcr,
   jr->JobId = str_to_int64(row[0]);
   SqlFreeResult();
 
-  Dmsg1(100, "db_get_last_jobid: got JobId=%d\n", jr->JobId);
+  Dmsg1(100, "db_get_last_jobid: got JobId={}\n", jr->JobId);
   if (jr->JobId <= 0) {
     Mmsg1(errmsg, T_("No Job found for: %s\n"), cmd);
     return false;
@@ -380,7 +380,7 @@ bool BareosDb::FindJobById(JobControlRecord* jcr, std::string id)
 {
   DbLocker _{this};
   std::string query = "SELECT JobId FROM Job WHERE JobId=" + id;
-  Dmsg1(100, "Query: %s\n", query.c_str());
+  Dmsg1(100, "Query: {}\n", query.c_str());
   if (!QueryDb(jcr, query.c_str())) { return false; }
   if (SqlFetchRow() == NULL) {
     Mmsg1(errmsg, T_("No Job found with id: %d.\n"), id.c_str());
@@ -509,30 +509,30 @@ retry_fetch:
          order.c_str(), item);
   }
 
-  Dmsg1(100, "fnextvol=%s\n", cmd);
+  Dmsg1(100, "fnextvol={}\n", cmd);
   if (!QueryDb(jcr, cmd)) {
-    Dmsg1(050, "Rtn numrows=%d\n", num_rows);
+    Dmsg1(050, "Rtn numrows={}\n", num_rows);
     return num_rows;
   }
 
   num_rows = SqlNumRows();
   if (item > num_rows || item < 1) {
-    Dmsg2(050, "item=%d got=%d\n", item, num_rows);
+    Dmsg2(050, "item={} got={}\n", item, num_rows);
     Mmsg2(errmsg,
           T_("Request for Volume item %d greater than max %d or less than 1\n"),
           item, num_rows);
     num_rows = 0;
-    Dmsg1(050, "Rtn numrows=%d\n", num_rows);
+    Dmsg1(050, "Rtn numrows={}\n", num_rows);
     return num_rows;
   }
 
   for (int i = 0; i < item; i++) {
     if ((row = SqlFetchRow()) == NULL) {
-      Dmsg1(050, "Fail fetch item=%d\n", i);
+      Dmsg1(050, "Fail fetch item={}\n", i);
       Mmsg1(errmsg, T_("No Volume record found for item %d.\n"), i);
       SqlFreeResult();
       num_rows = 0;
-      Dmsg1(050, "Rtn numrows=%d\n", num_rows);
+      Dmsg1(050, "Rtn numrows={}\n", num_rows);
       return num_rows;
     }
 
@@ -541,12 +541,12 @@ retry_fetch:
      * and jump out if no more rows are available */
     if (unwanted_volumes
         && is_on_unwanted_volumes_list(row[1], unwanted_volumes)) {
-      Dmsg1(50, "Volume %s is on unwanted_volume_list, skipping\n", row[1]);
+      Dmsg1(50, "Volume {} is on unwanted_volume_list, skipping\n", row[1]);
       num_rows--;
       if (num_rows <= 0) {
         Dmsg1(50, "No more volumes in result, bailing out\n", row[1]);
         SqlFreeResult();
-        Dmsg1(050, "Rtn numrows=%d\n", num_rows);
+        Dmsg1(050, "Rtn numrows={}\n", num_rows);
         return num_rows;
       }
       continue;
@@ -616,7 +616,7 @@ retry_fetch:
     goto retry_fetch;
   }
 
-  Dmsg1(050, "Rtn numrows=%d\n", num_rows);
+  Dmsg1(050, "Rtn numrows={}\n", num_rows);
   return num_rows;
 }
 #endif /* HAVE_POSTGRESQL */

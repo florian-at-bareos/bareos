@@ -52,7 +52,7 @@ bool ConfigParserStateMachine::ParseAllTokens()
   int token;
 
   while ((token = LexGetToken(lexical_parser_, BCT_ALL)) != BCT_EOF) {
-    Dmsg3(900, "parse state=%d parser_pass_number_=%d got token=%s\n", state,
+    Dmsg3(900, "parse state={} parser_pass_number_={} got token={}\n", state,
           parser_pass_number_, lex_tok_to_str(token));
     switch (state) {
       case ParseState::kInit:
@@ -127,7 +127,7 @@ ConfigParserStateMachine::ScanResource(int token)
         item = &currently_parsed_resource_.resource_items_[resource_item_index];
         if (!(item->flags & CFG_ITEM_NO_EQUALS)) {
           token = LexGetToken(lexical_parser_, BCT_SKIP_EOL);
-          Dmsg1(900, "in BCT_IDENT got token=%s\n", lex_tok_to_str(token));
+          Dmsg1(900, "in BCT_IDENT got token={}\n", lex_tok_to_str(token));
           if (token != BCT_EQUALS) {
             scan_err1(lexical_parser_, T_("expected an equals, got: %s"),
                       lexical_parser_->str);
@@ -142,7 +142,7 @@ ConfigParserStateMachine::ScanResource(int token)
                                 + " of file " + lexical_parser_->fname);
         }
 
-        Dmsg1(800, "calling handler for %s\n", item->name);
+        Dmsg1(800, "calling handler for {}\n", item->name);
 
         if (!my_config_.StoreResource(item->type, lexical_parser_, item,
                                       resource_item_index,
@@ -155,9 +155,9 @@ ConfigParserStateMachine::ScanResource(int token)
           }
         }
       } else {
-        Dmsg2(900, "config_level_=%d id=%s\n", config_level_,
+        Dmsg2(900, "config_level_={} id={}\n", config_level_,
               lexical_parser_->str);
-        Dmsg1(900, "Keyword = %s\n", lexical_parser_->str);
+        Dmsg1(900, "Keyword = {}\n", lexical_parser_->str);
         scan_err1(lexical_parser_,
                   T_("Keyword \"%s\" not permitted in this resource.\n"
                      "Perhaps you left the trailing brace off of the "
@@ -267,7 +267,7 @@ bool ConfigParserStateMachine::InitParserPass()
   // close files from the pass before
   while (lexical_parser_) { lexical_parser_ = LexCloseFile(lexical_parser_); }
 
-  Dmsg1(900, "ParseConfig parser_pass_number_ %d\n", parser_pass_number_);
+  Dmsg1(900, "ParseConfig parser_pass_number_ {}\n", parser_pass_number_);
 
   lexical_parser_ = lex_open_file(lexical_parser_, config_file_name_.c_str(),
                                   scan_error_, scan_warning_);

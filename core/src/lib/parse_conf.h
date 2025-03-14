@@ -438,13 +438,13 @@ class ConfigResourcesContainer {
         = (BareosResource**)malloc(num * sizeof(BareosResource*));
 
     for (int i = 0; i < num; i++) { configuration_resources_[i] = nullptr; }
-    Dmsg1(10, "ConfigResourcesContainer: new configuration_resources_ %p\n",
+    Dmsg1(10, "ConfigResourcesContainer: new configuration_resources_ {:p}\n",
           configuration_resources_);
   }
 
   ~ConfigResourcesContainer()
   {
-    Dmsg1(10, "ConfigResourcesContainer freeing %p %s\n",
+    Dmsg1(10, "ConfigResourcesContainer freeing {:p} {}\n",
           configuration_resources_, TPAsString(timestamp_).c_str());
     int num = config_->r_num_;
     for (int j = 0; j < num; j++) {

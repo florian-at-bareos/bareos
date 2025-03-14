@@ -78,16 +78,16 @@ bool BareosAccurateFilelistHtable::AddFile(char* fname,
   if (file_list_->insert(item->fname, item)) {
     if (chksum) {
       Dmsg4(debuglevel,
-            "[file_nr = %lld] add fname=<%s> lstat=%s delta_seq=%i chksum=%s\n",
+            "[file_nr = {}] add fname=<{}> lstat={} delta_seq={} chksum={}\n",
             item->payload.filenr, fname, lstat, delta_seq, chksum);
     } else {
-      Dmsg2(debuglevel, "[file_nr = %lld] add fname=<%s> lstat=%s\n",
+      Dmsg2(debuglevel, "[file_nr = {}] add fname=<{}> lstat={}\n",
             item->payload.filenr, fname, lstat);
     }
     seen_bitmap_.push_back(false);
   } else {
     duplicate_files_ += 1;
-    Dmsg1(debuglevel, "fname=<%s> is already registered.\n", fname);
+    Dmsg1(debuglevel, "fname=<{}> is already registered.\n", fname);
   }
 
   return retval;
@@ -144,7 +144,7 @@ bool BareosAccurateFilelistHtable::SendBaseFileList()
 
   foreach_htable (elt, file_list_) {
     if (seen_bitmap_.at(elt->payload.filenr)) {
-      Dmsg1(debuglevel, "base file fname=%s\n", elt->fname);
+      Dmsg1(debuglevel, "base file fname={}\n", elt->fname);
       DecodeStat(elt->payload.lstat, &statp, sizeof(statp),
                  &LinkFIc); /* decode catalog stat */
       ff_pkt->fname = elt->fname;
@@ -175,7 +175,7 @@ bool BareosAccurateFilelistHtable::SendDeletedList()
         || PluginCheckFile(jcr_, elt->fname)) {
       continue;
     }
-    Dmsg1(debuglevel, "deleted fname=%s\n", elt->fname);
+    Dmsg1(debuglevel, "deleted fname={}\n", elt->fname);
     ff_pkt->fname = elt->fname;
     DecodeStat(elt->payload.lstat, &statp, sizeof(statp),
                &LinkFIc); /* decode catalog stat */

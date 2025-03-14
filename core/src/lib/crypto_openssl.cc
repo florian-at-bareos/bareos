@@ -637,7 +637,7 @@ void CryptoKeypairFree(X509_KEYPAIR* keypair)
  */
 DIGEST* OpensslDigestNew(JobControlRecord* jcr, crypto_digest_t type)
 {
-  Dmsg1(150, "crypto_digest_new jcr=%p\n", jcr);
+  Dmsg1(150, "crypto_digest_new jcr={:p}\n", jcr);
 
   try {
     /* Determine the correct OpenSSL message digest type */
@@ -718,7 +718,7 @@ SIGNATURE* crypto_sign_new(JobControlRecord* jcr)
 
   sig->sigData = SignatureData_new();
   sig->jcr = jcr;
-  Dmsg1(150, "crypto_sign_new jcr=%p\n", jcr);
+  Dmsg1(150, "crypto_sign_new jcr={:p}\n", jcr);
 
   if (!sig->sigData) {
     /* Allocation failed in OpenSSL */
@@ -755,7 +755,7 @@ crypto_error_t CryptoSignGetDigest(SIGNATURE* sig,
     if (M_ASN1_OCTET_STRING_cmp(keypair->keyid, si->subjectKeyIdentifier)
         == 0) {
       /* Get the digest algorithm and allocate a digest context */
-      Dmsg1(150, "CryptoSignGetDigest jcr=%p\n", sig->jcr);
+      Dmsg1(150, "CryptoSignGetDigest jcr={:p}\n", sig->jcr);
       switch (OBJ_obj2nid(si->digestAlgorithm)) {
         case NID_md5:
           Dmsg0(100, "sign digest algorithm is MD5\n");
@@ -1787,10 +1787,10 @@ void LogSSLError(int ssl_error)
           std::begin(ssl_error_codes), std::end(ssl_error_codes),
           [ssl_error](const auto& val) { return val.error_code == ssl_error; });
       iter != std::end(ssl_error_codes)) {
-    Dmsg1(iter->level, "SSL_get_error() returned %s\n", iter->name);
+    Dmsg1(iter->level, "SSL_get_error() returned {}\n", iter->name);
     return;
   }
-  Dmsg1(50, "SSL_get_error() returned unknown error value %d\n", ssl_error);
+  Dmsg1(50, "SSL_get_error() returned unknown error value {}\n", ssl_error);
 }
 
 #endif /* HAVE_OPENSSL */

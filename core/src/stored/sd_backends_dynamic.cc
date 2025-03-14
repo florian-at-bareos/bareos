@@ -43,11 +43,11 @@ static bool LoadDynamicLibrary(
 {
   for (const auto& library_dir : library_directories) {
     if (dlopen((library_dir + "/" + library_file).c_str(), RTLD_NOW)) {
-      Dmsg0(50, "Loaded dynamic library %s/%s\n", library_dir.c_str(),
+      Dmsg0(50, "Loaded dynamic library {}/{}\n", library_dir.c_str(),
             library_file.c_str());
       return true;
     }
-    Dmsg0(50, "Could not load library %s/%s: %s\n", library_dir.c_str(),
+    Dmsg0(50, "Could not load library {}/{}: {}\n", library_dir.c_str(),
           library_file.c_str(), dlerror());
   }
   return false;

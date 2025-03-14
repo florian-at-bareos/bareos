@@ -138,8 +138,7 @@ static void PyErrorHandler(PluginContext* bareos_plugin_ctx, int msgtype)
 {
   std::string error_string = GetStringFromPyErrorHandler();
 
-  Dmsg(bareos_plugin_ctx, debuglevel, PYTHON_MODULE_NAME_QUOTED ": %s\n",
-       error_string.c_str());
+  Dmsg(bareos_plugin_ctx, debuglevel, PYTHON_MODULE_NAME_QUOTED ": {}\n", error_string.c_str());
   if (msgtype) {
     Jmsg(bareos_plugin_ctx, msgtype, PYTHON_MODULE_NAME_QUOTED ": %s\n",
          error_string.c_str());

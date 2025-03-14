@@ -594,12 +594,12 @@ static bool set_win32_attributes(JobControlRecord* jcr,
   if (!(p_SetFileAttributesW || p_SetFileAttributesA)) { return false; }
 
   if (!p || !*p) { /* we should have attributes */
-    Dmsg2(100, "Attributes missing. of=%s ofd=%d\n", attr->ofname,
+    Dmsg2(100, "Attributes missing. of={} ofd={}\n", attr->ofname,
           ofd->filedes);
     if (IsBopen(ofd)) { bclose(ofd); }
     return false;
   } else {
-    Dmsg2(100, "Attribs %s = %s\n", attr->ofname, attr->attrEx);
+    Dmsg2(100, "Attribs {} = {}\n", attr->ofname, attr->attrEx);
   }
 
   p += FromBase64(&val, p);
@@ -629,7 +629,7 @@ static bool set_win32_attributes(JobControlRecord* jcr,
   /** At this point, we have reconstructed the WIN32_FILE_ATTRIBUTE_DATA pkt */
 
   if (!IsBopen(ofd)) {
-    Dmsg1(100, "File not open: %s\n", attr->ofname);
+    Dmsg1(100, "File not open: {}\n", attr->ofname);
     bopen(ofd, attr->ofname, O_WRONLY | O_BINARY, 0,
           0); /* attempt to open the file */
   }
@@ -650,7 +650,7 @@ void WinError(JobControlRecord* jcr, const char* prefix, POOLMEM* win32_ofile)
   LPTSTR msg;
   FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
                 NULL, lerror, 0, (LPTSTR)&msg, 0, NULL);
-  Dmsg3(100, "Error in %s on file %s: ERR=%s\n", prefix, win32_ofile, msg);
+  Dmsg3(100, "Error in {} on file {}: ERR={}\n", prefix, win32_ofile, msg);
   StripTrailingJunk(msg);
   Jmsg3(jcr, M_ERROR, 0, T_("Error in %s file %s: ERR=%s\n"), prefix,
         win32_ofile, msg);

@@ -543,7 +543,7 @@ bool Do_a_command(UaContext* ua)
   bool found = false;
   BareosSocket* user = ua->UA_sock;
 
-  Dmsg1(900, "Command: %s\n", ua->argk[0]);
+  Dmsg1(900, "Command: {}\n", ua->argk[0]);
   if (ua->argc == 0) { return false; }
 
   while (ua->jcr->dir_impl->res.write_storage_list
@@ -625,7 +625,7 @@ static bool add_cmd(UaContext* ua, const char*)
 
   if (!GetPoolDbr(ua, &pr)) { return true; }
 
-  Dmsg4(120, "id=%d Num=%d Max=%d type=%s\n", pr.PoolId, pr.NumVols, pr.MaxVols,
+  Dmsg4(120, "id={} Num={} Max={} type={}\n", pr.PoolId, pr.NumVols, pr.MaxVols,
         pr.PoolType);
 
   while (pr.MaxVols > 0 && pr.NumVols >= pr.MaxVols) {
@@ -715,7 +715,7 @@ static bool add_cmd(UaContext* ua, const char*)
     mr.InChanger = InChanger;
     mr.Enabled = VOL_ENABLED;
     SetStorageidInMr(store, &mr);
-    Dmsg1(200, "Create Volume %s\n", mr.VolumeName);
+    Dmsg1(200, "Create Volume {}\n", mr.VolumeName);
     if (DbLocker _{ua->db}; !ua->db->CreateMediaRecord(ua->jcr, &mr)) {
       ua->ErrorMsg("%s", ua->db->strerror());
       return true;
@@ -1259,7 +1259,7 @@ static void AllStorageSetdebug(UaContext* ua,
       }
       if (!is_duplicate_address) {
         storages_with_unique_address.push_back(storage_in_config);
-        Dmsg2(140, "Stuffing: %s:%d\n", storage_in_config->address,
+        Dmsg2(140, "Stuffing: {}:{}\n", storage_in_config->address,
               storage_in_config->SDport);
       }
     }
@@ -1314,7 +1314,7 @@ static void AllClientSetdebug(UaContext* ua,
       }
       if (!is_duplicate_address) {
         clients_with_unique_address.push_back(client_in_config);
-        Dmsg2(140, "Stuffing: %s:%d\n", client_in_config->address,
+        Dmsg2(140, "Stuffing: {}:{}\n", client_in_config->address,
               client_in_config->FDport);
       }
     }
@@ -1366,7 +1366,7 @@ static bool SetdebugCmd(UaContext* ua, const char* cmd)
   StorageResource* store;
   ClientResource* client;
 
-  Dmsg1(120, "setdebug:%s:\n", cmd);
+  Dmsg1(120, "setdebug:{}:\n", cmd);
 
   level = -1;
   i = FindArgWithValue(ua, NT_("level"));
@@ -1708,7 +1708,7 @@ static bool var_cmd(UaContext* ua, const char*)
   while (*var == ' ') { /* skip spaces */
     var++;
   }
-  Dmsg1(100, "Var=%s:\n", var);
+  Dmsg1(100, "Var={}:\n", var);
   POOLMEM* val = GetPoolMemory(PM_FNAME);
   VariableExpansion(ua->jcr, var, val);
   ua->SendMsg("%s\n", val);
@@ -1899,7 +1899,7 @@ static bool EstimateCmd(UaContext* ua, const char*)
   }
 
   // If the job is in accurate mode, we send the list of all files to FD.
-  Dmsg1(40, "estimate accurate=%d\n", jcr->accurate);
+  Dmsg1(40, "estimate accurate={}\n", jcr->accurate);
   if (!SendAccurateCurrentFiles(jcr)) { goto bail_out; }
 
   jcr->file_bsock->fsend("estimate listing=%d\n", listing);
@@ -2119,7 +2119,7 @@ static bool TruncateCmd(UaContext* ua, const char*)
   for (int i = 0; i < mediaIds.size(); i++) {
     mr.MediaId = mediaIds.get(i);
     if (!ua->db->GetMediaRecord(ua->jcr, &mr)) {
-      Dmsg1(0, "Can't find MediaId=%lld\n", (uint64_t)mr.MediaId);
+      Dmsg1(0, "Can't find MediaId={}\n", (uint64_t)mr.MediaId);
     } else {
       DoTruncate(ua, mr, drive_number);
     }
@@ -2501,7 +2501,7 @@ static void DoMountCmd(UaContext* ua, const char* cmd)
   }
 
   if (!OpenClientDb(ua)) { return; }
-  Dmsg2(120, "%s: %s\n", cmd, ua->UA_sock->msg);
+  Dmsg2(120, "{}: {}\n", cmd, ua->UA_sock->msg);
 
   store.store = get_storage_resource(ua, true, false);
   if (!store.store) { return; }
@@ -2514,7 +2514,7 @@ static void DoMountCmd(UaContext* ua, const char* cmd)
   }
   if (bstrcmp(cmd, "mount")) { slot = GetStorageSlot(ua, store.store); }
 
-  Dmsg3(120, "Found storage, MediaType=%s DevName=%s drive=%hd\n",
+  Dmsg3(120, "Found storage, MediaType={} DevName={} drive={}\n",
         store.store->media_type, store.store->dev_name(), drive);
 
   if (!do_alldrives) {

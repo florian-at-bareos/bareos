@@ -60,7 +60,7 @@ void TlsOpenSsl::SetTlsPskClientContext(const PskCredentials& credentials)
   } else {
     BStringList ident(credentials.get_identity(),
                       AsciiControlCharacters::RecordSeparator());
-    Dmsg1(50, "Preparing TLS_PSK CLIENT context for identity %s\n",
+    Dmsg1(50, "Preparing TLS_PSK CLIENT context for identity {}\n",
           ident.JoinReadable().c_str());
     d_->ClientContextInsertCredentials(credentials);
     SSL_CTX_set_psk_client_callback(d_->openssl_ctx_,
@@ -141,7 +141,7 @@ bool TlsOpenSsl::TlsPostconnectVerifyCn(
         > 0) {
       const std::string_view d(data);
       for (const std::string& cn : verify_list) {
-        Dmsg2(120, "comparing CNs: cert-cn=%s, allowed-cn=%s\n", data,
+        Dmsg2(120, "comparing CNs: cert-cn={}, allowed-cn={}\n", data,
               cn.c_str());
         if (d.compare(cn) == 0) { auth_success = true; }
       }

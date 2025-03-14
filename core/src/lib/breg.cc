@@ -83,7 +83,7 @@ bool ApplyBregexps(const char* fname,
     ret = elt->replace(ret);
     ok = ok || elt->success;
   }
-  Dmsg2(500, "bregexp: fname=%s ret=%s\n", fname, ret);
+  Dmsg2(500, "bregexp: fname={} ret={}\n", fname, ret);
 
   *result = ret;
   return ok;
@@ -184,7 +184,7 @@ bool BareosRegex::ExtractRegexp(const char* motif)
   if (rc != 0) {
     char prbuf[500];
     regerror(rc, &preg, prbuf, sizeof(prbuf));
-    Dmsg1(100, "bregexp: compile error: %s\n", prbuf);
+    Dmsg1(100, "bregexp: compile error: {}\n", prbuf);
     return false;
   }
 
@@ -211,7 +211,7 @@ char* BareosRegex::replace(const char* fname)
     result = CheckPoolMemorySize(result, len);
     EditSubst(fname, regs);
     success = true;
-    Dmsg2(500, "bregexp: len = %i, result_len = %i\n", len, strlen(result));
+    Dmsg2(500, "bregexp: len = {}, result_len = {}\n", len, strlen(result));
 
   } else { /* error in substitution */
     Dmsg0(100, "bregexp: error in substitution\n");
@@ -339,7 +339,7 @@ int BregexpGetBuildWhereSize(char* strip_prefix,
             * 2
         + 3 + 1;
 
-  Dmsg1(200, "BregexpGetBuildWhereSize = %i\n", str_size);
+  Dmsg1(200, "BregexpGetBuildWhereSize = {}\n", str_size);
   return str_size;
 }
 

@@ -174,7 +174,7 @@ static int Do_a_command(FILE* input, BareosSocket* UA_sock)
   found = 0;
   status = 1;
 
-  Dmsg1(120, "Command: %s\n", UA_sock->msg);
+  Dmsg1(120, "Command: {}\n", UA_sock->msg);
   if (g_argc == 0) { return 1; }
 
   cmd = g_argk[0] + 1;
@@ -299,7 +299,7 @@ static void ReadAndProcessInput(FILE* input, BareosSocket* UA_sock)
       break; /* error or term */
     } else if (status == BNET_SIGNAL) {
       if (UA_sock->message_length == BNET_SUB_PROMPT) { at_prompt = true; }
-      Dmsg1(100, "Got poll %s\n", BnetSignalToString(UA_sock).c_str());
+      Dmsg1(100, "Got poll {}\n", BnetSignalToString(UA_sock).c_str());
     }
   }
 }

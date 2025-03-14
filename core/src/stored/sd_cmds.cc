@@ -97,19 +97,19 @@ void* handle_stored_connection(BareosSocket* sd, char* job_name)
   if (!(jcr = get_jcr_by_full_name(job_name))) {
     Jmsg1(NULL, M_FATAL, 0, T_("SD connect failed: Job name not found: %s\n"),
           job_name);
-    Dmsg1(3, "**** Job \"%s\" not found.\n", job_name);
+    Dmsg1(3, "**** Job \"{}\" not found.\n", job_name);
     sd->close();
     delete sd;
     return NULL;
   }
 
-  Dmsg1(50, "Found Job %s\n", job_name);
+  Dmsg1(50, "Found Job {}\n", job_name);
 
   if (jcr->authenticated) {
     Jmsg2(jcr, M_FATAL, 0,
           T_("Hey!!!! JobId %u Job %s already authenticated.\n"),
           (uint32_t)jcr->JobId, jcr->Job);
-    Dmsg2(50, "Hey!!!! JobId %u Job %s already authenticated.\n",
+    Dmsg2(50, "Hey!!!! JobId {} Job {} already authenticated.\n",
           (uint32_t)jcr->JobId, jcr->Job);
     sd->close();
     delete sd;
@@ -122,11 +122,11 @@ void* handle_stored_connection(BareosSocket* sd, char* job_name)
 
   // Authenticate the Storage daemon
   if (jcr->authenticated || !AuthenticateStoragedaemon(jcr)) {
-    Dmsg1(50, "Authentication failed Job %s\n", jcr->Job);
+    Dmsg1(50, "Authentication failed Job {}\n", jcr->Job);
     Jmsg(jcr, M_FATAL, 0, T_("Unable to authenticate Storage daemon\n"));
   } else {
     *jcr->sd_impl->client_available.lock() = true;
-    Dmsg2(50, "OK Authentication jid=%u Job %s\n", (uint32_t)jcr->JobId,
+    Dmsg2(50, "OK Authentication jid={} Job {}\n", (uint32_t)jcr->JobId,
           jcr->Job);
   }
 
@@ -157,7 +157,7 @@ static void DoSdCommands(JobControlRecord* jcr)
     }
     if (status <= 0) { continue; /* ignore signals and zero length msgs */ }
 
-    Dmsg1(110, "<stored: %s", sd->msg);
+    Dmsg1(110, "<stored: {}", sd->msg);
     found = false;
     for (i = 0; sd_cmds[i].cmd; i++) {
       if (bstrncmp(sd_cmds[i].cmd, sd->msg, strlen(sd_cmds[i].cmd))) {
@@ -184,7 +184,7 @@ static void DoSdCommands(JobControlRecord* jcr)
     if (!found) { /* command not found */
       if (!jcr->IsJobCanceled()) {
         Jmsg1(jcr, M_FATAL, 0, T_("SD command not found: %s\n"), sd->msg);
-        Dmsg1(110, "<stored: Command not found: %s\n", sd->msg);
+        Dmsg1(110, "<stored: Command not found: {}\n", sd->msg);
       }
       sd->fsend(serrmsg);
       break;
@@ -211,9 +211,9 @@ bool DoListenRun(JobControlRecord* jcr)
 
   jcr->sendJobStatus(JS_WaitSD); /* wait for SD to connect */
 
-  Dmsg2(50, "%s waiting for SD to contact SD key=%s\n", jcr->Job,
+  Dmsg2(50, "{} waiting for SD to contact SD key={}\n", jcr->Job,
         jcr->sd_auth_key);
-  Dmsg2(800, "Wait SD for jid=%d %p\n", jcr->JobId, jcr);
+  Dmsg2(800, "Wait SD for jid={} {:p}\n", jcr->JobId, jcr);
 
   /* Wait for the Storage daemon to contact us to start the Job, when he does,
    * we will be released. */
@@ -223,16 +223,16 @@ bool DoListenRun(JobControlRecord* jcr)
       return started || jcr->IsJobCanceled();
     });
   }
-  Dmsg3(50, "Auth=%d canceled=%d\n", jcr->authenticated, jcr->IsJobCanceled());
+  Dmsg3(50, "Auth={} canceled={}\n", jcr->authenticated, jcr->IsJobCanceled());
 
   if (!jcr->authenticated || !jcr->store_bsock) {
-    Dmsg2(800, "Auth fail or cancel for jid=%d %p\n", jcr->JobId, jcr);
+    Dmsg2(800, "Auth fail or cancel for jid={} {:p}\n", jcr->JobId, jcr);
     DequeueMessages(jcr); /* send any queued messages */
 
     goto cleanup;
   }
 
-  Dmsg1(120, "Start run Job=%s\n", jcr->Job);
+  Dmsg1(120, "Start run Job={}\n", jcr->Job);
 
   dir->fsend(Job_start, jcr->Job);
   jcr->start_time = time(NULL);
@@ -271,7 +271,7 @@ static bool StartReplicationSession(JobControlRecord* jcr)
 {
   BareosSocket* sd = jcr->store_bsock;
 
-  Dmsg1(120, "Start replication session: %s", sd->msg);
+  Dmsg1(120, "Start replication session: {}", sd->msg);
   if (jcr->sd_impl->session_opened) {
     PmStrcpy(jcr->errmsg, T_("Attempt to open already open session.\n"));
     sd->fsend(NO_open);
@@ -282,7 +282,7 @@ static bool StartReplicationSession(JobControlRecord* jcr)
 
   // Send "Ticket" to Storage Daemon
   sd->fsend(OK_start_replicate, jcr->VolSessionId);
-  Dmsg1(110, ">stored: %s", sd->msg);
+  Dmsg1(110, ">stored: {}", sd->msg);
 
   return true;
 }
@@ -296,7 +296,7 @@ static bool ReplicateData(JobControlRecord* jcr)
 {
   BareosSocket* sd = jcr->store_bsock;
 
-  Dmsg1(120, "Replicate data: %s", sd->msg);
+  Dmsg1(120, "Replicate data: {}", sd->msg);
   if (jcr->sd_impl->session_opened) {
     utime_t now;
 
@@ -304,7 +304,7 @@ static bool ReplicateData(JobControlRecord* jcr)
     now = (utime_t)time(NULL);
     UpdateJobStatistics(jcr, now);
 
-    Dmsg1(110, "<stored: %s", sd->msg);
+    Dmsg1(110, "<stored: {}", sd->msg);
     if (DoAppendData(jcr, sd, "SD")) {
       return true;
     } else {
@@ -325,7 +325,7 @@ static bool EndReplicationSession(JobControlRecord* jcr)
 {
   BareosSocket* sd = jcr->store_bsock;
 
-  Dmsg1(120, "stored<stored: %s", sd->msg);
+  Dmsg1(120, "stored<stored: {}", sd->msg);
   if (!jcr->sd_impl->session_opened) {
     PmStrcpy(jcr->errmsg, T_("Attempt to close non-open session.\n"));
     sd->fsend(NOT_opened);

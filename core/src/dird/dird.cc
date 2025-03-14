@@ -523,7 +523,7 @@ static void CleanUpOldFiles()
     /* Exclude any name with ., .., not my_name or containing a space */
     if (strcmp(result->d_name, ".") == 0 || strcmp(result->d_name, "..") == 0
         || strncmp(result->d_name, my_name, my_name_len) != 0) {
-      Dmsg1(500, "Skipped: %s\n", result->d_name);
+      Dmsg1(500, "Skipped: {}\n", result->d_name);
       continue;
     }
 
@@ -531,7 +531,7 @@ static void CleanUpOldFiles()
     if (regexec(&preg1, result->d_name, 0, nullptr, 0) == 0) {
       PmStrcpy(cleanup, basename);
       PmStrcat(cleanup, result->d_name);
-      Dmsg1(100, "Unlink: %s\n", cleanup);
+      Dmsg1(100, "Unlink: {}\n", cleanup);
       SecureErase(nullptr, cleanup);
     }
   }

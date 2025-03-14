@@ -205,7 +205,7 @@ bool SetupJob(JobControlRecord* jcr, bool suppress_output)
   }
 
   jcr->JobId = jcr->dir_impl->jr.JobId;
-  Dmsg4(100, "Created job record JobId=%d Name=%s Type=%c Level=%c\n",
+  Dmsg4(100, "Created job record JobId={} Name={} Type={:c} Level={:c}\n",
         jcr->JobId, jcr->Job, jcr->dir_impl->jr.JobType,
         jcr->dir_impl->jr.JobLevel);
 
@@ -388,7 +388,7 @@ bool UseWaitingClient(JobControlRecord* jcr, int timeout)
   auto& connections = get_client_connections();
 
   if (!IsConnectFromClientAllowed(jcr)) {
-    Dmsg1(120, "Connection from client \"%s\" to director is not allowed.\n",
+    Dmsg1(120, "Connection from client \"{}\" to director is not allowed.\n",
           jcr->dir_impl->res.client->resource_name_);
   } else {
     auto connection
@@ -639,7 +639,7 @@ static void* job_thread(void* arg)
   if (jcr->msg_queue && jcr->msg_queue->size() > 0) { DequeueMessages(jcr); }
 
   GeneratePluginEvent(jcr, bDirEventJobEnd);
-  Dmsg1(50, "======== End Job stat=%c ==========\n", jcr->getJobStatus());
+  Dmsg1(50, "======== End Job stat={:c} ==========\n", jcr->getJobStatus());
 
   return NULL;
 }
@@ -652,7 +652,7 @@ void SdMsgThreadSendSignal(JobControlRecord* jcr,
   ASSERT(lock.mutex() == &jcr->mutex_guard());
   if (!jcr->dir_impl->sd_msg_thread_done && jcr->dir_impl->SD_msg_chan_started
       && !pthread_equal(jcr->dir_impl->SD_msg_chan, pthread_self())) {
-    Dmsg1(800, "Send kill to SD msg chan jid=%d\n", jcr->JobId);
+    Dmsg1(800, "Send kill to SD msg chan jid={}\n", jcr->JobId);
     pthread_kill(jcr->dir_impl->SD_msg_chan, sig);
   }
 }
@@ -729,13 +729,13 @@ static void JobMonitorWatchdog(watchdog_t* self)
 
   control_jcr = (JobControlRecord*)self->data;
 
-  Dmsg1(800, "JobMonitorWatchdog %p called\n", self);
+  Dmsg1(800, "JobMonitorWatchdog {:p} called\n", self);
 
   foreach_jcr (jcr) {
     bool cancel = false;
 
     if (jcr->JobId == 0 || jcr->IsJobCanceled() || jcr->dir_impl->no_maxtime) {
-      Dmsg2(800, "Skipping JobControlRecord=%p Job=%s\n", jcr, jcr->Job);
+      Dmsg2(800, "Skipping JobControlRecord={:p} Job={}\n", jcr, jcr->Job);
       continue;
     }
 
@@ -757,13 +757,13 @@ static void JobMonitorWatchdog(watchdog_t* self)
     }
 
     if (cancel) {
-      Dmsg3(800, "Cancelling JobControlRecord %p jobid %d (%s)\n", jcr,
+      Dmsg3(800, "Cancelling JobControlRecord {:p} jobid {} ({})\n", jcr,
             jcr->JobId, jcr->Job);
       UaContext* ua = new_ua_context(jcr);
       ua->jcr = control_jcr;
       CancelJob(ua, jcr);
       FreeUaContext(ua);
-      Dmsg2(800, "Have cancelled JobControlRecord %p Job=%d\n", jcr,
+      Dmsg2(800, "Have cancelled JobControlRecord {:p} Job={}\n", jcr,
             jcr->JobId);
     }
   }
@@ -785,7 +785,7 @@ static bool JobCheckMaxwaittime(JobControlRecord* jcr)
 
   if (jcr->wait_time) { current = watchdog_time - jcr->wait_time; }
 
-  Dmsg2(200, "check maxwaittime %u >= %u\n", current + jcr->wait_time_sum,
+  Dmsg2(200, "check maxwaittime {} >= {}\n", current + jcr->wait_time_sum,
         job->MaxWaitTime);
   if (job->MaxWaitTime != 0
       && (current + jcr->wait_time_sum) >= job->MaxWaitTime) {
@@ -811,7 +811,7 @@ static bool JobCheckMaxruntime(JobControlRecord* jcr)
     return false;
   }
   run_time = watchdog_time - jcr->start_time;
-  Dmsg7(200, "check_maxruntime %llu-%u=%llu >= %llu|%llu|%llu|%llu\n",
+  Dmsg7(200, "check_maxruntime {}-{}={} >= {}|{}|{}|{}\n",
         watchdog_time, jcr->start_time, run_time, job->MaxRunTime,
         job->FullMaxRunTime, job->IncMaxRunTime, job->DiffMaxRunTime);
 
@@ -846,7 +846,7 @@ static bool JobCheckMaxrunschedtime(JobControlRecord* jcr)
   }
   if ((watchdog_time - jcr->initial_sched_time)
       < jcr->dir_impl->MaxRunSchedTime) {
-    Dmsg3(200, "Job %p (%s) with MaxRunSchedTime %d not expired\n", jcr,
+    Dmsg3(200, "Job {:p} ({}) with MaxRunSchedTime {} not expired\n", jcr,
           jcr->Job, jcr->dir_impl->MaxRunSchedTime);
     return false;
   }
@@ -864,7 +864,7 @@ DBId_t GetOrCreatePoolRecord(JobControlRecord* jcr, char* pool_name)
   PoolDbRecord pr;
 
   bstrncpy(pr.Name, pool_name, sizeof(pr.Name));
-  Dmsg1(110, "get_or_create_pool=%s\n", pool_name);
+  Dmsg1(110, "get_or_create_pool={}\n", pool_name);
 
   while (!jcr->db->GetPoolRecord(jcr, &pr)) { /* get by Name */
     /* Try to create the pool */
@@ -1004,16 +1004,16 @@ bool AllowDuplicateJob(JobControlRecord* jcr)
         djcr->setJobStatusWithPriorityCheck(JS_Canceled);
         CancelJob(ua, djcr);
         FreeUaContext(ua);
-        Dmsg2(800, "Cancel dup %p JobId=%d\n", djcr, djcr->JobId);
+        Dmsg2(800, "Cancel dup {:p} JobId={}\n", djcr, djcr->JobId);
       } else {
         // Zap current job
         jcr->setJobStatusWithPriorityCheck(JS_Canceled);
         Jmsg(jcr, M_FATAL, 0,
              T_("JobId %d already running. Duplicate job not allowed.\n"),
              djcr->JobId);
-        Dmsg2(800, "Cancel me %p JobId=%d\n", jcr, jcr->JobId);
+        Dmsg2(800, "Cancel me {:p} JobId={}\n", jcr, jcr->JobId);
       }
-      Dmsg4(800, "curJobId=%d use_cnt=%d dupJobId=%d use_cnt=%d\n", jcr->JobId,
+      Dmsg4(800, "curJobId={} use_cnt={} dupJobId={} use_cnt={}\n", jcr->JobId,
             jcr->UseCount(), djcr->JobId, djcr->UseCount());
       break; /* did our work, get out of foreach loop */
     }
@@ -1095,7 +1095,7 @@ bool GetLevelSinceTime(JobControlRecord* jcr)
         do_full = true; /* No full, upgrade to one */
       }
 
-      Dmsg4(50, "have_full=%d do_full=%d now=%lld full_time=%lld\n", have_full,
+      Dmsg4(50, "have_full={} do_full={} now={} full_time={}\n", have_full,
             do_full, now, last_full_time);
 
       // Make sure the last diff is recent enough
@@ -1109,17 +1109,17 @@ bool GetLevelSinceTime(JobControlRecord* jcr)
           if (last_diff_time < last_full_time) {
             last_diff_time = last_full_time;
           }
-          Dmsg2(50, "last_diff_time=%lld last_full_time=%lld\n", last_diff_time,
+          Dmsg2(50, "last_diff_time={} last_full_time={}\n", last_diff_time,
                 last_full_time);
         } else {
           // No last differential, so use last full time
           last_diff_time = last_full_time;
-          Dmsg1(50, "No last_diff_time setting to full_time=%lld\n",
+          Dmsg1(50, "No last_diff_time setting to full_time={}\n",
                 last_full_time);
         }
         do_diff = ((now - last_diff_time)
                    >= jcr->dir_impl->res.job->MaxDiffInterval);
-        Dmsg2(50, "do_diff=%d diffInter=%lld\n", do_diff,
+        Dmsg2(50, "do_diff={} diffInter={}\n", do_diff,
               jcr->dir_impl->res.job->MaxDiffInterval);
       }
 
@@ -1209,7 +1209,7 @@ bool GetLevelSinceTime(JobControlRecord* jcr)
       break;
   }
 
-  Dmsg3(100, "Level=%c last start time=%s job=%s\n", JobLevel,
+  Dmsg3(100, "Level={:c} last start time={} job={}\n", JobLevel,
         jcr->starttime_string, jcr->dir_impl->PrevJob);
 
   return pool_updated;
@@ -1232,7 +1232,7 @@ void ApplyPoolOverrides(JobControlRecord* jcr, bool force)
       && !jcr->dir_impl->res.run_inc_pool_override
       && !jcr->dir_impl->res.run_diff_pool_override) {
     PmStrcpy(jcr->dir_impl->res.pool_source, T_("Run Pool override"));
-    Dmsg2(100, "Pool set to '%s' because of %s",
+    Dmsg2(100, "Pool set to '{}' because of {}",
           jcr->dir_impl->res.pool->resource_name_, T_("Run Pool override\n"));
   } else {
     // Apply any level related Pool selections
@@ -1244,13 +1244,13 @@ void ApplyPoolOverrides(JobControlRecord* jcr, bool force)
           if (jcr->dir_impl->res.run_full_pool_override) {
             PmStrcpy(jcr->dir_impl->res.pool_source,
                      T_("Run FullPool override"));
-            Dmsg2(100, "Pool set to '%s' because of %s",
+            Dmsg2(100, "Pool set to '{}' because of {}",
                   jcr->dir_impl->res.full_pool->resource_name_,
                   "Run FullPool override\n");
           } else {
             PmStrcpy(jcr->dir_impl->res.pool_source,
                      T_("Job FullPool override"));
-            Dmsg2(100, "Pool set to '%s' because of %s",
+            Dmsg2(100, "Pool set to '{}' because of {}",
                   jcr->dir_impl->res.full_pool->resource_name_,
                   "Job FullPool override\n");
           }
@@ -1263,13 +1263,13 @@ void ApplyPoolOverrides(JobControlRecord* jcr, bool force)
           if (jcr->dir_impl->res.run_vfull_pool_override) {
             PmStrcpy(jcr->dir_impl->res.pool_source,
                      T_("Run VFullPool override"));
-            Dmsg2(100, "Pool set to '%s' because of %s",
+            Dmsg2(100, "Pool set to '{}' because of {}",
                   jcr->dir_impl->res.vfull_pool->resource_name_,
                   "Run VFullPool override\n");
           } else {
             PmStrcpy(jcr->dir_impl->res.pool_source,
                      T_("Job VFullPool override"));
-            Dmsg2(100, "Pool set to '%s' because of %s",
+            Dmsg2(100, "Pool set to '{}' because of {}",
                   jcr->dir_impl->res.vfull_pool->resource_name_,
                   "Job VFullPool override\n");
           }
@@ -1282,13 +1282,13 @@ void ApplyPoolOverrides(JobControlRecord* jcr, bool force)
           if (jcr->dir_impl->res.run_inc_pool_override) {
             PmStrcpy(jcr->dir_impl->res.pool_source,
                      T_("Run IncPool override"));
-            Dmsg2(100, "Pool set to '%s' because of %s",
+            Dmsg2(100, "Pool set to '{}' because of {}",
                   jcr->dir_impl->res.inc_pool->resource_name_,
                   "Run IncPool override\n");
           } else {
             PmStrcpy(jcr->dir_impl->res.pool_source,
                      T_("Job IncPool override"));
-            Dmsg2(100, "Pool set to '%s' because of %s",
+            Dmsg2(100, "Pool set to '{}' because of {}",
                   jcr->dir_impl->res.inc_pool->resource_name_,
                   "Job IncPool override\n");
           }
@@ -1301,13 +1301,13 @@ void ApplyPoolOverrides(JobControlRecord* jcr, bool force)
           if (jcr->dir_impl->res.run_diff_pool_override) {
             PmStrcpy(jcr->dir_impl->res.pool_source,
                      T_("Run DiffPool override"));
-            Dmsg2(100, "Pool set to '%s' because of %s",
+            Dmsg2(100, "Pool set to '{}' because of {}",
                   jcr->dir_impl->res.diff_pool->resource_name_,
                   "Run DiffPool override\n");
           } else {
             PmStrcpy(jcr->dir_impl->res.pool_source,
                      T_("Job DiffPool override"));
-            Dmsg2(100, "Pool set to '%s' because of %s",
+            Dmsg2(100, "Pool set to '{}' because of {}",
                   jcr->dir_impl->res.diff_pool->resource_name_,
                   "Job DiffPool override\n");
           }
@@ -1360,7 +1360,7 @@ bool GetOrCreateClientRecord(JobControlRecord* jcr)
     }
     PmStrcpy(jcr->dir_impl->client_uname, cr.Uname);
   }
-  Dmsg2(100, "Created Client %s record %d\n",
+  Dmsg2(100, "Created Client {} record {}\n",
         jcr->dir_impl->res.client->resource_name_, jcr->dir_impl->jr.ClientId);
   return true;
 }
@@ -1412,7 +1412,7 @@ bool GetOrCreateFilesetRecord(JobControlRecord* jcr)
   bstrncpy(jcr->dir_impl->FSCreateTime, fsr.cCreateTime,
            sizeof(jcr->dir_impl->FSCreateTime));
 
-  Dmsg2(119, "Created FileSet %s record %u\n",
+  Dmsg2(119, "Created FileSet {} record {}\n",
         jcr->dir_impl->res.fileset->resource_name_,
         jcr->dir_impl->jr.FileSetId);
 
@@ -1513,7 +1513,7 @@ void CreateUniqueJobName(JobControlRecord* jcr, const char* base_name)
   for (p = jcr->Job; *p; p++) {
     if (*p == ' ') { *p = '_'; }
   }
-  Dmsg2(100, "JobId=%u created Job=%s\n", jcr->JobId, jcr->Job);
+  Dmsg2(100, "JobId={} created Job={}\n", jcr->JobId, jcr->Job);
 }
 
 // Called directly from job rescheduling
@@ -1775,7 +1775,7 @@ void SetJcrDefaults(JobControlRecord* jcr, JobResource* job)
 void CreateClones(JobControlRecord* jcr)
 {
   // Fire off any clone jobs (run directives)
-  Dmsg2(900, "cloned=%d run_cmds=%p\n", jcr->dir_impl->cloned,
+  Dmsg2(900, "cloned={} run_cmds={:p}\n", jcr->dir_impl->cloned,
         jcr->dir_impl->res.job->run_cmds);
   if (!jcr->dir_impl->cloned && jcr->dir_impl->res.job->run_cmds) {
     JobId_t jobid;
@@ -1787,7 +1787,7 @@ void CreateClones(JobControlRecord* jcr)
     for (auto* runcmd : job->run_cmds) {
       cmd = edit_job_codes(jcr, cmd, runcmd, "", job_code_callback_director);
       Mmsg(ua->cmd, "run %s cloned=yes", cmd);
-      Dmsg1(900, "=============== Clone cmd=%s\n", ua->cmd);
+      Dmsg1(900, "=============== Clone cmd={}\n", ua->cmd);
       ParseUaArgs(ua); /* parse command */
 
       jobid = DoRunCmd(ua, ua->cmd);
@@ -1850,7 +1850,7 @@ bool RunConsoleCommand(JobControlRecord*, const char* cmd)
   /* run from runscript and check if commands are authorized */
   ua->runscript = true;
   Mmsg(ua->cmd, "%s", cmd);
-  Dmsg1(100, "Console command: %s\n", ua->cmd);
+  Dmsg1(100, "Console command: {}\n", ua->cmd);
   ParseUaArgs(ua);
   ok = Do_a_command(ua);
   FreeUaContext(ua);
