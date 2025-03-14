@@ -201,11 +201,10 @@ static bool SerializeXattrStream(JobControlRecord*,
       SerBytes(current_xattr->value, current_xattr->value_length);
 
       Dmsg3(100, "Backup xattr named {:.{}}, value {:.{}}\n",
-            current_xattr->name_length, current_xattr->name,
-            current_xattr->value_length, current_xattr->value);
+            current_xattr->name, current_xattr->name_length,
+            current_xattr->value, current_xattr->value_length);
     } else {
-      Dmsg1(100, "Backup empty xattr named {:.{}}\n", current_xattr->name_length,
-            current_xattr->name);
+      Dmsg1(100, "Backup empty xattr named {:.{}}\n", current_xattr->name, current_xattr->name_length);
     }
   }
 
@@ -274,12 +273,11 @@ BxattrExitCode UnSerializeXattrStream(JobControlRecord* jcr,
       UnserBytes(current_xattr->value, current_xattr->value_length);
 
       Dmsg3(100, "Restoring xattr named {:.{}}, value {:.{}}\n",
-            current_xattr->name_length, current_xattr->name,
-            current_xattr->value_length, current_xattr->value);
+            current_xattr->name, current_xattr->name_length, 
+            current_xattr->value, current_xattr->value_length);
     } else {
       current_xattr->value = NULL;
-      Dmsg1(100, "Restoring empty xattr named {:.{}}\n",
-            current_xattr->name_length, current_xattr->name);
+      Dmsg1(100, "Restoring empty xattr named {:.{}}\n", current_xattr->name, current_xattr->name_length);
     }
 
     xattr_value_list->append(current_xattr);
