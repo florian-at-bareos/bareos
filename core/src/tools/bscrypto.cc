@@ -400,8 +400,7 @@ int main(int argc, char* const* argv)
     passphrase = generate_crypto_passphrase(DEFAULT_PASSPHRASE_LENGTH);
     if (!passphrase) { TerminateBscrypto(1); }
 
-    Dmsg1(10, T_("Generated passphrase = {:.{}}\n"), DEFAULT_PASSPHRASE_LENGTH,
-          passphrase);
+    Dmsg1(10, T_("Generated passphrase = {:.{}}\n"), passphrase, DEFAULT_PASSPHRASE_LENGTH);
 
     // See if we need to wrap the passphrase.
     if (wrapped_keys) {
@@ -486,8 +485,7 @@ int main(int argc, char* const* argv)
       }
     }
 
-    Dmsg1(10, "Unwrapped passphrase = {:.{}}\n", DEFAULT_PASSPHRASE_LENGTH,
-          passphrase);
+    Dmsg1(10, "Unwrapped passphrase = {:.{}}\n", passphrase, DEFAULT_PASSPHRASE_LENGTH);
     fprintf(stdout, T_("%.*s\n"), DEFAULT_PASSPHRASE_LENGTH, passphrase);
 
     free(passphrase);
