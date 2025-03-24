@@ -689,7 +689,7 @@ int WaitForJobTermination(JobControlRecord* jcr, int timeout)
                  == 7) {
         fd_ok = true;
         jcr->setJobStatusWithPriorityCheck(jcr->dir_impl->FDJobStatus);
-        Dmsg1(100, "FDStatus={:c}\n", (char)jcr->getJobStatus());
+        Dmsg1(100, "FDStatus={}\n", (char)jcr->getJobStatus());
       } else {
         Jmsg(jcr, M_WARNING, 0, T_("Unexpected Client Job message: %s\n"),
              fd->msg);

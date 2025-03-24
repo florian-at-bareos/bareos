@@ -124,7 +124,7 @@ int CreateFile(JobControlRecord* jcr,
   }
 #endif
 
-  Dmsg2(400, "Replace={:c} {}\n", (char)replace, replace);
+  Dmsg2(400, "Replace={} {}\n", (char)replace, replace);
   if (lstat(attr->ofname, &mstatp) == 0) {
     exists = true;
     switch (replace) {
