@@ -114,8 +114,7 @@ bool job_cmd(JobControlRecord* jcr)
    *  free the old jcr and use the new one. */
   ojcr = get_jcr_by_full_name(job.c_str());
   if (ojcr && !ojcr->authenticated) {
-    Dmsg2(100, "Found ojcr=0x{:x} Job {}\n", (unsigned)(intptr_t)ojcr,
-          job.c_str());
+    Dmsg2(100, "Found ojcr={} Job {}\n", ojcr, job.c_str());
     FreeJcr(ojcr);
   }
   jcr->JobId = JobId;

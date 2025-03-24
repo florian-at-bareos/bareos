@@ -335,7 +335,7 @@ void CatalogRequest(JobControlRecord* jcr, BareosSocket* bs)
   bail_out:
 
     Dmsg1(400, ">CatReq response: {}", bs->msg);
-    Dmsg1(400, "Leave catreq jcr 0x{:x}\n", jcr);
+    Dmsg1(400, "Leave catreq jcr {}\n", jcr);
     return;
   } else if (sscanf(bs->msg, Create_job_media, &Job, &jm.FirstIndex,
                     &jm.LastIndex, &jm.StartFile, &jm.EndFile, &jm.StartBlock,
@@ -405,7 +405,7 @@ void CatalogRequest(JobControlRecord* jcr, BareosSocket* bs)
   }
 
   Dmsg1(400, ">CatReq response: {}", bs->msg);
-  Dmsg1(400, "Leave catreq jcr 0x{:x}\n", jcr);
+  Dmsg1(400, "Leave catreq jcr {}\n", jcr);
 
   return;
 }

@@ -138,8 +138,8 @@ static const char* record_compression_to_str(PoolMem& resultbuffer,
       UnserEnd(buf, sizeof(comp_stream_header));
 
       Dmsg4(400,
-            "Compressed data stream found: magic=0x{:x}, len={}, level={}, "
-            "ver=0x{:x}\n",
+            "Compressed data stream found: magic={:#x}, len={}, level={}, "
+            "ver={:#x}\n",
             comp_magic, comp_len, comp_level, comp_version);
 
       switch (comp_magic) {

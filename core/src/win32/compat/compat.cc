@@ -95,8 +95,7 @@ bool InitializeComSecurity()
     {
       if (!InitSuccessFull()) {
         Dmsg1(0,
-              "InitializeComSecurity: CoInitializeSecurity returned 0x{:08X}\n",
-              h);
+              "InitializeComSecurity: CoInitializeSecurity returned {:#08X}\n", h);
       }
     }
 
