@@ -228,7 +228,7 @@ void InitMsg(JobControlRecord* jcr,
                                          std::string(), std::string(),
                                          std::string());
     }
-    Dmsg1(050, "Create daemon global message resource {:p}\n", daemon_msgs);
+    Dmsg1(050, "Create daemon global message resource {}\n", daemon_msgs);
     return;
   }
 
@@ -242,7 +242,7 @@ void InitMsg(JobControlRecord* jcr,
     msg->DuplicateResourceTo(*daemon_msgs);
   }
 
-  Dmsg2(250, "Copied message resource {:p}\n", msg);
+  Dmsg2(250, "Copied message resource {}\n", msg);
 }
 
 /*
@@ -333,7 +333,7 @@ void CloseMsg(JobControlRecord* jcr)
   POOLMEM *cmd, *line;
   int len, status;
 
-  Dmsg1(580, "Close_msg jcr={:p}\n", jcr);
+  Dmsg1(580, "Close_msg jcr={}\n", jcr);
 
   if (jcr == NULL) { /* NULL -> global chain */
     msgs = daemon_msgs;
@@ -355,7 +355,7 @@ void CloseMsg(JobControlRecord* jcr)
   msgs->SetClosing();
   msgs->Unlock();
 
-  Dmsg1(850, "===Begin close msg resource at {:p}\n", msgs);
+  Dmsg1(850, "===Begin close msg resource at {}\n", msgs);
   cmd = GetPoolMemory(PM_MESSAGE);
   for (MessageDestinationInfo* d : msgs->dest_chain_) {
     if (d->file_pointer_) {

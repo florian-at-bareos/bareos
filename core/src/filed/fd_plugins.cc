@@ -523,7 +523,7 @@ bRC GeneratePluginEvent(JobControlRecord* jcr,
 
   event.eventType = eventType;
 
-  Dmsg2(debuglevel, "plugin_ctx={:p} JobId={}\n", plugin_ctx_list, jcr->JobId);
+  Dmsg2(debuglevel, "plugin_ctx={} JobId={}\n", plugin_ctx_list, jcr->JobId);
 
   /* Pass event to every plugin that has requested this event type (except if
    * name is set). If name is set, we pass it only to the plugin with that name.
@@ -588,7 +588,7 @@ bool PluginCheckFile(JobControlRecord* jcr, char* fname)
   }
 
   plugin_ctx_list = jcr->plugin_ctx_list;
-  Dmsg2(debuglevel, "plugin_ctx={:p} JobId={}\n", jcr->plugin_ctx_list,
+  Dmsg2(debuglevel, "plugin_ctx={} JobId={}\n", jcr->plugin_ctx_list,
         jcr->JobId);
 
   // Pass event to every plugin
@@ -816,7 +816,7 @@ int PluginSave(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
       sp.no_read = false;
       CopyBits(FO_MAX, ff_pkt->flags, sp.flags);
       sp.cmd = const_cast<char*>(cmd.c_str());
-      Dmsg3(debuglevel, "startBackup st_size={:p} st_blocks={:p} sp={:p}\n",
+      Dmsg3(debuglevel, "startBackup st_size={} st_blocks={} sp={}\n",
             &sp.statp.st_size, &sp.statp.st_blocks, &sp);
 
       // Get the file save parameters. I.e. the stat pkt ...
@@ -1045,7 +1045,7 @@ int PluginEstimate(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
       sp.portable = true;
       CopyBits(FO_MAX, ff_pkt->flags, sp.flags);
       sp.cmd = const_cast<char*>(original_cmd);
-      Dmsg3(debuglevel, "startBackup st_size={:p} st_blocks={:p} sp={:p}\n",
+      Dmsg3(debuglevel, "startBackup st_size={} st_blocks={} sp={}\n",
             &sp.statp.st_size, &sp.statp.st_blocks, &sp);
 
       // Get the file save parameters. I.e. the stat pkt ...
@@ -1200,7 +1200,7 @@ bool PluginNameStream(JobControlRecord* jcr, char* name)
       FiledPluginContext* b_ctx
           = (FiledPluginContext*)jcr->plugin_ctx->core_private_context;
 
-      Dmsg2(debuglevel, "End plugin data plugin={:p} ctx={:p}\n", plugin,
+      Dmsg2(debuglevel, "End plugin data plugin={} ctx={}\n", plugin,
             jcr->plugin_ctx);
       if (b_ctx->restoreFileStarted) {
         /* PlugFunc(plugin)->endRestoreFile(jcr->plugin_ctx); */
@@ -1888,7 +1888,7 @@ void NewPlugins(JobControlRecord* jcr)
   }
 
   jcr->plugin_ctx_list = new alist<PluginContext*>(10, owned_by_alist);
-  Dmsg2(debuglevel, "Instantiate plugin_ctx={:p} JobId={}\n",
+  Dmsg2(debuglevel, "Instantiate plugin_ctx={} JobId={}\n",
         jcr->plugin_ctx_list, jcr->JobId);
 
   int i{};
@@ -1903,7 +1903,7 @@ void FreePlugins(JobControlRecord* jcr)
 {
   if (!fd_plugin_list || !jcr->plugin_ctx_list) { return; }
 
-  Dmsg2(debuglevel, "Free instance fd-plugin_ctx_list={:p} JobId={}\n",
+  Dmsg2(debuglevel, "Free instance fd-plugin_ctx_list={} JobId={}\n",
         jcr->plugin_ctx_list, jcr->JobId);
   for (auto* ctx : jcr->plugin_ctx_list) {
     // Free the plugin instance
@@ -2224,7 +2224,7 @@ static bRC bareosGetValue(PluginContext* ctx, bVariable var, void* value)
 #ifdef HAVE_WIN32
         if (jcr->fd_impl->pVSSClient) {
           *(void**)value = jcr->fd_impl->pVSSClient;
-          Dmsg1(debuglevel, "fd-plugin: return bVarVssClient={:p}\n",
+          Dmsg1(debuglevel, "fd-plugin: return bVarVssClient={}\n",
                 *(void**)value);
           break;
         }

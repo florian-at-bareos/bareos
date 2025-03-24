@@ -103,7 +103,7 @@ bool AcquireDeviceForRead(DeviceControlRecord* dcr)
   Enter(rdebuglevel);
   dev = dcr->dev;
   dev->Lock_read_acquire();
-  Dmsg2(rdebuglevel, "dcr={:p} dev={:p}\n", dcr, dcr->dev);
+  Dmsg2(rdebuglevel, "dcr={} dev={}\n", dcr, dcr->dev);
   Dmsg2(rdebuglevel, "MediaType dcr={} dev={}\n", dcr->media_type,
         dev->device_resource->media_type);
   dev->dblock(BST_DOING_ACQUIRE);
@@ -384,7 +384,7 @@ get_out:
     dev->Unlock(); /* dunblock() unlock the device too */
   }
 
-  Dmsg2(rdebuglevel, "dcr={:p} dev={:p}\n", dcr, dcr->dev);
+  Dmsg2(rdebuglevel, "dcr={} dev={}\n", dcr, dcr->dev);
   Dmsg2(rdebuglevel, "MediaType dcr={} dev={}\n", dcr->media_type,
         dev->device_resource->media_type);
 
@@ -732,7 +732,7 @@ static void AttachDcrToDev(DeviceControlRecord* dcr)
   if (!dcr->attached_to_dev && dev->initiated && jcr
       && jcr->getJobType() != JT_SYSTEM) {
     dev->Lock();
-    Dmsg4(200, "Attach Jid={} dcr={:p} size={} dev={}\n", (uint32_t)jcr->JobId,
+    Dmsg4(200, "Attach Jid={} dcr={} size={} dev={}\n", (uint32_t)jcr->JobId,
           dcr, dev->attached_dcrs.size(), dev->print_name());
     dev->attached_dcrs.push_back(dcr); /* attach dcr to device */
     dev->Unlock();
@@ -751,7 +751,7 @@ static void LockedDetachDcrFromDev(DeviceControlRecord* dcr)
   if (dcr->attached_to_dev && dev) {
     dcr->UnreserveDevice();
     dev->Lock();
-    Dmsg4(200, "Detach Jid={} dcr={:p} size={} to dev={}\n",
+    Dmsg4(200, "Detach Jid={} dcr={} size={} to dev={}\n",
           (uint32_t)dcr->jcr->JobId, dcr, dev->attached_dcrs.size(),
           dev->print_name());
     dcr->attached_to_dev = false;

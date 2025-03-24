@@ -267,7 +267,7 @@ static VolumeReservationItem* new_vol_item(DeviceControlRecord* dcr,
   vol->vol_name = strdup(VolumeName);
   if (dcr) {
     vol->dev = dcr->dev;
-    Dmsg3(debuglevel, "new Vol={} at {:p} dev={}\n", VolumeName, vol->vol_name,
+    Dmsg3(debuglevel, "new Vol={} at {} dev={}\n", VolumeName, vol->vol_name,
           vol->dev->print_name());
   }
   vol->InitMutex();
@@ -392,7 +392,7 @@ VolumeReservationItem* reserve_volume(DeviceControlRecord* dcr,
         vol = NULL; /* vol in use */
         goto get_out;
       }
-      Dmsg2(debuglevel, "reserve_vol free vol={} at {:p}\n", vol->vol_name,
+      Dmsg2(debuglevel, "reserve_vol free vol={} at {}\n", vol->vol_name,
             vol->vol_name);
 
       // If old Volume is still mounted, must unload it
@@ -434,7 +434,7 @@ VolumeReservationItem* reserve_volume(DeviceControlRecord* dcr,
     /* At this point, a Volume with this name already is in the list,
      * so we simply release our new Volume entry. Note, this should
      * only happen if we are moving the volume from one drive to another. */
-    Dmsg2(debuglevel, "reserve_vol free-tmp vol={} at {:p}\n", vol->vol_name,
+    Dmsg2(debuglevel, "reserve_vol free-tmp vol={} at {}\n", vol->vol_name,
           vol->vol_name);
 
     // Clear dev pointer so that FreeVolItem() doesn't take away our volume.
@@ -493,7 +493,7 @@ VolumeReservationItem* reserve_volume(DeviceControlRecord* dcr,
                 vol->vol_name, dcr->dev->swap_dev->print_name(),
                 dcr->dev->print_name());
         } else {
-          Dmsg3(debuglevel, "Swap failed vol={} from={:p} to dev={}\n",
+          Dmsg3(debuglevel, "Swap failed vol={} from={} to dev={}\n",
                 vol->vol_name, dcr->dev->swap_dev, dcr->dev->print_name());
         }
 

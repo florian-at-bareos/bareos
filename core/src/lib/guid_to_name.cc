@@ -127,7 +127,7 @@ char* guid_list::uid_to_name(uid_t uid, char* name, int maxlen)
   char buf[50];
 
   item = (guitem*)uid_list->binary_search(&sitem, UidCompare);
-  Dmsg2(900, "uid={} item={:p}\n", uid, item);
+  Dmsg2(900, "uid={} item={}\n", uid, item);
   if (!item) {
     item = (guitem*)malloc(sizeof(guitem));
     item->uid = uid;

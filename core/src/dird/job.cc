@@ -729,13 +729,13 @@ static void JobMonitorWatchdog(watchdog_t* self)
 
   control_jcr = (JobControlRecord*)self->data;
 
-  Dmsg1(800, "JobMonitorWatchdog {:p} called\n", self);
+  Dmsg1(800, "JobMonitorWatchdog {} called\n", self);
 
   foreach_jcr (jcr) {
     bool cancel = false;
 
     if (jcr->JobId == 0 || jcr->IsJobCanceled() || jcr->dir_impl->no_maxtime) {
-      Dmsg2(800, "Skipping JobControlRecord={:p} Job={}\n", jcr, jcr->Job);
+      Dmsg2(800, "Skipping JobControlRecord={} Job={}\n", jcr, jcr->Job);
       continue;
     }
 
@@ -757,13 +757,13 @@ static void JobMonitorWatchdog(watchdog_t* self)
     }
 
     if (cancel) {
-      Dmsg3(800, "Cancelling JobControlRecord {:p} jobid {} ({})\n", jcr,
+      Dmsg3(800, "Cancelling JobControlRecord {} jobid {} ({})\n", jcr,
             jcr->JobId, jcr->Job);
       UaContext* ua = new_ua_context(jcr);
       ua->jcr = control_jcr;
       CancelJob(ua, jcr);
       FreeUaContext(ua);
-      Dmsg2(800, "Have cancelled JobControlRecord {:p} Job={}\n", jcr,
+      Dmsg2(800, "Have cancelled JobControlRecord {} Job={}\n", jcr,
             jcr->JobId);
     }
   }
@@ -846,7 +846,7 @@ static bool JobCheckMaxrunschedtime(JobControlRecord* jcr)
   }
   if ((watchdog_time - jcr->initial_sched_time)
       < jcr->dir_impl->MaxRunSchedTime) {
-    Dmsg3(200, "Job {:p} ({}) with MaxRunSchedTime {} not expired\n", jcr,
+    Dmsg3(200, "Job {} ({}) with MaxRunSchedTime {} not expired\n", jcr,
           jcr->Job, jcr->dir_impl->MaxRunSchedTime);
     return false;
   }
@@ -1004,14 +1004,14 @@ bool AllowDuplicateJob(JobControlRecord* jcr)
         djcr->setJobStatusWithPriorityCheck(JS_Canceled);
         CancelJob(ua, djcr);
         FreeUaContext(ua);
-        Dmsg2(800, "Cancel dup {:p} JobId={}\n", djcr, djcr->JobId);
+        Dmsg2(800, "Cancel dup {} JobId={}\n", djcr, djcr->JobId);
       } else {
         // Zap current job
         jcr->setJobStatusWithPriorityCheck(JS_Canceled);
         Jmsg(jcr, M_FATAL, 0,
              T_("JobId %d already running. Duplicate job not allowed.\n"),
              djcr->JobId);
-        Dmsg2(800, "Cancel me {:p} JobId={}\n", jcr, jcr->JobId);
+        Dmsg2(800, "Cancel me {} JobId={}\n", jcr, jcr->JobId);
       }
       Dmsg4(800, "curJobId={} use_cnt={} dupJobId={} use_cnt={}\n", jcr->JobId,
             jcr->UseCount(), djcr->JobId, djcr->UseCount());
@@ -1775,7 +1775,7 @@ void SetJcrDefaults(JobControlRecord* jcr, JobResource* job)
 void CreateClones(JobControlRecord* jcr)
 {
   // Fire off any clone jobs (run directives)
-  Dmsg2(900, "cloned={} run_cmds={:p}\n", jcr->dir_impl->cloned,
+  Dmsg2(900, "cloned={} run_cmds={}\n", jcr->dir_impl->cloned,
         jcr->dir_impl->res.job->run_cmds);
   if (!jcr->dir_impl->cloned && jcr->dir_impl->res.job->run_cmds) {
     JobId_t jobid;

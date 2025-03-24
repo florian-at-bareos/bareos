@@ -78,7 +78,7 @@ FindFilesPacket* init_find_files()
   path_max++; /* add for EOS */
   name_max++; /* add for EOS */
 
-  Dmsg1(debuglevel, "init_find_files ff={:p}\n", ff);
+  Dmsg1(debuglevel, "init_find_files ff={}\n", ff);
   return ff;
 }
 

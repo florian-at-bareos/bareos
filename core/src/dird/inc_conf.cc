@@ -477,7 +477,7 @@ static void StoreRegex(LEX* lc, ResourceItem* item, int pass)
           res_incexe->current_opts->regex.append(strdup(lc->str));
           newsize = res_incexe->current_opts->regex.size();
         }
-        Dmsg4(900, "set {} {:p} size={} {}\n", type, res_incexe->current_opts,
+        Dmsg4(900, "set {} {} size={} {}\n", type, res_incexe->current_opts,
               newsize, lc->str);
         break;
       default:
@@ -532,7 +532,7 @@ static void StoreWild(LEX* lc, ResourceItem* item, int pass)
           res_incexe->current_opts->wild.append(strdup(lc->str));
           newsize = res_incexe->current_opts->wild.size();
         }
-        Dmsg4(9, "set {} {:p} size={} {}\n", type, res_incexe->current_opts,
+        Dmsg4(9, "set {} {} size={} {}\n", type, res_incexe->current_opts,
               newsize, lc->str);
         break;
       default:
@@ -556,7 +556,7 @@ static void StoreFstype(LEX* lc, ResourceItem*, int pass)
       case BCT_UNQUOTED_STRING:
       case BCT_QUOTED_STRING:
         res_incexe->current_opts->fstype.append(strdup(lc->str));
-        Dmsg3(900, "set fstype {:p} size={} {}\n", res_incexe->current_opts,
+        Dmsg3(900, "set fstype {} size={} {}\n", res_incexe->current_opts,
               res_incexe->current_opts->fstype.size(), lc->str);
         break;
       default:
@@ -580,7 +580,7 @@ static void StoreDrivetype(LEX* lc, ResourceItem*, int pass)
       case BCT_UNQUOTED_STRING:
       case BCT_QUOTED_STRING:
         res_incexe->current_opts->Drivetype.append(strdup(lc->str));
-        Dmsg3(900, "set Drivetype {:p} size={} {}\n", res_incexe->current_opts,
+        Dmsg3(900, "set Drivetype {} size={} {}\n", res_incexe->current_opts,
               res_incexe->current_opts->Drivetype.size(), lc->str);
         break;
       default:
@@ -603,7 +603,7 @@ static void StoreMeta(LEX* lc, ResourceItem*, int pass)
       case BCT_UNQUOTED_STRING:
       case BCT_QUOTED_STRING:
         res_incexe->current_opts->meta.append(strdup(lc->str));
-        Dmsg3(900, "set meta {:p} size={} {}\n", res_incexe->current_opts,
+        Dmsg3(900, "set meta {} size={} {}\n", res_incexe->current_opts,
               res_incexe->current_opts->meta.size(), lc->str);
         break;
       default:

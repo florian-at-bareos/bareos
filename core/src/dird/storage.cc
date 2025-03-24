@@ -794,7 +794,7 @@ void StorageFreeVolList(StorageResource* store, changer_vol_list_t* vol_list)
 {
   const std::lock_guard lock{store->runtime_storage_status->changer_lock};
 
-  Dmsg1(100, "Freeing volume list at {:p}\n", vol_list);
+  Dmsg1(100, "Freeing volume list at {}\n", vol_list);
 
   FreeVolList(vol_list);
 
@@ -813,7 +813,7 @@ void InvalidateVolList(StorageResource* store)
 {
   const std::lock_guard lock{store->runtime_storage_status->changer_lock};
   if (store->runtime_storage_status->vol_list) {
-    Dmsg1(100, "Invalidating volume list at {:p}\n",
+    Dmsg1(100, "Invalidating volume list at {}\n",
           store->runtime_storage_status->vol_list);
 
     /* If the volume list is unreferenced we can destroy it otherwise we just

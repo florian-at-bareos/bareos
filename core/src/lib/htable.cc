@@ -236,10 +236,10 @@ bool htableImpl::insert(char* key, void* item)
   if (lookup(key)) { return false; /* Already exists */ }
 
   ASSERT(index < buckets);
-  Dmsg2(debuglevel, "Insert: hash={:p} index={}\n", hash, index);
+  Dmsg2(debuglevel, "Insert: hash={} index={}\n", hash, index);
   hp = (hlink*)(((char*)item) + loffset);
 
-  Dmsg4(debuglevel, "Insert hp={:p} index={} item={:p} offset={}\n", hp, index,
+  Dmsg4(debuglevel, "Insert hp={} index={} item={} offset={}\n", hp, index,
         item, loffset);
 
   hp->next = table[index];
@@ -249,7 +249,7 @@ bool htableImpl::insert(char* key, void* item)
   hp->key_len = 0;
   table[index] = hp;
 
-  Dmsg3(debuglevel, "Insert hp->next={:p} hp->hash=0x{:x} hp->key={}\n", hp->next,
+  Dmsg3(debuglevel, "Insert hp->next={} hp->hash=0x{:x} hp->key={}\n", hp->next,
         hp->hash, hp->key.char_key);
 
   if (++num_items >= max_items) {
@@ -270,10 +270,10 @@ bool htableImpl::insert(uint32_t key, void* item)
   if (lookup(key)) { return false; /* Already exists */ }
 
   ASSERT(index < buckets);
-  Dmsg2(debuglevel, "Insert: hash={:p} index={}\n", hash, index);
+  Dmsg2(debuglevel, "Insert: hash={} index={}\n", hash, index);
   hp = (hlink*)(((char*)item) + loffset);
 
-  Dmsg4(debuglevel, "Insert hp={:p} index={} item={:p} offset={}\n", hp, index,
+  Dmsg4(debuglevel, "Insert hp={} index={} item={} offset={}\n", hp, index,
         item, loffset);
 
   hp->next = table[index];
@@ -283,7 +283,7 @@ bool htableImpl::insert(uint32_t key, void* item)
   hp->key_len = 0;
   table[index] = hp;
 
-  Dmsg3(debuglevel, "Insert hp->next={:p} hp->hash=0x{:x} hp->key={}\n",
+  Dmsg3(debuglevel, "Insert hp->next={} hp->hash=0x{:x} hp->key={}\n",
         hp->next, hp->hash, hp->key.uint32_key);
 
   if (++num_items >= max_items) {
@@ -304,10 +304,10 @@ bool htableImpl::insert(uint64_t key, void* item)
   if (lookup(key)) { return false; /* Already exists */ }
 
   ASSERT(index < buckets);
-  Dmsg2(debuglevel, "Insert: hash={:p} index={}\n", hash, index);
+  Dmsg2(debuglevel, "Insert: hash={} index={}\n", hash, index);
   hp = (hlink*)(((char*)item) + loffset);
 
-  Dmsg4(debuglevel, "Insert hp={:p} index={} item={:p} offset={}\n", hp, index,
+  Dmsg4(debuglevel, "Insert hp={} index={} item={} offset={}\n", hp, index,
         item, loffset);
 
   hp->next = table[index];
@@ -317,7 +317,7 @@ bool htableImpl::insert(uint64_t key, void* item)
   hp->key_len = 0;
   table[index] = hp;
 
-  Dmsg3(debuglevel, "Insert hp->next={:p} hp->hash=0x{:x} hp->key={}\n",
+  Dmsg3(debuglevel, "Insert hp->next={} hp->hash=0x{:x} hp->key={}\n",
         hp->next, hp->hash, hp->key.uint64_key);
 
   if (++num_items >= max_items) {
@@ -338,10 +338,10 @@ bool htableImpl::insert(uint8_t* key, uint32_t key_len, void* item)
   if (lookup(key, key_len)) { return false; /* Already exists */ }
 
   ASSERT(index < buckets);
-  Dmsg2(debuglevel, "Insert: hash={:p} index={}\n", hash, index);
+  Dmsg2(debuglevel, "Insert: hash={} index={}\n", hash, index);
   hp = (hlink*)(((char*)item) + loffset);
 
-  Dmsg4(debuglevel, "Insert hp={:p} index={} item={:p} offset={}\n", hp, index,
+  Dmsg4(debuglevel, "Insert hp={} index={} item={} offset={}\n", hp, index,
         item, loffset);
 
   hp->next = table[index];
@@ -351,7 +351,7 @@ bool htableImpl::insert(uint8_t* key, uint32_t key_len, void* item)
   hp->key_len = key_len;
   table[index] = hp;
 
-  Dmsg2(debuglevel, "Insert hp->next={:p} hp->hash=0x{:x}\n", hp->next, hp->hash);
+  Dmsg2(debuglevel, "Insert hp->next={} hp->hash=0x{:x}\n", hp->next, hp->hash);
 
   if (++num_items >= max_items) {
     Dmsg2(debuglevel, "num_items={} max_items={}\n", num_items, max_items);
@@ -369,7 +369,7 @@ void* htableImpl::lookup(char* key)
   for (hlink* hp = table[index]; hp; hp = (hlink*)hp->next) {
     ASSERT(hp->key_type == KEY_TYPE_CHAR);
     if (hash == hp->hash && bstrcmp(key, hp->key.char_key)) {
-      Dmsg1(debuglevel, "lookup return {:p}\n", ((char*)hp) - loffset);
+      Dmsg1(debuglevel, "lookup return {}\n", ((char*)hp) - loffset);
       return ((char*)hp) - loffset;
     }
   }
@@ -383,7 +383,7 @@ void* htableImpl::lookup(uint32_t key)
   for (hlink* hp = table[index]; hp; hp = (hlink*)hp->next) {
     ASSERT(hp->key_type == KEY_TYPE_UINT32);
     if (hash == hp->hash && key == hp->key.uint32_key) {
-      Dmsg1(debuglevel, "lookup return {:p}\n", ((char*)hp) - loffset);
+      Dmsg1(debuglevel, "lookup return {}\n", ((char*)hp) - loffset);
       return ((char*)hp) - loffset;
     }
   }
@@ -397,7 +397,7 @@ void* htableImpl::lookup(uint64_t key)
   for (hlink* hp = table[index]; hp; hp = (hlink*)hp->next) {
     ASSERT(hp->key_type == KEY_TYPE_UINT64);
     if (hash == hp->hash && key == hp->key.uint64_key) {
-      Dmsg1(debuglevel, "lookup return {:p}\n", ((char*)hp) - loffset);
+      Dmsg1(debuglevel, "lookup return {}\n", ((char*)hp) - loffset);
       return ((char*)hp) - loffset;
     }
   }
@@ -411,7 +411,7 @@ void* htableImpl::lookup(uint8_t* key, uint32_t key_len)
   for (hlink* hp = table[index]; hp; hp = (hlink*)hp->next) {
     ASSERT(hp->key_type == KEY_TYPE_BINARY);
     if (hash == hp->hash && memcmp(key, hp->key.binary_key, hp->key_len) == 0) {
-      Dmsg1(debuglevel, "lookup return {:p}\n", ((char*)hp) - loffset);
+      Dmsg1(debuglevel, "lookup return {}\n", ((char*)hp) - loffset);
       return ((char*)hp) - loffset;
     }
   }
@@ -421,19 +421,19 @@ void* htableImpl::lookup(uint8_t* key, uint32_t key_len)
 
 void* htableImpl::next()
 {
-  Dmsg1(debuglevel, "Enter next: walkptr={:p}\n", walkptr);
+  Dmsg1(debuglevel, "Enter next: walkptr={}\n", walkptr);
   if (walkptr) { walkptr = (hlink*)(walkptr->next); }
 
   while (!walkptr && walk_index < buckets) {
     walkptr = table[walk_index++];
     if (walkptr) {
-      Dmsg3(debuglevel, "new walkptr={:p} next={:p} inx={}\n", walkptr,
+      Dmsg3(debuglevel, "new walkptr={} next={} inx={}\n", walkptr,
             walkptr->next, walk_index - 1);
     }
   }
 
   if (walkptr) {
-    Dmsg2(debuglevel, "next: rtn {:p} walk_index={}\n",
+    Dmsg2(debuglevel, "next: rtn {} walk_index={}\n",
           ((char*)walkptr) - loffset, walk_index);
     return ((char*)walkptr) - loffset;
   }
@@ -451,13 +451,13 @@ void* htableImpl::first()
   while (!walkptr && walk_index < buckets) {
     walkptr = table[walk_index++]; /* go to next bucket */
     if (walkptr) {
-      Dmsg3(debuglevel, "first new walkptr={:p} next={:p} inx={}\n", walkptr,
+      Dmsg3(debuglevel, "first new walkptr={} next={} inx={}\n", walkptr,
             walkptr->next, walk_index - 1);
     }
   }
 
   if (walkptr) {
-    Dmsg1(debuglevel, "Leave first walkptr={:p}\n", walkptr);
+    Dmsg1(debuglevel, "Leave first walkptr={}\n", walkptr);
     return ((char*)walkptr) - loffset;
   }
   Dmsg0(debuglevel, "Leave first walkptr=NULL\n");

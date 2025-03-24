@@ -232,7 +232,7 @@ bool DoNativeVbackup(JobControlRecord* jcr)
     return false;
   }
 
-  Dmsg2(100, "read_storage_list={:p} write_storage_list={:p}\n",
+  Dmsg2(100, "read_storage_list={} write_storage_list={}\n",
         jcr->dir_impl->res.read_storage_list,
         jcr->dir_impl->res.write_storage_list);
   Dmsg2(100, "Read store={}, write store={}\n",

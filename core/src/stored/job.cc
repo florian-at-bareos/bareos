@@ -119,7 +119,7 @@ bool job_cmd(JobControlRecord* jcr)
     FreeJcr(ojcr);
   }
   jcr->JobId = JobId;
-  Dmsg2(800, "Start JobId={} {:p}\n", JobId, jcr);
+  Dmsg2(800, "Start JobId={} {}\n", JobId, jcr);
   /* If job rescheduled because previous was incomplete,
    * the Resched flag is set and VolSessionId and VolSessionTime
    * are given to us (same as restarted job). */
@@ -198,7 +198,7 @@ static void WaitFD(JobControlRecord* jcr)
 
   Dmsg3(50, "{} waiting {} sec for FD to contact SD key={}\n", jcr->Job,
         wait_time, jcr->sd_auth_key);
-  Dmsg2(800, "Wait FD for jid={} {:p}\n", jcr->JobId, jcr);
+  Dmsg2(800, "Wait FD for jid={} {}\n", jcr->JobId, jcr);
 
   /* Wait for the File daemon to contact us to start the Job,
    * when he does, we will be released, unless the me->client_wait seconds
@@ -216,21 +216,21 @@ bool DoJobRun(JobControlRecord* jcr)
   switch (jcr->getJobProtocol()) {
     case PT_NDMP_BAREOS:
       if (jcr->authenticated && !jcr->IsJobCanceled()) {
-        Dmsg2(800, "Running jid={} {:p}\n", jcr->JobId, jcr);
+        Dmsg2(800, "Running jid={} {}\n", jcr->JobId, jcr);
 
         /* Wait for the Job to finish. As we want exclusive access to
          * things like the connection to the director we suspend this
          * thread and let the actual NDMP connection wake us after it
          * has performed the backup. E.g. instead of doing a busy wait
          * we just hang on a conditional variable. */
-        Dmsg2(800, "Wait for end job jid={} {:p}\n", jcr->JobId, jcr);
+        Dmsg2(800, "Wait for end job jid={} {}\n", jcr->JobId, jcr);
         lock_mutex(mutex);
         pthread_cond_wait(&jcr->sd_impl->job_end_wait, &mutex);
         unlock_mutex(mutex);
       } else {
-        Dmsg2(800, "Auth fail or cancel for jid={} {:p}\n", jcr->JobId, jcr);
+        Dmsg2(800, "Auth fail or cancel for jid={} {}\n", jcr->JobId, jcr);
       }
-      Dmsg2(800, "Done jid={} {:p}\n", jcr->JobId, jcr);
+      Dmsg2(800, "Done jid={} {}\n", jcr->JobId, jcr);
 
       /* For a NDMP backup we expect the protocol to send us either a nextrun
        * cmd or a finish cmd to let us know they are finished. */
@@ -238,12 +238,12 @@ bool DoJobRun(JobControlRecord* jcr)
     default:
       // Handle the file daemon session.
       if (jcr->authenticated && !jcr->IsJobCanceled()) {
-        Dmsg2(800, "Running jid={} {:p}\n", jcr->JobId, jcr);
+        Dmsg2(800, "Running jid={} {}\n", jcr->JobId, jcr);
         RunJob(jcr); /* Run the job */
       } else {
-        Dmsg2(800, "Auth fail or cancel for jid={} {:p}\n", jcr->JobId, jcr);
+        Dmsg2(800, "Auth fail or cancel for jid={} {}\n", jcr->JobId, jcr);
       }
-      Dmsg2(800, "Done jid={} {:p}\n", jcr->JobId, jcr);
+      Dmsg2(800, "Done jid={} {}\n", jcr->JobId, jcr);
 
       /* After a run cmd of a native backup we are done e.g.
        * return false. */
@@ -277,21 +277,21 @@ bool nextRunCmd(JobControlRecord* jcr)
       WaitFD(jcr);
 
       if (jcr->authenticated && !jcr->IsJobCanceled()) {
-        Dmsg2(800, "Running jid={} {:p}\n", jcr->JobId, jcr);
+        Dmsg2(800, "Running jid={} {}\n", jcr->JobId, jcr);
 
         /* Wait for the Job to finish. As we want exclusive access to
          * things like the connection to the director we suspend this
          * thread and let the actual NDMP connection wake us after it
          * has performed the backup. E.g. instead of doing a busy wait
          * we just hang on a conditional variable. */
-        Dmsg2(800, "Wait for end job jid={} {:p}\n", jcr->JobId, jcr);
+        Dmsg2(800, "Wait for end job jid={} {}\n", jcr->JobId, jcr);
         lock_mutex(mutex);
         pthread_cond_wait(&jcr->sd_impl->job_end_wait, &mutex);
         unlock_mutex(mutex);
       } else {
-        Dmsg2(800, "Auth fail or cancel for jid={} {:p}\n", jcr->JobId, jcr);
+        Dmsg2(800, "Auth fail or cancel for jid={} {}\n", jcr->JobId, jcr);
       }
-      Dmsg2(800, "Done jid={} {:p}\n", jcr->JobId, jcr);
+      Dmsg2(800, "Done jid={} {}\n", jcr->JobId, jcr);
 
       /* For a NDMP backup we expect the protocol to send us either a nextrun
        * cmd or a finish cmd to let us know they are finished. */
@@ -341,7 +341,7 @@ bool FinishCmd(JobControlRecord* jcr)
 
       FreePlugins(jcr); /* release instantiated plugins */
 
-      Dmsg2(800, "Done jid={} {:p}\n", jcr->JobId, jcr);
+      Dmsg2(800, "Done jid={} {}\n", jcr->JobId, jcr);
 
       return false; /* Continue DIR session ? */
     default:
@@ -361,10 +361,10 @@ bool FinishCmd(JobControlRecord* jcr)
 void StoredFreeJcr(JobControlRecord* jcr)
 {
   Dmsg0(200, "Start stored FreeJcr\n");
-  Dmsg2(800, "End Job JobId={} {:p}\n", jcr->JobId, jcr);
+  Dmsg2(800, "End Job JobId={} {}\n", jcr->JobId, jcr);
 
   if (jcr->dir_bsock) {
-    Dmsg2(800, "Send Terminate jid={} {:p}\n", jcr->JobId, jcr);
+    Dmsg2(800, "Send Terminate jid={} {}\n", jcr->JobId, jcr);
     jcr->dir_bsock->signal(BNET_EOD);
     jcr->dir_bsock->signal(BNET_TERMINATE);
   }

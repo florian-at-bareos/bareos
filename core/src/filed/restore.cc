@@ -1128,7 +1128,7 @@ ok_out:
 
 int DoFileDigest(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
 {
-  Dmsg1(50, "DoFileDigest jcr={:p}\n", jcr);
+  Dmsg1(50, "DoFileDigest jcr={}\n", jcr);
   return (DigestFile(jcr, ff_pkt, jcr->fd_impl->crypto.digest));
 }
 

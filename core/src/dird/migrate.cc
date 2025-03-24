@@ -458,7 +458,7 @@ static int UniqueDbidHandler(void* ctx, int, char** row)
   }
 
   AddUniqueId(ids, row[0]);
-  Dmsg3(dbglevel, "dbid_hdlr count={} Ids={:p} {}\n", ids->count, ids->list,
+  Dmsg3(dbglevel, "dbid_hdlr count={} Ids={} {}\n", ids->count, ids->list,
         ids->list);
   return 0;
 }

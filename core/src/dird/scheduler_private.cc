@@ -213,7 +213,7 @@ void SchedulerPrivate::AddJobsForThisAndNextHourToQueue()
       bool run_next_hour
           = run->date_time_mask.TriggersOnDayAndHour(date_time_next_hour.time);
 
-      Dmsg3(local_debuglevel, "run@{:p}: run_now={} run_next_hour={}\n", run,
+      Dmsg3(local_debuglevel, "run@{}: run_now={} run_next_hour={}\n", run,
             run_this_hour, run_next_hour);
 
       if (run_this_hour || run_next_hour) {
