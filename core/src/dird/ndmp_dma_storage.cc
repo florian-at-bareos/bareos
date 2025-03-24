@@ -311,7 +311,7 @@ static bool NdmpRunStorageJob(JobControlRecord* jcr,
   ndmp_sess->conn_authorized = 1;
 
   char ndm_job_type = ndmp_sess->control_acb->job.operation & 0xff;
-  Dmsg2(200, "ndma job.operation - job_type: arg_start##x#arg_end - {:c}\n",
+  Dmsg2(200, "ndma job.operation - job_type: arg_start##x#arg_end - {:}\n",
         ndmp_sess->control_acb->job.operation, ndm_job_type);
 
   // Let the DMA perform its magic.

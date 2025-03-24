@@ -1943,7 +1943,7 @@ static bool BackupCmd(JobControlRecord* jcr)
     while (BgetMsg(sd) >= 0) { /* stop on signal or error */
       if (sscanf(sd->msg, OK_close, &SDJobStatus) == 1) {
         ok = 1;
-        Dmsg2(200, "SDJobStatus = {} {:c}\n", SDJobStatus, (char)SDJobStatus);
+        Dmsg2(200, "SDJobStatus = {} {}\n", SDJobStatus, (char)SDJobStatus);
       }
     }
     if (!ok) {
@@ -2167,7 +2167,7 @@ static bool RestoreCmd(JobControlRecord* jcr)
   // Turn / into nothing
   if (IsPathSeparator(args[0]) && args[1] == '\0') { args[0] = '\0'; }
 
-  Dmsg2(150, "Got replace {:c}, where={}\n", replace, args);
+  Dmsg2(150, "Got replace {}, where={}\n", replace, args);
   UnbashSpaces(args);
 
   // Keep track of newly created directories to apply them correct attributes
