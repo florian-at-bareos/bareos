@@ -206,7 +206,7 @@ int JobqAdd(jobq_t* jq, JobControlRecord* jcr)
   pthread_t id;
   wait_pkt* sched_pkt;
 
-  Dmsg3(2300, "JobqAdd jobid={} jcr=0x{:x} UseCount={}\n", jcr->JobId, jcr,
+  Dmsg3(2300, "JobqAdd jobid={} jcr={} UseCount={}\n", jcr->JobId, jcr,
         jcr->UseCount());
   if (jq->valid != JOBQ_VALID) {
     Jmsg0(jcr, M_ERROR, 0, "Jobq_add queue not initialized.\n");
@@ -214,7 +214,7 @@ int JobqAdd(jobq_t* jq, JobControlRecord* jcr)
   }
 
   jcr->IncUseCount(); /* mark jcr in use by us */
-  Dmsg3(2300, "JobqAdd jobid={} jcr=0x{:x} UseCount={}\n", jcr->JobId, jcr,
+  Dmsg3(2300, "JobqAdd jobid={} jcr={} UseCount={}\n", jcr->JobId, jcr,
         jcr->UseCount());
   if (!jcr->IsJobCanceled() && wtime > 0) {
     sched_pkt = (wait_pkt*)malloc(sizeof(wait_pkt));
@@ -285,7 +285,7 @@ int JobqRemove(jobq_t* jq, JobControlRecord* jcr)
   bool found = false;
   jobq_item_t* item;
 
-  Dmsg2(2300, "JobqRemove jobid={} jcr=0x{:x}\n", jcr->JobId, jcr);
+  Dmsg2(2300, "JobqRemove jobid={} jcr={}\n", jcr->JobId, jcr);
   if (jq->valid != JOBQ_VALID) { return EINVAL; }
 
   lock_mutex(jq->mutex);
@@ -297,7 +297,7 @@ int JobqRemove(jobq_t* jq, JobControlRecord* jcr)
   }
   if (!found) {
     unlock_mutex(jq->mutex);
-    Dmsg2(2300, "JobqRemove jobid={} jcr=0x{:x} not in wait queue\n", jcr->JobId,
+    Dmsg2(2300, "JobqRemove jobid={} jcr={} not in wait queue\n", jcr->JobId,
           jcr);
     return EINVAL;
   }
@@ -305,7 +305,7 @@ int JobqRemove(jobq_t* jq, JobControlRecord* jcr)
   // Move item to be the first on the list
   jq->waiting_jobs->remove(item);
   jq->ready_jobs->prepend(item);
-  Dmsg2(2300, "JobqRemove jobid={} jcr=0x{:x} moved to ready queue\n", jcr->JobId,
+  Dmsg2(2300, "JobqRemove jobid={} jcr={} moved to ready queue\n", jcr->JobId,
         jcr);
 
   status = StartServer(jq);

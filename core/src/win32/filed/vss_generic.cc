@@ -308,7 +308,7 @@ static inline bool HandleVolumeMountPoint(
     } else {
       Dmsg3(
           200,
-          "{} with vmp {} could not be added to snapshotset, COM ERROR: 0x{:X}\n",
+          "{} with vmp {} could not be added to snapshotset, COM ERROR: {:#X}\n",
           pvol.c_str(), utf8_mp.c_str(), hr);
     }
   } else {
@@ -395,8 +395,8 @@ bool VSSClientGeneric::Initialize(DWORD dwContext, bool bDuringRestore)
 
   if (!(CreateVssBackupComponents_ && VssFreeSnapshotProperties_)) {
     Dmsg2(0,
-          "VSSClientGeneric::Initialize: CreateVssBackupComponents_=0x{:08X}, "
-          "VssFreeSnapshotProperties_=0x{:08X}\n",
+          "VSSClientGeneric::Initialize: CreateVssBackupComponents_={:#08X}, "
+          "VssFreeSnapshotProperties_={:#08X}\n",
           CreateVssBackupComponents_, VssFreeSnapshotProperties_);
     Jmsg(jcr_, M_FATAL, 0,
          "Entry point CreateVssBackupComponents or VssFreeSnapshotProperties "
@@ -408,7 +408,7 @@ bool VSSClientGeneric::Initialize(DWORD dwContext, bool bDuringRestore)
   if (!bCoInitializeCalled_) {
     hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
     if (FAILED(hr)) {
-      Dmsg1(0, "VSSClientGeneric::Initialize: CoInitializeEx returned 0x{:08X}\n",
+      Dmsg1(0, "VSSClientGeneric::Initialize: CoInitializeEx returned {:#08X}\n",
             hr);
       JmsgVssApiStatus(jcr_, M_FATAL, hr, "CoInitializeEx");
       errno = b_errno_win32;
@@ -434,8 +434,7 @@ bool VSSClientGeneric::Initialize(DWORD dwContext, bool bDuringRestore)
   if (FAILED(hr)) {
     BErrNo be;
     Dmsg2(0,
-          "VSSClientGeneric::Initialize: CreateVssBackupComponents returned "
-          "0x{:08X}. ERR={}\n",
+          "VSSClientGeneric::Initialize: CreateVssBackupComponents returned {:#08X}. ERR={}\n",
           hr, be.bstrerror(b_errno_win32));
     JmsgVssApiStatus(jcr_, M_FATAL, hr, "CreateVssBackupComponents");
     errno = b_errno_win32;
@@ -452,7 +451,7 @@ bool VSSClientGeneric::Initialize(DWORD dwContext, bool bDuringRestore)
       if (FAILED(hr)) {
         Dmsg1(0,
               "VSSClientGeneric::Initialize: IVssBackupComponents->SetContext "
-              "returned 0x{:08X}\n",
+              "returned {:#08X}\n",
               hr);
         JmsgVssApiStatus(jcr_, M_FATAL, hr, "SetContext");
         errno = b_errno_win32;
@@ -466,7 +465,7 @@ bool VSSClientGeneric::Initialize(DWORD dwContext, bool bDuringRestore)
     if (FAILED(hr)) {
       Dmsg1(0,
             "VSSClientGeneric::Initialize: "
-            "IVssBackupComponents->InitializeForBackup returned 0x{:08X}\n",
+            "IVssBackupComponents->InitializeForBackup returned {:#08X}\n",
             hr);
       JmsgVssApiStatus(jcr_, M_FATAL, hr, "InitializeForBackup");
       errno = b_errno_win32;
@@ -506,7 +505,7 @@ bool VSSClientGeneric::Initialize(DWORD dwContext, bool bDuringRestore)
       if (FAILED(hr)) {
         Dmsg1(0,
               "VSSClientGeneric::Initialize: "
-              "IVssBackupComponents->SetBackupState returned 0x{:08X}\n",
+              "IVssBackupComponents->SetBackupState returned {:#08X}\n",
               hr);
         JmsgVssApiStatus(jcr_, M_FATAL, hr, "SetBackupState");
         errno = b_errno_win32;
@@ -519,7 +518,7 @@ bool VSSClientGeneric::Initialize(DWORD dwContext, bool bDuringRestore)
     if (FAILED(hr)) {
       Dmsg1(0,
             "VSSClientGeneric::Initialize: "
-            "IVssBackupComponents->GatherWriterMetadata returned 0x{:08X}\n",
+            "IVssBackupComponents->GatherWriterMetadata returned {:#08X}\n",
             hr);
       JmsgVssApiStatus(jcr_, M_FATAL, hr, "GatherWriterMetadata");
       errno = b_errno_win32;
@@ -539,7 +538,7 @@ bool VSSClientGeneric::Initialize(DWORD dwContext, bool bDuringRestore)
       if (FAILED(_vss_call_hr)) {                                  \
         Dmsg1(0,                                                   \
               "VSSClientGeneric::Initialize: "                     \
-              "IVssBackupComponents->" #Name " returned 0x{:08X}\n", \
+              "IVssBackupComponents->" #Name " returned {:#08X}\n", \
               _vss_call_hr);                                       \
         JmsgVssApiStatus(jcr_, M_FATAL, _vss_call_hr, #Name);      \
         errno = b_errno_win32;                                     \

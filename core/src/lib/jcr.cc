@@ -916,7 +916,7 @@ static void JcrTimeoutCheck(watchdog_t* /* self */)
    * blocked for more than specified max time.
    */
   foreach_jcr (jcr) {
-    Dmsg2(debuglevel, "JcrTimeoutCheck JobId={} jcr=0x{:x}\n", jcr->JobId, jcr);
+    Dmsg2(debuglevel, "JcrTimeoutCheck JobId={} jcr={}\n", jcr->JobId, jcr);
     if (jcr->JobId == 0) { continue; }
     bs = jcr->store_bsock;
     if (bs) {

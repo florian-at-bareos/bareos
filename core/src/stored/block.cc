@@ -88,7 +88,7 @@ void DumpBlock(DeviceBlock* b, const char* msg)
   }
 
   if (block_len > 4000000) {
-    Dmsg3(20, "Dump block {} 0x{:x} blocksize too big {}\n", msg, b, block_len);
+    Dmsg3(20, "Dump block {} {} blocksize too big {}\n", msg, b, block_len);
     return;
   }
 
@@ -142,7 +142,7 @@ DeviceBlock* new_block(Device* dev)
   block->buf = GetMemory(block->buf_len);
   EmptyBlock(block);
   block->BlockVer = BLOCK_VER; /* default write version */
-  Dmsg1(650, "Returning new block={:x}\n", block);
+  Dmsg1(650, "Returning new block={}\n", block);
   return block;
 }
 
@@ -174,9 +174,9 @@ void PrintBlockReadErrors(JobControlRecord* jcr, DeviceBlock* block)
 void FreeBlock(DeviceBlock* block)
 {
   if (block) {
-    Dmsg1(999, "FreeBlock buffer {:x}\n", block->buf);
+    Dmsg1(999, "FreeBlock buffer {}\n", block->buf);
     FreeMemory(block->buf);
-    Dmsg1(999, "FreeBlock block {:x}\n", block);
+    Dmsg1(999, "FreeBlock block {}\n", block);
     FreeMemory((POOLMEM*)block);
   }
 }
