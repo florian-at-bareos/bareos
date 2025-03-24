@@ -531,7 +531,7 @@ bool Device::open(DeviceControlRecord* dcr, DeviceMode omode)
   // Reset any important state info
   CopySetBits(ST_MAX, preserve, state);
 
-  Dmsg2(100, "preserve={:08o} fd={}\n", preserve, fd);
+  Dmsg2(100, "preserve={:08o} fd={}\n", int((preserve[0] << 8) + preserve[1]), fd);
 
   return fd >= 0;
 }
