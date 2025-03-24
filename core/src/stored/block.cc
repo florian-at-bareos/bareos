@@ -1054,7 +1054,7 @@ reread:
     Jmsg(jcr, M_ERROR, 0, "%s", dev->errmsg);
     dev->SetShortBlock();
     block->read_len = block->binbuf = 0;
-    Dmsg2(200, "set block={:p} binbuf={}\n", block, block->binbuf);
+    Dmsg2(200, "set block={} binbuf={}\n", block, block->binbuf);
     return ReadStatus::Error;
   }
 

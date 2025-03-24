@@ -695,7 +695,7 @@ void ConfigurationParser::StoreAlistRes(LEX* lc,
                   item->name, lc->line_no, lc->line);
         return;
       }
-      Dmsg5(900, "Append {:p} ({}) to alist {:p} size={} {}\n", res,
+      Dmsg5(900, "Append {} ({}) to alist {} size={} {}\n", res,
             res->resource_name_, list, list->size(), item->name);
       list->append(res);
     }
@@ -719,7 +719,7 @@ void ConfigurationParser::StoreStdVectorStr(LEX* lc,
   while (token == BCT_COMMA) {
     LexGetToken(lc, BCT_STRING); /* scan next item */
     if (pass == 2) {
-      Dmsg4(900, "Append {} to vector {:p} size={} {}\n", lc->str, list,
+      Dmsg4(900, "Append {} to vector {} size={} {}\n", lc->str, list,
             list->size(), item->name);
 
       /* See if we need to drop the default value.
@@ -759,7 +759,7 @@ void ConfigurationParser::StoreAlistStr(LEX* lc,
     LexGetToken(lc, BCT_STRING); /* scan next item */
 
     if (pass == 2) {
-      Dmsg4(900, "Append {} to alist {:p} size={} {}\n", lc->str, list,
+      Dmsg4(900, "Append {} to alist {} size={} {}\n", lc->str, list,
             list->size(), item->name);
 
       /* See if we need to drop the default value from the alist.
@@ -803,7 +803,7 @@ void ConfigurationParser::StoreAlistDir(LEX* lc,
     alist<const char*>* list = *alistvalue;
 
     LexGetToken(lc, BCT_STRING); /* scan next item */
-    Dmsg4(900, "Append {} to alist {:p} size={} {}\n", lc->str, list,
+    Dmsg4(900, "Append {} to alist {} size={} {}\n", lc->str, list,
           list->size(), item->name);
 
     if (lc->str[0] != '|') {

@@ -326,7 +326,7 @@ bRC GeneratePluginEvent(JobControlRecord* jcr,
   plugin_ctx_list = jcr->plugin_ctx_list;
   event.eventType = eventType;
 
-  Dmsg2(debuglevel, "sd-plugin_ctx_list={:p} JobId={}\n", plugin_ctx_list,
+  Dmsg2(debuglevel, "sd-plugin_ctx_list={} JobId={}\n", plugin_ctx_list,
         jcr->JobId);
 
   // See if we need to trigger the loaded plugins in reverse order.
@@ -481,7 +481,7 @@ static inline PluginContext* instantiate_plugin(JobControlRecord* jcr,
   b_ctx->jcr = jcr;
   b_ctx->plugin = plugin;
 
-  Dmsg2(debuglevel, "Instantiate dir-plugin_ctx_list={:p} JobId={}\n",
+  Dmsg2(debuglevel, "Instantiate dir-plugin_ctx_list={} JobId={}\n",
         jcr->plugin_ctx_list, jcr->JobId);
 
   ctx = (PluginContext*)malloc(sizeof(PluginContext));
@@ -619,7 +619,7 @@ void FreePlugins(JobControlRecord* jcr)
 {
   if (!sd_plugin_list || !jcr->plugin_ctx_list) { return; }
 
-  Dmsg2(debuglevel, "Free instance dir-plugin_ctx_list={:p} JobId={}\n",
+  Dmsg2(debuglevel, "Free instance dir-plugin_ctx_list={} JobId={}\n",
         jcr->plugin_ctx_list, jcr->JobId);
   for (auto* ctx : jcr->plugin_ctx_list) {
     // Free the plugin instance

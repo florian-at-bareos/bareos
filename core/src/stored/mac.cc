@@ -486,7 +486,7 @@ bool DoMacRun(JobControlRecord* jcr)
       goto bail_out;
     }
 
-    Dmsg1(100, "read_dcr={:p}\n", jcr->sd_impl->read_dcr);
+    Dmsg1(100, "read_dcr={}\n", jcr->sd_impl->read_dcr);
     Dmsg3(200, "Found {} volumes names for {}. First={}\n",
           jcr->sd_impl->NumReadVolumes, Type,
           jcr->sd_impl->VolList->VolumeName);
@@ -594,7 +594,7 @@ bool DoMacRun(JobControlRecord* jcr)
       goto bail_out;
     }
 
-    Dmsg2(100, "read_dcr={:p} write_dcr={:p}\n", jcr->sd_impl->read_dcr,
+    Dmsg2(100, "read_dcr={} write_dcr={}\n", jcr->sd_impl->read_dcr,
           jcr->sd_impl->dcr);
     Dmsg3(200, "Found {} volumes names for {}. First={}\n",
           jcr->sd_impl->NumReadVolumes, Type,

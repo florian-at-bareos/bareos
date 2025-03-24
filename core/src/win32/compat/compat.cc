@@ -187,7 +187,7 @@ static void Win32ConvCleanupCache(void* arg)
 
   Dmsg1(
       debuglevel,
-      "Win32ConvCleanupCache: Cleanup of thread specific cache at address {:p}\n",
+      "Win32ConvCleanupCache: Cleanup of thread specific cache at address {}\n",
       tcc);
 
   delete tcc;
@@ -233,7 +233,7 @@ static class PathConversionCache {
     if (pthread_setspecific(key, tcc.get()) == 0) {
       Dmsg1(
           debuglevel,
-          "Win32ConvInitCache: Setup of thread specific cache at address {:p}\n",
+          "Win32ConvInitCache: Setup of thread specific cache at address {}\n",
           tcc.get());
       return tcc.release();
     } else {
@@ -2227,7 +2227,7 @@ int Readdir_r(DIR* dirp, struct dirent* entry, struct dirent** result)
     }
 
     *result = entry; /* return entry address */
-    Dmsg4(debuglevel, "Readdir_r({:p}, { d_name=\"{}\", d_reclen={}, d_off={}\n",
+    Dmsg4(debuglevel, "Readdir_r({}, { d_name=\"{}\", d_reclen={}, d_off={}\n",
           dirp, entry->d_name, entry->d_reclen, entry->d_off);
   } else {
     errno = b_errno_win32;

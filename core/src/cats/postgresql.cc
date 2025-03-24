@@ -708,7 +708,7 @@ SQL_ROW BareosDbPostgresql::SqlFetchRow(void)
           row_number_, num_rows_);
   }
 
-  Dmsg1(500, "SqlFetchRow finishes returning {:p}\n", row);
+  Dmsg1(500, "SqlFetchRow finishes returning {}\n", row);
 
   return row;
 }

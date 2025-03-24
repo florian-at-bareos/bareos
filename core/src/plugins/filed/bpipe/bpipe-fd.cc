@@ -300,7 +300,7 @@ static bRC pluginIO(PluginContext* ctx, io_pkt* io)
         char* writer_codes = apply_rp_codes(ctx);
 
         p_ctx->pfd = OpenBpipe(writer_codes, 0, "w");
-        Dmsg(ctx, debuglevel, "bpipe-fd: IO_OPEN fd={:p} writer={}\n", p_ctx->pfd,
+        Dmsg(ctx, debuglevel, "bpipe-fd: IO_OPEN fd={} writer={}\n", p_ctx->pfd,
              writer_codes);
         if (!p_ctx->pfd) {
           io->io_errno = errno;
@@ -315,7 +315,7 @@ static bRC pluginIO(PluginContext* ctx, io_pkt* io)
         if (writer_codes) { free(writer_codes); }
       } else {
         p_ctx->pfd = OpenBpipe(p_ctx->reader, 0, "r", false);
-        Dmsg(ctx, debuglevel, "bpipe-fd: IO_OPEN fd={:p} reader={}\n", p_ctx->pfd,
+        Dmsg(ctx, debuglevel, "bpipe-fd: IO_OPEN fd={} reader={}\n", p_ctx->pfd,
              p_ctx->reader);
         if (!p_ctx->pfd) {
           io->io_errno = errno;

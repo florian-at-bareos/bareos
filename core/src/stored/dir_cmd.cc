@@ -482,7 +482,7 @@ static bool CancelCmd(JobControlRecord* cjcr)
   oldStatus = jcr->getJobStatus();
   jcr->setJobStatusWithPriorityCheck(status);
 
-  Dmsg2(800, "Cancel JobId={} {:p}\n", jcr->JobId, jcr);
+  Dmsg2(800, "Cancel JobId={} {}\n", jcr->JobId, jcr);
   if (!jcr->authenticated
       && (oldStatus == JS_WaitFD || oldStatus == JS_WaitSD)) {
     jcr->sd_impl->job_start_wait.notify_one(); /* wake waiting thread */
@@ -491,12 +491,12 @@ static bool CancelCmd(JobControlRecord* cjcr)
   if (jcr->file_bsock) {
     jcr->file_bsock->SetTerminated();
     jcr->file_bsock->SetTimedOut();
-    Dmsg2(800, "Term bsock jid={} {:p}\n", jcr->JobId, jcr);
+    Dmsg2(800, "Term bsock jid={} {}\n", jcr->JobId, jcr);
   } else {
     if (oldStatus != JS_WaitSD) {
       // Still waiting for FD to connect, release it
       jcr->sd_impl->job_start_wait.notify_one(); /* wake waiting job */
-      Dmsg2(800, "Signal FD connect jid={} {:p}\n", jcr->JobId, jcr);
+      Dmsg2(800, "Signal FD connect jid={} {}\n", jcr->JobId, jcr);
     }
   }
 

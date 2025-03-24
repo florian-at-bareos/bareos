@@ -103,7 +103,7 @@ char* ChunkedDevice::allocate_chunkbuffer()
 {
   char* buffer = (char*)malloc(current_chunk_->chunk_size);
 
-  Dmsg2(100, "New allocated buffer of {} bytes at {:p}\n",
+  Dmsg2(100, "New allocated buffer of {} bytes at {}\n",
         current_chunk_->chunk_size, buffer);
 
   return buffer;
@@ -112,7 +112,7 @@ char* ChunkedDevice::allocate_chunkbuffer()
 // Free a chunk buffer.
 void ChunkedDevice::FreeChunkbuffer(char* buffer)
 {
-  Dmsg2(100, "Freeing buffer of {} bytes at {:p}\n", current_chunk_->chunk_size,
+  Dmsg2(100, "Freeing buffer of {} bytes at {}\n", current_chunk_->chunk_size,
         buffer);
 
   free(buffer);
@@ -121,7 +121,7 @@ void ChunkedDevice::FreeChunkbuffer(char* buffer)
 // Free a chunk_io_request.
 void ChunkedDevice::FreeChunkIoRequest(chunk_io_request* request)
 {
-  Dmsg2(100, "Freeing chunk io request of {} bytes at {:p}\n",
+  Dmsg2(100, "Freeing chunk io request of {} bytes at {}\n",
         sizeof(chunk_io_request), request);
 
   if (request->release) { FreeChunkbuffer(request->buffer); }
@@ -325,7 +325,7 @@ static void UpdateChunkIoRequest(void* old_item, void* new_item)
    * means all pointers are the same only the wbuflen and the
    * release flag of the chunk_io_request differ. So we only
    * copy those two fields and not the others. */
-  Dmsg0(200, "Updating chunk request at {:p} from new request at {:p}\n", old_req,
+  Dmsg0(200, "Updating chunk request at {} from new request at {}\n", old_req,
         new_req);
   ASSERT(new_req->wbuflen >= old_req->wbuflen);
   if (new_req->buffer == old_req->buffer) {
@@ -358,7 +358,7 @@ bool ChunkedDevice::EnqueueChunk(chunk_io_request* request)
   new_request->tries = 0;
   new_request->release = request->release;
 
-  Dmsg2(100, "Allocated chunk io request of {} bytes at {:p}\n",
+  Dmsg2(100, "Allocated chunk io request of {} bytes at {}\n",
         sizeof(chunk_io_request), new_request);
 
   /* Enqueue the item onto the ordered circular buffer.

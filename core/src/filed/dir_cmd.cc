@@ -1776,7 +1776,7 @@ static bool BackupCmd(JobControlRecord* jcr)
 
   jcr->setJobStatusWithPriorityCheck(JS_Blocked);
   jcr->setJobType(JT_BACKUP);
-  Dmsg1(100, "begin backup ff={:p}\n", jcr->fd_impl->ff);
+  Dmsg1(100, "begin backup ff={}\n", jcr->fd_impl->ff);
 
   if (sd == nullptr) {
     Jmsg(jcr, M_FATAL, 0, T_("Cannot contact Storage daemon\n"));
@@ -1912,7 +1912,7 @@ static bool BackupCmd(JobControlRecord* jcr)
 #endif
 
   // Send Files to Storage daemon
-  Dmsg1(110, "begin blast ff={:p}\n", (FindFilesPacket*)jcr->fd_impl->ff);
+  Dmsg1(110, "begin blast ff={}\n", (FindFilesPacket*)jcr->fd_impl->ff);
   if (!BlastDataToStorageDaemon(jcr, cipher)) {
     jcr->setJobStatusWithPriorityCheck(JS_ErrorTerminated);
     BnetSuppressErrorMessages(sd, 1);

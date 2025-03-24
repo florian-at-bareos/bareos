@@ -213,7 +213,7 @@ bool DoListenRun(JobControlRecord* jcr)
 
   Dmsg2(50, "{} waiting for SD to contact SD key={}\n", jcr->Job,
         jcr->sd_auth_key);
-  Dmsg2(800, "Wait SD for jid={} {:p}\n", jcr->JobId, jcr);
+  Dmsg2(800, "Wait SD for jid={} {}\n", jcr->JobId, jcr);
 
   /* Wait for the Storage daemon to contact us to start the Job, when he does,
    * we will be released. */
@@ -226,7 +226,7 @@ bool DoListenRun(JobControlRecord* jcr)
   Dmsg3(50, "Auth={} canceled={}\n", jcr->authenticated, jcr->IsJobCanceled());
 
   if (!jcr->authenticated || !jcr->store_bsock) {
-    Dmsg2(800, "Auth fail or cancel for jid={} {:p}\n", jcr->JobId, jcr);
+    Dmsg2(800, "Auth fail or cancel for jid={} {}\n", jcr->JobId, jcr);
     DequeueMessages(jcr); /* send any queued messages */
 
     goto cleanup;

@@ -265,7 +265,7 @@ static void RemoveJcr(JobControlRecord* jcr)
 
 static void FreeCommonJcr(JobControlRecord* jcr)
 {
-  Dmsg1(100, "FreeCommonJcr: {:p} \n", jcr);
+  Dmsg1(100, "FreeCommonJcr: {} \n", jcr);
 
   if (!jcr) { Dmsg0(100, "FreeCommonJcr: Invalid jcr\n"); }
 

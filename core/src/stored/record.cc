@@ -495,9 +495,9 @@ void DumpRecord(const char* tag, const DeviceRecord* rec)
   char stream[128];
   char findex[128];
 
-  Dmsg2(100, "{}: rec {:p}\n", tag, rec);
+  Dmsg2(100, "{}: rec {}\n", tag, rec);
 
-  Dmsg3(100, "{:<14} next {:p} prev {:p}\n", "link", rec->link.next, rec->link.prev);
+  Dmsg3(100, "{:<14} next {} prev {}\n", "link", rec->link.next, rec->link.prev);
   Dmsg2(100, "{:<14} {}\n", "File", rec->File);
   Dmsg2(100, "{:<14} {}\n", "Block", rec->Block);
   Dmsg2(100, "{:<14} {}\n", "VolSessionId", rec->VolSessionId);
@@ -516,8 +516,8 @@ void DumpRecord(const char* tag, const DeviceRecord* rec)
   }
   Dmsg3(100, "{:<14} {} ({})\n", "state", rec->state,
         record_state_to_ascii(rec->state));
-  Dmsg2(100, "{:<14} {:p}\n", "bsr", rec->bsr);
-  Dmsg2(100, "{:<14} {:p}\n", "data", rec->data);
+  Dmsg2(100, "{:<14} {}\n", "bsr", rec->bsr);
+  Dmsg2(100, "{:<14} {}\n", "data", rec->data);
   Dmsg2(100, "{:<14} {}\n", "match_stat", rec->match_stat);
   Dmsg2(100, "{:<14} {}\n", "own_mempool", rec->own_mempool ? "true" : "false");
 }
