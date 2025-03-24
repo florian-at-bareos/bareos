@@ -1629,7 +1629,7 @@ static bRC createFile(PluginContext* ctx, restore_pkt* rp)
   if (!p_ctx) { return bRC_Error; }
 
   // See if the file already exists.
-  Dmsg(ctx, 400, "gfapi-fd: Replace={:c} {}\n", (char)rp->replace, rp->replace);
+  Dmsg(ctx, 400, "gfapi-fd: Replace={} {}\n", (char)rp->replace, rp->replace);
   status = glfs_lstat(p_ctx->glfs, rp->ofname, &st);
   if (status == 0) {
     exists = true;
