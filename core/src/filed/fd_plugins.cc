@@ -301,11 +301,11 @@ bail_out:
 
 static bool IsEventForThisPlugin(Plugin* plugin, const char* name, int len)
 {
-  Dmsg4(debuglevel, "IsEventForThisPlugin? name={} len={} plugin={} plen={}\n",
-        name, len, plugin->file, plugin->file_len);
   if (!name) { /* if no plugin name, all plugins get it */
     return true;
   }
+  Dmsg4(debuglevel, "IsEventForThisPlugin? name={} len={} plugin={} plen={}\n",
+    name, len, plugin->file, plugin->file_len);
 
   // Return global VSS job metadata to all plugins
   if (bstrcmp("job", name)) { /* old V4.0 name for VSS job metadata */
