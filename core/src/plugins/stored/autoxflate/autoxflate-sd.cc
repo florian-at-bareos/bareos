@@ -47,9 +47,11 @@ using namespace storagedaemon;
 #define PLUGIN_DESCRIPTION "Auto Xflation Storage Daemon Plugin"
 #define PLUGIN_USAGE "(No usage yet)"
 
-#define Dmsg(context, level, ...)                                         \
-  bareos_core_functions->DebugMessage(context, __FILE__, __LINE__, level, \
-                                      __VA_ARGS__)
+template<class... Args>
+void Dmsg(PluginContext*, int level, Args&&... args) {
+  Dmsg1(level, args...);
+}
+
 #define Jmsg(context, type, ...)                                          \
   bareos_core_functions->JobMessage(context, __FILE__, __LINE__, type, 0, \
                                     __VA_ARGS__)
