@@ -108,21 +108,21 @@ public:
   static Logger& GetLogger(libbareos::source_location location = libbareos::source_location::current());
 
   // level
-  static spdlog::level::level_enum GetLevel(const std::string& filepath);
-  static void SetLevel(spdlog::level::level_enum level, const std::string& affected_path = "");
+  static spdlog::level::level_enum GetLevel(const std::filesystem::path& filepath);
+  static void SetLevel(spdlog::level::level_enum level, const std::filesystem::path& scope = "");
 
   // sink
-  static spdlog::sink_ptr GetSink(const Sink& sink);
-  static std::vector<spdlog::sink_ptr> GetSinks(const std::string& filepath);
-  static void SetFileSink(const std::filesystem::path& filepath, const std::string& affected_path = "");
+  // static spdlog::sink_ptr GetSink(const Sink& sink);
+  // static std::vector<spdlog::sink_ptr> GetSinks(const std::string& filepath);
+  // static void SetFileSink(const std::filesystem::path& filepath, const std::filesystem::path& scope = "");
 private:
-  static void ForeachLogger(const std::string& affected_path, std::function<void(Logger&)> func);
+  static void ForeachLogger(const std::filesystem::path& scope, std::function<void(Logger&)> func);
 
-  static inline std::map<std::string, Logger> logger_map_;
-  static inline std::map<std::string, spdlog::level::level_enum> level_map_;
-  static inline std::map<std::string, std::vector<Sink>> sink_map_;
+  static inline std::map<std::filesystem::path, Logger> logger_map_;
+  static inline std::map<std::filesystem::path, spdlog::level::level_enum> level_map_;
+  static inline std::map<std::filesystem::path, std::vector<Sink>> sink_map_;
 
-  static inline std::map<std::filesystem::path, spdlog::sink_ptr> file_sinks_;
+  // static inline std::map<std::filesystem::path, spdlog::sink_ptr> file_sinks_;
   static inline spdlog::sink_ptr console_sink_ = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
 };
 

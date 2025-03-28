@@ -32,6 +32,7 @@
 #define BAREOS_INCLUDE_BACONFIG_H_
 
 #include "lib/message.h"
+#include "lib/scoped_logger.h"
 
 /* Bareos common configuration defines */
 
@@ -293,33 +294,33 @@ inline bool IsSlotNumberValid(slot_number_t slot)
  */
 /** Debug Messages that are printed */
 #define Dmsg0(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) source_logger.get().debug(__VA_ARGS__);
 #define Dmsg1(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) source_logger.get().debug(__VA_ARGS__);
 #define Dmsg2(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) source_logger.get().debug(__VA_ARGS__);
 #define Dmsg3(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) source_logger.get().debug(__VA_ARGS__);
 #define Dmsg4(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) source_logger.get().debug(__VA_ARGS__);
 #define Dmsg5(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) source_logger.get().debug(__VA_ARGS__);
 #define Dmsg6(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) source_logger.get().debug(__VA_ARGS__);
 #define Dmsg7(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) source_logger.get().debug(__VA_ARGS__);
 #define Dmsg8(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) source_logger.get().debug(__VA_ARGS__);
 #define Dmsg9(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) source_logger.get().debug(__VA_ARGS__);
 #define Dmsg10(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) source_logger.get().debug(__VA_ARGS__);
 #define Dmsg11(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) source_logger.get().debug(__VA_ARGS__);
 #define Dmsg12(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) source_logger.get().debug(__VA_ARGS__);
 #define Dmsg13(lvl, ...) \
-  if ((lvl) <= debug_level) d_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
+  if ((lvl) <= debug_level) source_logger.get().debug(__VA_ARGS__);
 
 /** Messages that are printed (uses p_msg) */
 #define Pmsg0(lvl, ...) p_msg(__FILE__, __LINE__, lvl, __VA_ARGS__)
