@@ -187,6 +187,11 @@ endif()
 if(TARGET Jansson::Jansson)
   target_link_libraries(bareos PUBLIC Jansson::Jansson)
 endif()
+
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+CPMAddPackage("gh:gabime/spdlog@1.12.0")
+target_link_libraries(bareos PUBLIC spdlog)
+
 target_link_libraries(bareos PUBLIC fmt::fmt)
 
 target_link_libraries(bareos PUBLIC fmt::fmt)
