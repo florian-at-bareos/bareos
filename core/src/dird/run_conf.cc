@@ -456,6 +456,7 @@ struct s_kw RunFields[] = {{"pool", 'P'},
  */
 void StoreRun(LEX* lc, ResourceItem* item, int index, int pass)
 {
+  std::vector<std::string> tokens;
   char* p;
   int i, j;
   int options = lc->options;
@@ -631,6 +632,7 @@ void StoreRun(LEX* lc, ResourceItem* item, int index, int pass)
     bool am = false;
     switch (token) {
       case BCT_NUMBER:
+tokens.emplace_back(lc->str);
         state = s_mday;
         code = atoi(lc->str) - 1;
         if (code < 0 || code > 30) {
@@ -640,6 +642,7 @@ void StoreRun(LEX* lc, ResourceItem* item, int index, int pass)
         break;
       case BCT_NAME: /* This handles drop through from keyword */
       case BCT_UNQUOTED_STRING:
+tokens.emplace_back(lc->str);
         if (strchr(lc->str, (int)'-')) {
           state = s_range;
           break;
@@ -678,6 +681,7 @@ void StoreRun(LEX* lc, ResourceItem* item, int index, int pass)
         }
         break;
       case BCT_COMMA:
+tokens.emplace_back(",");
         continue;
       default:
         scan_err2(lc, T_("Unexpected token: %d:%s"), token, lc->str);
@@ -980,6 +984,16 @@ void StoreRun(LEX* lc, ResourceItem* item, int index, int pass)
         return;
         break;
     }
+  }
+  std::string run_str;
+  for (i = 0; i < int(tokens.size()); ++i) {
+    run_str += tokens[i];
+    if (tokens[i] != "," && i + 1 < int(tokens.size())) {
+      run_str += " ";
+    }
+  }
+  if (!Deformat(run_str, "%", res_run.schedule)) {
+    scan_err0(lc, T_("Run directive parsing failed\n"));
   }
 
   /* Allocate run record, copy new stuff into it,

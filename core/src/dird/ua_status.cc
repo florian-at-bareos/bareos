@@ -387,7 +387,7 @@ static bool show_scheduled_preview(UaContext*,
     bool run_now;
     int cnt = 0;
 
-    run_now = run->date_time_mask.TriggersOnDayAndHour(time_to_check);
+    run_now = !run->schedule.GetMatchingTimes(time_to_check, time_to_check + 60 * 60).empty();
 
     if (run_now) {
       // Find time (time_t) job is to be run
