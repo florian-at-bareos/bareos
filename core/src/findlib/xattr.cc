@@ -200,11 +200,11 @@ static bool SerializeXattrStream(JobControlRecord*,
     if (current_xattr->value_length > 0 && current_xattr->value) {
       SerBytes(current_xattr->value, current_xattr->value_length);
 
-      Dmsg3(100, "Backup xattr named {:.{}}, value {:.{}}\n",
-            current_xattr->name, current_xattr->name_length,
-            current_xattr->value, current_xattr->value_length);
+      Dmsg3(100, "Backup xattr named {}, value {}\n",
+            std::string_view(current_xattr->name, current_xattr->name_length),
+            std::string_view(current_xattr->value, current_xattr->value_length));
     } else {
-      Dmsg1(100, "Backup empty xattr named {:.{}}\n", current_xattr->name, current_xattr->name_length);
+      Dmsg1(100, "Backup empty xattr named {}\n", std::string_view(current_xattr->name, current_xattr->name_length));
     }
   }
 
@@ -272,12 +272,12 @@ BxattrExitCode UnSerializeXattrStream(JobControlRecord* jcr,
       current_xattr->value = (char*)malloc(current_xattr->value_length);
       UnserBytes(current_xattr->value, current_xattr->value_length);
 
-      Dmsg3(100, "Restoring xattr named {:.{}}, value {:.{}}\n",
-            current_xattr->name, current_xattr->name_length, 
-            current_xattr->value, current_xattr->value_length);
+      Dmsg3(100, "Restoring xattr named {}, value {}\n",
+            std::string_view(current_xattr->name, current_xattr->name_length), 
+            std::string_view(current_xattr->value, current_xattr->value_length));
     } else {
       current_xattr->value = NULL;
-      Dmsg1(100, "Restoring empty xattr named {:.{}}\n", current_xattr->name, current_xattr->name_length);
+      Dmsg1(100, "Restoring empty xattr named {}\n", std::string_view(current_xattr->name, current_xattr->name_length));
     }
 
     xattr_value_list->append(current_xattr);

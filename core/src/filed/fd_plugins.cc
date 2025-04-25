@@ -904,7 +904,7 @@ int PluginSave(JobControlRecord* jcr, FindFilesPacket* ff_pkt, bool)
       Dmsg2(debuglevel, "startBackup returned type={}, fname={}\n", sp.type,
             sp.fname);
       if (sp.object) {
-        Dmsg2(debuglevel, "index={} object={:.{}}\n", sp.index, sp.object, sp.object_len);
+        Dmsg2(debuglevel, "index={} object={}\n", sp.index, std::string_view(sp.object, sp.object_len));
       }
 
       /* Handle hard linked files

@@ -236,7 +236,7 @@ static std::optional<modifier_parse_result> GetModifier(const char* input)
 
   const char* rest_input = mod.data() + (mod.end() - mod.begin());
 
-  Dmsg2(900, "num={} mod=\"{:.{}}\" rest=\"{}\"\n", number, mod.data(), (int)mod.size(), rest_input);
+  Dmsg2(900, "num={} mod=\"{}\" rest=\"{}\"\n", number, mod, rest_input);
   // empty mod is ok, so no need to check!
   return modifier_parse_result{number, mod, rest_input};
 }
@@ -278,7 +278,7 @@ static std::pair<std::uint64_t, const char*> parse_number_with_mod(
         }
       }
       if (!found) {
-        Dmsg1(900, "Unknown modifier: \"{:.{}}\"\n", modifier.data(), modifier.size());
+        Dmsg1(900, "Unknown modifier: \"{}\"\n", modifier);
         return {total, str};
       }
     }
