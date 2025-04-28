@@ -511,7 +511,7 @@ void DumpRecord(const char* tag, const DeviceRecord* rec)
   Dmsg2(100, "{:<14} {}\n", "remainder", rec->remainder);
   for (unsigned int i = 0;
        i < (sizeof(rec->state_bits) / sizeof(rec->state_bits[0])); i++) {
-    Dmsg3(100, "{:<11}[{}]        {:2.2x}\n", "state_bits", i,
+    Dmsg3(100, "{:<11}[{}]        {:x}\n", "state_bits", i,
           (uint8_t)rec->state_bits[i]);
   }
   Dmsg3(100, "{:<14} {} ({})\n", "state", rec->state,

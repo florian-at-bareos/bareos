@@ -23,7 +23,8 @@ static std::filesystem::path Normalized(std::filesystem::path path) {
   return path;
 }
 
-Logger& ScopedLogger::GetLogger(libbareos::source_location location) {
+std::shared_ptr<Logger>& ScopedLogger::GetLogger(libbareos::source_location location) {
+  std::shared_lock lock(logger_mutex_);
   std::filesystem::path normalized = Normalized(location.file_name());
   std::string logger_name = normalized.string() + "/" + location.function_name();
   auto it = logger_map_.find(logger_name);
@@ -31,12 +32,15 @@ Logger& ScopedLogger::GetLogger(libbareos::source_location location) {
     return it->second;
   }
   else {
-    auto [emplace_it, success] = logger_map_.emplace(logger_name, Logger(logger_name, console_sink_, GetLevel(logger_name)));
+    lock.unlock();
+    std::unique_lock unique_lock(logger_mutex_);
+    auto [emplace_it, success] = logger_map_.emplace(std::filesystem::path(logger_name), std::make_shared<Logger>(logger_name, console_sink_, GetLevel(logger_name)));
     return emplace_it->second;
   }
 }
 
 spdlog::level::level_enum ScopedLogger::GetLevel(const std::filesystem::path& filepath) {
+  std::unique_lock lock(level_mutex_);
   std::filesystem::path normalized = Normalized(filepath);
   auto it = level_map_.upper_bound(filepath);
   if (it != level_map_.begin()) {
@@ -53,6 +57,7 @@ spdlog::level::level_enum ScopedLogger::GetLevel(const std::filesystem::path& fi
   return root_it->second;
 }
 void ScopedLogger::SetLevel(spdlog::level::level_enum level, const std::filesystem::path& scope) {
+  std::unique_lock lock(level_mutex_);
   for (auto it = level_map_.lower_bound(scope); it != level_map_.end(); it = level_map_.erase(it)) {
     if (std::filesystem::relative(it->first, scope).begin()->string() == "..") {
       break;
@@ -100,20 +105,32 @@ void ScopedLogger::SetLevel(spdlog::level::level_enum level, const std::filesyst
 // }
 
 void ScopedLogger::ForeachLogger(const std::filesystem::path& scope, std::function<void(Logger&)> func) {
+  std::shared_lock lock(logger_mutex_);
   for (auto it = logger_map_.lower_bound(scope); it != logger_map_.end(); ++it) {
     if (std::filesystem::relative(it->first, scope).begin()->string() == "..") {
       return;
     }
-    func(it->second);
+    func(*it->second);
   }
 }
 
+static ScopedLogger* s_scoped_logger = new ScopedLogger();
+static ScopedLogger& GetScopedLogger() {
+  return *s_scoped_logger;
+}
+
 Logger& LoggerHandle::get(libbareos::source_location location) {
-  for (auto [func_name, func_logger] : loggers_) {
-    if (func_name == location.function_name()) {
-      return *func_logger;
+  {
+    std::shared_lock lock(loggers_mutex_);
+    for (auto [func_name, func_logger] : loggers_) {
+      if (func_name == location.function_name()) {
+        return *func_logger;
+      }
     }
   }
-  loggers_.emplace_back(location.function_name(), &ScopedLogger::GetLogger(location));
-  return *loggers_.back().second;
+  {
+    std::unique_lock lock(loggers_mutex_);
+    loggers_.emplace_back(location.function_name(), GetScopedLogger().GetLogger(location));
+    return *loggers_.back().second;
+  }
 }

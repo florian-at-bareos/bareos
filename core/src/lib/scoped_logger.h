@@ -26,6 +26,7 @@
 #include "source_location.h"
 #define SPDLOG_COMPILED_LIB
 #include <spdlog/spdlog.h>
+#include <spdlog/async_logger.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <string>
 #include <shared_mutex>
@@ -91,36 +92,46 @@ class Logger : public spdlog::logger {
 public:
   Logger(const std::string& name, spdlog::level::level_enum level = spdlog::level::debug);
   Logger(const std::string& name, spdlog::sink_ptr, spdlog::level::level_enum level = spdlog::level::debug);
+  Logger(Logger&& other)
+    : spdlog::logger(std::move(other)), mutex_() {}
 
   template<class... Args>
   void debug(spdlog::format_string_t<typename fixed_format<Args>::type...> str, Args&&... args) {
+    std::unique_lock lock(mutex_);
     spdlog::logger::debug(str, FixFormatArg(args)...);
   }
   template<class... Args>
   void debug(const char* str, Args&&... args) {
+    std::unique_lock lock(mutex_);
     spdlog::logger::debug(fmt::runtime(str), FixFormatArg(args)...);
   }
+
+  std::shared_mutex mutex_;
 };
 
 class ScopedLogger {
 public:
   // get
-  static Logger& GetLogger(libbareos::source_location location = libbareos::source_location::current());
+  std::shared_ptr<Logger>& GetLogger(libbareos::source_location location = libbareos::source_location::current());
 
   // level
-  static spdlog::level::level_enum GetLevel(const std::filesystem::path& filepath);
-  static void SetLevel(spdlog::level::level_enum level, const std::filesystem::path& scope = "");
+  spdlog::level::level_enum GetLevel(const std::filesystem::path& filepath);
+  void SetLevel(spdlog::level::level_enum level, const std::filesystem::path& scope = "");
 
   // sink
   // static spdlog::sink_ptr GetSink(const Sink& sink);
   // static std::vector<spdlog::sink_ptr> GetSinks(const std::string& filepath);
   // static void SetFileSink(const std::filesystem::path& filepath, const std::filesystem::path& scope = "");
 private:
-  static void ForeachLogger(const std::filesystem::path& scope, std::function<void(Logger&)> func);
+  void ForeachLogger(const std::filesystem::path& scope, std::function<void(Logger&)> func);
 
-  static inline std::map<std::filesystem::path, Logger> logger_map_;
-  static inline std::map<std::filesystem::path, spdlog::level::level_enum> level_map_;
-  static inline std::map<std::filesystem::path, std::vector<Sink>> sink_map_;
+  std::map<std::filesystem::path, std::shared_ptr<Logger>> logger_map_;
+  std::map<std::filesystem::path, spdlog::level::level_enum> level_map_;
+  std::map<std::filesystem::path, std::vector<Sink>> sink_map_;
+
+  std::shared_mutex logger_mutex_;
+  std::shared_mutex level_mutex_;
+  std::shared_mutex sink_mutex_;
 
   // static inline std::map<std::filesystem::path, spdlog::sink_ptr> file_sinks_;
   static inline spdlog::sink_ptr console_sink_ = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
@@ -130,9 +141,14 @@ class LoggerHandle {
 public:
   Logger& get(libbareos::source_location location = libbareos::source_location::current());
 private:
-  std::vector<std::pair<const char*, Logger*>> loggers_;
+  std::vector<std::pair<const char*, std::shared_ptr<Logger>>> loggers_;
+  std::shared_mutex loggers_mutex_;
 };
 
-static LoggerHandle source_logger;
+static LoggerHandle* s_source_logger = new LoggerHandle();
+static LoggerHandle& GetSourceLogger() {
+  return *s_source_logger;
+}
+static LoggerHandle& (*volatile _fake_use)(void) = GetSourceLogger;
 
 #endif  // BAREOS_LIB_LOGGER_H_
