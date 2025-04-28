@@ -63,7 +63,7 @@ void htableImpl::HashIndex(char* key)
 
   // Multiply by large prime number, take top bits, mask for remainder.
   index = ((hash * 1103515249) >> rshift) & mask;
-  Dmsg2(debuglevel, "Leave HashIndex hash=0x{:x} index={}\n", hash, index);
+  Dmsg2(debuglevel, "Leave HashIndex hash={:#x} index={}\n", hash, index);
 }
 
 void htableImpl::HashIndex(uint32_t key)
@@ -72,7 +72,7 @@ void htableImpl::HashIndex(uint32_t key)
 
   // Multiply by large prime number, take top bits, mask for remainder.
   index = ((hash * 1103515249) >> rshift) & mask;
-  Dmsg2(debuglevel, "Leave HashIndex hash=0x{:x} index={}\n", hash, index);
+  Dmsg2(debuglevel, "Leave HashIndex hash={:#x} index={}\n", hash, index);
 }
 
 void htableImpl::HashIndex(uint64_t key)
@@ -81,7 +81,7 @@ void htableImpl::HashIndex(uint64_t key)
 
   // Multiply by large prime number, take top bits, mask for remainder.
   index = ((hash * 1103515249) >> rshift) & mask;
-  Dmsg2(debuglevel, "Leave HashIndex hash=0x{:x} index={}\n", hash, index);
+  Dmsg2(debuglevel, "Leave HashIndex hash={:#x} index={}\n", hash, index);
 }
 
 void htableImpl::HashIndex(uint8_t* key, uint32_t keylen)
@@ -93,7 +93,7 @@ void htableImpl::HashIndex(uint8_t* key, uint32_t keylen)
 
   // Multiply by large prime number, take top bits, mask for remainder.
   index = ((hash * 1103515249) >> rshift) & mask;
-  Dmsg2(debuglevel, "Leave HashIndex hash=0x{:x} index={}\n", hash, index);
+  Dmsg2(debuglevel, "Leave HashIndex hash={:#x} index={}\n", hash, index);
 }
 
 // tsize is the estimated number of entries in the hash table
@@ -249,7 +249,7 @@ bool htableImpl::insert(char* key, void* item)
   hp->key_len = 0;
   table[index] = hp;
 
-  Dmsg3(debuglevel, "Insert hp->next={:p} hp->hash=0x{:x} hp->key={}\n", hp->next,
+  Dmsg3(debuglevel, "Insert hp->next={:p} hp->hash={:#x} hp->key={}\n", hp->next,
         hp->hash, hp->key.char_key);
 
   if (++num_items >= max_items) {
@@ -283,7 +283,7 @@ bool htableImpl::insert(uint32_t key, void* item)
   hp->key_len = 0;
   table[index] = hp;
 
-  Dmsg3(debuglevel, "Insert hp->next={:p} hp->hash=0x{:x} hp->key={}\n",
+  Dmsg3(debuglevel, "Insert hp->next={:p} hp->hash={:#x} hp->key={}\n",
         hp->next, hp->hash, hp->key.uint32_key);
 
   if (++num_items >= max_items) {
@@ -317,7 +317,7 @@ bool htableImpl::insert(uint64_t key, void* item)
   hp->key_len = 0;
   table[index] = hp;
 
-  Dmsg3(debuglevel, "Insert hp->next={:p} hp->hash=0x{:x} hp->key={}\n",
+  Dmsg3(debuglevel, "Insert hp->next={:p} hp->hash={:#x} hp->key={}\n",
         hp->next, hp->hash, hp->key.uint64_key);
 
   if (++num_items >= max_items) {
@@ -351,7 +351,7 @@ bool htableImpl::insert(uint8_t* key, uint32_t key_len, void* item)
   hp->key_len = key_len;
   table[index] = hp;
 
-  Dmsg2(debuglevel, "Insert hp->next={:p} hp->hash=0x{:x}\n", hp->next, hp->hash);
+  Dmsg2(debuglevel, "Insert hp->next={:p} hp->hash={:#x}\n", hp->next, hp->hash);
 
   if (++num_items >= max_items) {
     Dmsg2(debuglevel, "num_items={} max_items={}\n", num_items, max_items);

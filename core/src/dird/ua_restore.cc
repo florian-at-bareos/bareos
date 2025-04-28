@@ -1301,7 +1301,7 @@ static bool BuildDirectoryTree(UaContext* ua, RestoreContext* rx)
     if (OK) {
       for (tree_node* node = FirstTreeNode(tree.root); node;
            node = NextTreeNode(node)) {
-        Dmsg2(400, "FI={} node=0x{:x}\n", node->FileIndex, node);
+        Dmsg2(400, "FI={} node={:p}\n", node->FileIndex, node);
         if (node->extract) {
           Dmsg3(400, "JobId={} type={} FI={}\n", (uint64_t)node->JobId,
                 node->type, node->FileIndex);

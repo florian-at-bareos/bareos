@@ -289,7 +289,7 @@ class lzo_compressor {
     memset(lzoMem, 0, LZO1X_1_MEM_COMPRESS);
     lzo_uint len = 0;
 
-    Dmsg3(400, "cbuf=0x{:x} rbuf=0x{:x} len={}\n", output, input, size);
+    Dmsg3(400, "cbuf={:p} rbuf={:p} len={}\n", output, input, size);
 
     int lzores = lzo1x_1_compress(
         reinterpret_cast<const unsigned char*>(input), size,
@@ -632,7 +632,7 @@ static bool compress_with_zlib(JobControlRecord* jcr,
   int zstat;
   z_stream* pZlibStream;
 
-  Dmsg3(400, "cbuf=0x{:x} rbuf=0x{:x} len={}\n", cbuf, rbuf, rsize);
+  Dmsg3(400, "cbuf={:p} rbuf={:p} len={}\n", cbuf, rbuf, rsize);
 
   pZlibStream = (z_stream*)jcr->compress.workset.pZLIB;
   pZlibStream->next_in = (Bytef*)rbuf;
@@ -673,7 +673,7 @@ static bool compress_with_lzo(JobControlRecord* jcr,
   int lzores;
   lzo_uint len = 0;
 
-  Dmsg3(400, "cbuf=0x{:x} rbuf=0x{:x} len={}\n", cbuf, rbuf, rsize);
+  Dmsg3(400, "cbuf={:p} rbuf={:p} len={}\n", cbuf, rbuf, rsize);
 
   lzores = lzo1x_1_compress((const unsigned char*)rbuf, rsize, cbuf, &len,
                             jcr->compress.workset.pLZO);
@@ -703,7 +703,7 @@ static bool compress_with_fastlz(JobControlRecord* jcr,
   int zstat;
   zfast_stream* pZfastStream;
 
-  Dmsg3(400, "cbuf=0x{:x} rbuf=0x{:x} len={}\n", cbuf, rbuf, rsize);
+  Dmsg3(400, "cbuf={:p} rbuf={:p} len={}\n", cbuf, rbuf, rsize);
 
   pZfastStream = (zfast_stream*)jcr->compress.workset.pZFAST;
   pZfastStream->next_in = (Bytef*)rbuf;
@@ -1049,8 +1049,8 @@ bool DecompressData(JobControlRecord* jcr,
       unser_uint16(comp_version);
       UnserEnd(*data, sizeof(comp_stream_header));
       Dmsg4(400,
-            "Compressed data stream found: magic=0x{:x}, len={}, level={}, "
-            "ver=0x{:x}\n",
+            "Compressed data stream found: magic={:#x}, len={}, level={}, "
+            "ver={:#x}\n",
             comp_magic, comp_len, comp_level, comp_version);
 
       // Version check

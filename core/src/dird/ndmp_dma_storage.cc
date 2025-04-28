@@ -105,7 +105,7 @@ int get_tape_info_cb(struct ndm_session* sess,
 #  ifndef NDMOS_OPTION_NO_NDMP3
           if (sess->plumb.tape->protocol_version == 3) {
             attr = dc->v3attr.value;
-            Dmsg1(100, "      attr       0x{:x}\n", attr);
+            Dmsg1(100, "      attr       {:#x}\n", attr);
             if (attr & NDMP3_TAPE_ATTR_REWIND) Dmsg0(100, "        REWIND\n");
             if (attr & NDMP3_TAPE_ATTR_UNLOAD) Dmsg0(100, "        UNLOAD\n");
           }
@@ -113,7 +113,7 @@ int get_tape_info_cb(struct ndm_session* sess,
 #  ifndef NDMOS_OPTION_NO_NDMP4
           if (sess->plumb.tape->protocol_version == 4) {
             attr = dc->v4attr.value;
-            Dmsg1(100, "      attr       0x{:x}\n", attr);
+            Dmsg1(100, "      attr       {:#x}\n", attr);
             if (attr & NDMP4_TAPE_ATTR_REWIND) Dmsg0(100, "        REWIND\n");
             if (attr & NDMP4_TAPE_ATTR_UNLOAD) Dmsg0(100, "        UNLOAD\n");
           }

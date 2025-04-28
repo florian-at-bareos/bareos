@@ -481,7 +481,7 @@ try_again:
   if (ua->cmd[0] == 0 || bstrncasecmp(ua->cmd, NT_("yes"), strlen(ua->cmd))
       || bstrncasecmp(ua->cmd, T_("yes"), strlen(ua->cmd))) {
     JobId_t JobId;
-    Dmsg1(800, "Calling RunJob job={:x}\n", jcr->dir_impl->res.job);
+    Dmsg1(800, "Calling RunJob job={:p}\n", jcr->dir_impl->res.job);
 
   start_job:
     Dmsg3(100, "JobId={} using pool {} priority={}\n", (int)jcr->JobId,

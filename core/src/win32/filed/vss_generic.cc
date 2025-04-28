@@ -308,7 +308,7 @@ static inline bool HandleVolumeMountPoint(
     } else {
       Dmsg3(
           200,
-          "{} with vmp {} could not be added to snapshotset, COM ERROR: 0x{:X}\n",
+          "{} with vmp {} could not be added to snapshotset, COM ERROR: {:#X}\n",
           pvol.c_str(), utf8_mp.c_str(), hr);
     }
   } else {
