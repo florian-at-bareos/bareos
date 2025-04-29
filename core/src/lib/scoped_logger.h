@@ -96,14 +96,16 @@ public:
     : spdlog::logger(std::move(other)), mutex_() {}
 
   template<class... Args>
-  void debug(spdlog::format_string_t<typename fixed_format<Args>::type...> str, Args&&... args) {
-    std::unique_lock lock(mutex_);
-    spdlog::logger::debug(str, FixFormatArg(args)...);
+  void debug(spdlog::format_string_t<typename fixed_format<Args>::type...>, Args&&...) {
+    spdlog::logger::debug("test message");
+    // std::unique_lock lock(mutex_);
+    // spdlog::logger::debug(str, FixFormatArg(args)...);
   }
   template<class... Args>
-  void debug(const char* str, Args&&... args) {
-    std::unique_lock lock(mutex_);
-    spdlog::logger::debug(fmt::runtime(str), FixFormatArg(args)...);
+  void debug(const char*, Args&&...) {
+    spdlog::logger::debug("test message");
+    // std::unique_lock lock(mutex_);
+    // spdlog::logger::debug(fmt::runtime(str), FixFormatArg(args)...);
   }
 
   std::shared_mutex mutex_;
