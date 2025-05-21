@@ -106,23 +106,30 @@ static std::string GetStringFromPyErrorHandler()
   tracebackModule = PyImport_ImportModule("traceback");
   if (tracebackModule != NULL) {
     PyObject *tbList, *emptyString, *strRetval;
-
-    tbList = PyObject_CallMethod(tracebackModule, (char*)"format_exception",
-                                 (char*)"OOO", type,
-                                 value == NULL ? Py_None : value,
-                                 traceback == NULL ? Py_None : traceback);
-
-    emptyString = PyUnicode_FromString("");
-    strRetval
-        = PyObject_CallMethod(emptyString, (char*)"join", (char*)"O", tbList);
-
-    if (const char* err = PyUnicode_AsUTF8(strRetval)) {
-      error_string = err;
+    if ((tbList = PyObject_CallMethod(tracebackModule, (char*)"format_exception",
+                                      (char*)"OOO", type,
+                                      value == NULL ? Py_None : value,
+                                      traceback == NULL ? Py_None : traceback))) {
+      if ((emptyString = PyUnicode_FromString(""))) {
+        if ((strRetval = PyObject_CallMethod(emptyString, (char*)"join", (char*)"O", tbList))) {
+          if (const char* err = PyUnicode_AsUTF8(strRetval)) {
+            error_string = err;
+          }
+          else {
+            error_string = "Unspecified error, retrieving error message failed.";
+          }
+        }
+        else {
+          error_string = "Calling method 'join' failed.";
+        }
+      }
+      else {
+        error_string = "Unable to retrieve empty-string.";
+      }
     }
     else {
-      error_string = "Unspecified error, retrieving error message failed.";
+      error_string = "Calling method 'format_exception' failed.";
     }
-
     Py_DECREF(tbList);
     Py_DECREF(emptyString);
     Py_DECREF(strRetval);
