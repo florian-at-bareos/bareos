@@ -105,7 +105,7 @@ static std::string GetStringFromPyErrorHandler()
 
   tracebackModule = PyImport_ImportModule("traceback");
   if (tracebackModule != NULL) {
-    PyObject *tbList, *emptyString, *strRetval;
+    PyObject *tbList = nullptr, *emptyString = nullptr, *strRetval = nullptr;
     if ((tbList = PyObject_CallMethod(tracebackModule, (char*)"format_exception",
                                       (char*)"OOO", type,
                                       value == NULL ? Py_None : value,
